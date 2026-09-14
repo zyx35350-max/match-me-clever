@@ -44,6 +44,16 @@ function Dashboard() {
     .filter((j): j is NonNullable<typeof j> => Boolean(j))
     .slice(0, 3);
 
+  if (!top) {
+    return (
+      <AppShell>
+        <p className="rounded-2xl border border-ink/10 bg-card p-6 text-sm text-ink/60">
+          No roles to score yet.
+        </p>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       <div className="grid grid-cols-12 gap-6">
