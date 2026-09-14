@@ -4,7 +4,7 @@ import office from "@/assets/office.jpg";
 import { AppShell } from "@/components/app-shell";
 import { BreakdownGrid, MatchRow, ScoreBar } from "@/components/match-parts";
 import { formatSalary, labelMode, rankJobs } from "@/lib/matching";
-import { statusLabel, useWorkspace } from "@/lib/store";
+import { useWorkspace } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -276,5 +276,3 @@ export function relative(iso: string) {
   if (hours < 48) return "Yesterday";
   return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
-
-export { statusLabel };
