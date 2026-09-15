@@ -207,11 +207,13 @@ export interface UserFeedback {
   at: string;
 }
 
+export type LearningRatingKey = Exclude<keyof LearningProfile, "interestedSkills">;
+
 export interface ProfileSuggestion {
   id: string;
   message: string;
   because: string;
   /** Direction to raise interest in, when the suggestion is accepted. */
   directionId?: string | undefined;
-  interestKey?: keyof LearningProfile | undefined;
+  interestKey?: LearningRatingKey | undefined;
 }
