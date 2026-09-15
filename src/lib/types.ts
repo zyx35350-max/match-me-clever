@@ -19,19 +19,49 @@ export interface Profile {
   seniority: Seniority;
 }
 
+export type EmploymentType = "fulltime" | "parttime";
+
+/** Tags that trigger negative matching signals. */
+export type NegativeTag =
+  | "pure_sales"
+  | "customer_service"
+  | "data_entry"
+  | "repetitive"
+  | "no_growth"
+  | "unpaid_overtime";
+
 export interface Job {
   id: string;
   title: string;
+  /** Original-language title when the listing is not in English. */
+  titleOriginal?: string;
   company: string;
   location: string;
   workMode: WorkMode;
+  employmentType?: EmploymentType;
   salaryMin: number;
   salaryMax: number;
+  /** Free-form pay note for part-time / project work. */
+  salaryNote?: string;
   skills: string[];
   seniority: Seniority;
   postedDaysAgo: number;
   summary: string;
+  /** Original-language description when the listing is not in English. */
+  summaryOriginal?: string;
   responsibilities: string[];
+  industry?: string;
+  /** Career direction id this listing belongs to. */
+  careerDirection?: string;
+  aiRelevance?: number;
+  growthPotential?: number;
+  portfolioValue?: number;
+  repetitiveWorkRisk?: number;
+  overtimeRisk?: number;
+  negativeTags?: NegativeTag[];
+  source?: string;
+  sourceUrl?: string;
+  language?: "en" | "zh";
 }
 
 export type ApplicationStatus =
