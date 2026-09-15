@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
-import { MatchRow, WhyItFits } from "@/components/match-parts";
-import { rankJobs } from "@/lib/matching";
-import { useWorkspace } from "@/lib/store";
+import { CareerMatchCard, ExplanationBlock } from "@/components/career-match-card";
+import { useCareer } from "@/lib/use-career";
 
 export const Route = createFileRoute("/today")({
   head: () => ({
@@ -25,45 +24,59 @@ export const Route = createFileRoute("/today")({
 });
 
 function TodayPage() {
-  const { profile, jobs } = useWorkspace();
-  const ranked = rankJobs(
-    profile,
-    jobs.filter((j) => j.postedDaysAgo <= 2),
-  );
-  const [lead, ...rest] = ranked;
+  const { matches } = useCareer();
+  const shortlist = matches
+    .filter((m) => m.job.postedDaysAgo <= 3 && !m.notRecommended)
+    .slice(0, 4);
+  const [lead, ...rest] = shortlist;
 
   return (
     <AppShell>
       <PageHeading
         eyebrow="Today"
-        title={`${ranked.length} new roles scored`}
-        description="Roles posted in the last 48 hours, ranked by fit. Reviewed items stay in Matching."
+        title="Today's opportunities worth your attention"
+        description="A deliberately short list. Each one is scored for how easily you could land it and how much it moves your direction forward."
       />
 
       {lead ? (
         <div className="mb-6 rounded-2xl border border-ink/10 bg-card p-6">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">
-                Best fit today
+                Highest priority today
               </div>
-              <h2 className="mt-1 font-display text-2xl font-bold">{lead.job.title}</h2>
+              <h2 className="mt-1 font-display text-2xl font-bold">
+                {lead.job.titleOriginal ?? lead.job.title}
+              </h2>
               <div className="text-sm text-ink/60">
-                {lead.job.company} · {lead.job.location}
+                {lead.job.company} · {lead.job.location} ·{" "}
+                {lead.job.employmentType === "parttime" ? "Part-time" : "Full-time"}
               </div>
             </div>
-            <div className="text-right">
-              <div className="font-display text-4xl font-extrabold text-azure">{lead.score}%</div>
-              <div className="text-[11px] tracking-[0.2em] text-ink/50 uppercase">match</div>
+            <div className="flex gap-6 text-right">
+              <div>
+                <div className="font-display text-3xl font-extrabold text-azure">{lead.immediateFit}</div>
+                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">Immediate fit</div>
+              </div>
+              <div>
+                <div className="font-display text-3xl font-extrabold text-ochre">
+                  {lead.careerGrowthValue}
+                </div>
+                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">Growth value</div>
+              </div>
             </div>
           </div>
-          <WhyItFits match={lead} />
+          <ExplanationBlock match={lead} />
         </div>
-      ) : null}
+      ) : (
+        <p className="rounded-2xl border border-ink/10 bg-card p-6 text-sm text-ink/60">
+          Nothing new worth your attention today.
+        </p>
+      )}
 
       <div className="space-y-3">
         {rest.map((match) => (
-          <MatchRow key={match.job.id} match={match} />
+          <CareerMatchCard key={match.job.id} match={match} compact />
         ))}
       </div>
     </AppShell>
