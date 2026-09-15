@@ -64,7 +64,7 @@ function ActivityPage() {
                       </Link>
                       <div className="text-xs text-ink/55">
                         {job.company} · applied{" "}
-                        {new Date(app.appliedAt).toLocaleDateString(undefined, {
+                        {new Date(app.appliedAt).toLocaleDateString("en-GB", {
                           day: "numeric",
                           month: "short",
                         })}
@@ -109,7 +109,7 @@ function ActivityPage() {
                   />
                   <div className="text-sm font-semibold">{entry.label}</div>
                   <div className="text-xs text-cream/50">
-                    {new Date(entry.at).toLocaleString(undefined, {
+                    {new Date(entry.at).toLocaleString("en-GB", {
                       day: "numeric",
                       month: "short",
                       hour: "2-digit",

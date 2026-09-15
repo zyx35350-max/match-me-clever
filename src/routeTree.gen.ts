@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActivityRouteImport } from './routes/activity'
+import { Route as DirectionsRouteImport } from './routes/directions'
 import { Route as MatchingRouteImport } from './routes/matching'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as SavedRouteImport } from './routes/saved'
@@ -25,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const ActivityRoute = ActivityRouteImport.update({
   id: '/activity',
   path: '/activity',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DirectionsRoute = DirectionsRouteImport.update({
+  id: '/directions',
+  path: '/directions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatchingRoute = MatchingRouteImport.update({
@@ -56,6 +62,7 @@ const JobsJobIdRoute = JobsJobIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
+  '/directions': typeof DirectionsRoute
   '/matching': typeof MatchingRoute
   '/profile': typeof ProfileRoute
   '/saved': typeof SavedRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
+  '/directions': typeof DirectionsRoute
   '/matching': typeof MatchingRoute
   '/profile': typeof ProfileRoute
   '/saved': typeof SavedRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
+  '/directions': typeof DirectionsRoute
   '/matching': typeof MatchingRoute
   '/profile': typeof ProfileRoute
   '/saved': typeof SavedRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/activity'
+    | '/directions'
     | '/matching'
     | '/profile'
     | '/saved'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/activity'
+    | '/directions'
     | '/matching'
     | '/profile'
     | '/saved'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/activity'
+    | '/directions'
     | '/matching'
     | '/profile'
     | '/saved'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivityRoute: typeof ActivityRoute
+  DirectionsRoute: typeof DirectionsRoute
   MatchingRoute: typeof MatchingRoute
   ProfileRoute: typeof ProfileRoute
   SavedRoute: typeof SavedRoute
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/activity'
       fullPath: '/activity'
       preLoaderRoute: typeof ActivityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/directions': {
+      id: '/directions'
+      path: '/directions'
+      fullPath: '/directions'
+      preLoaderRoute: typeof DirectionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matching': {
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
+  DirectionsRoute: DirectionsRoute,
   MatchingRoute: MatchingRoute,
   ProfileRoute: ProfileRoute,
   SavedRoute: SavedRoute,

@@ -8,16 +8,28 @@ import {
   type ReactNode,
 } from "react";
 
-import { defaultProfile, mockJobs } from "./mock-jobs";
+import { defaultCareerProfile } from "./career-data";
+import { allJobs } from "./career-jobs";
+import type {
+  CareerProfile,
+  FeedbackAction,
+  ProfileSuggestion,
+  UserFeedback,
+} from "./career-types";
+import { buildSuggestions, feedbackLabel } from "./career-engine";
+import { defaultProfile } from "./mock-jobs";
 import type { ActivityEntry, Application, ApplicationStatus, Job, Profile } from "./types";
 
 const KEY = "solstice-workspace-v1";
 
 interface Persisted {
   profile: Profile;
+  career: CareerProfile;
   saved: string[];
   applications: Application[];
   activity: ActivityEntry[];
+  feedback: UserFeedback[];
+  dismissedSuggestions: string[];
 }
 
 const seedActivity: ActivityEntry[] = [
@@ -52,6 +64,9 @@ const seedActivity: ActivityEntry[] = [
 
 const initial: Persisted = {
   profile: defaultProfile,
+  career: defaultCareerProfile,
+  feedback: [],
+  dismissedSuggestions: [],
   saved: ["cobalt-head-of-design", "vela-principal-product-designer"],
   applications: [
     {
@@ -71,7 +86,13 @@ const initial: Persisted = {
 interface Store extends Persisted {
   jobs: Job[];
   hydrated: boolean;
+  suggestions: ProfileSuggestion[];
   updateProfile: (next: Profile) => void;
+  updateCareer: (next: CareerProfile) => void;
+  recordFeedback: (job: Job, action: FeedbackAction) => void;
+  feedbackFor: (jobId: string) => FeedbackAction | undefined;
+  acceptSuggestion: (suggestion: ProfileSuggestion) => void;
+  dismissSuggestion: (id: string) => void;
   toggleSaved: (job: Job) => void;
   isSaved: (jobId: string) => boolean;
   apply: (job: Job) => void;
@@ -188,19 +209,122 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     [log],
   );
 
+  const updateCareer = useCallback(
+    (next: CareerProfile) => {
+      setState((prev) => ({ ...prev, career: next }));
+      log({
+        jobId: "",
+        jobTitle: "",
+        company: "",
+        kind: "profile",
+        label: "Career profile updated — directions and matches re-scored",
+      });
+    },
+    [log],
+  );
+
+  const recordFeedback = useCallback(
+    (job: Job, action: FeedbackAction) => {
+      setState((prev) => ({
+        ...prev,
+        feedback: [
+          {
+            id: newId(),
+            jobId: job.id,
+            jobTitle: job.title,
+            action,
+            ...(job.careerDirection ? { directionId: job.careerDirection } : {}),
+            at: new Date().toISOString(),
+          },
+          ...prev.feedback.filter((f) => !(f.jobId === job.id && f.action === action)),
+        ].slice(0, 120),
+      }));
+      if (action !== "viewed") {
+        log({
+          jobId: job.id,
+          jobTitle: job.title,
+          company: job.company,
+          kind: "feedback",
+          label: `${feedbackLabel(action)} — ${job.title}`,
+        });
+      }
+    },
+    [log],
+  );
+
+  const acceptSuggestion = useCallback(
+    (suggestion: ProfileSuggestion) => {
+      setState((prev) => {
+        const key = suggestion.interestKey;
+        const career = key
+          ? {
+              ...prev.career,
+              learning: {
+                ...prev.career.learning,
+                [key]: Math.min(5, prev.career.learning[key] + 1),
+              },
+            }
+          : prev.career;
+        return {
+          ...prev,
+          career: career as CareerProfile,
+          dismissedSuggestions: [...prev.dismissedSuggestions, suggestion.id],
+        };
+      });
+      log({
+        jobId: "",
+        jobTitle: "",
+        company: "",
+        kind: "profile",
+        label: "You confirmed a career profile suggestion",
+      });
+    },
+    [log],
+  );
+
+  const dismissSuggestion = useCallback((id: string) => {
+    setState((prev) => ({ ...prev, dismissedSuggestions: [...prev.dismissedSuggestions, id] }));
+  }, []);
+
+  const suggestions = useMemo(
+    () =>
+      buildSuggestions(state.career, state.feedback, allJobs).filter(
+        (s) => !state.dismissedSuggestions.includes(s.id),
+      ),
+    [state.career, state.feedback, state.dismissedSuggestions],
+  );
+
   const value = useMemo<Store>(
     () => ({
       ...state,
-      jobs: mockJobs,
+      jobs: allJobs,
       hydrated,
+      suggestions,
       updateProfile,
+      updateCareer,
+      recordFeedback,
+      feedbackFor: (id) => state.feedback.find((f) => f.jobId === id && f.action !== "viewed")?.action,
+      acceptSuggestion,
+      dismissSuggestion,
       toggleSaved,
       isSaved: (id) => state.saved.includes(id),
       apply,
       setStatus,
       statusFor: (id) => state.applications.find((a) => a.jobId === id)?.status,
     }),
-    [state, hydrated, updateProfile, toggleSaved, apply, setStatus],
+    [
+      state,
+      hydrated,
+      suggestions,
+      updateProfile,
+      updateCareer,
+      recordFeedback,
+      acceptSuggestion,
+      dismissSuggestion,
+      toggleSaved,
+      apply,
+      setStatus,
+    ],
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
+import { CareerProfileEditor } from "@/components/career-profile-editor";
 import { formatSalary } from "@/lib/matching";
 import { useWorkspace } from "@/lib/store";
 import type { Profile, Seniority, WorkMode } from "@/lib/types";
@@ -43,7 +44,7 @@ function ProfilePage() {
 
   const save = () => {
     updateProfile(draft);
-    setSavedAt(new Date().toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }));
+    setSavedAt(new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }));
   };
 
   return (
@@ -247,6 +248,10 @@ function ProfilePage() {
             </button>
           </section>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <CareerProfileEditor />
       </div>
     </AppShell>
   );

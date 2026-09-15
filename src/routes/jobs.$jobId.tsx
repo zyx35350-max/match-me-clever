@@ -2,6 +2,9 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { AppShell } from "@/components/app-shell";
 import { BreakdownGrid, FitBadge, ScoreBar, WhyItFits } from "@/components/match-parts";
+import { ExplanationBlock } from "@/components/career-match-card";
+import { matchJob } from "@/lib/career-engine";
+import { directionScoreMap } from "@/lib/career-engine";
 import { formatSalary, labelMode, scoreJob } from "@/lib/matching";
 import { statusLabel, useWorkspace } from "@/lib/store";
 
@@ -26,7 +29,8 @@ export const Route = createFileRoute("/jobs/$jobId")({
 
 function JobDetail() {
   const { jobId } = Route.useParams();
-  const { profile, jobs, isSaved, toggleSaved, apply, statusFor } = useWorkspace();
+  const { profile, career, jobs, isSaved, toggleSaved, apply, statusFor, recordFeedback } =
+    useWorkspace();
   const job = jobs.find((j) => j.id === jobId);
 
   if (!job) {
@@ -47,6 +51,7 @@ function JobDetail() {
   }
 
   const match = scoreJob(profile, job);
+  const careerMatch = matchJob({ career, profile, directionScores: directionScoreMap(career) }, job);
   const status = statusFor(job.id);
 
   return (
@@ -59,14 +64,17 @@ function JobDetail() {
         <div className="col-span-12 space-y-6 lg:col-span-8">
           <div className="rounded-2xl bg-sand p-7">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="font-display text-3xl font-extrabold">{job.title}</h1>
+              <h1 className="font-display text-3xl font-extrabold">{job.titleOriginal ?? job.title}</h1>
               <FitBadge score={match.score} />
             </div>
             <div className="mt-1 text-sm text-ink/60">
               {job.company} · {job.location} · {labelMode(job.workMode)} ·{" "}
               {formatSalary(job.salaryMin)}–{formatSalary(job.salaryMax)}
             </div>
-            <p className="mt-4 max-w-2xl text-ink/75">{job.summary}</p>
+            <p className="mt-4 max-w-2xl text-ink/75">{job.summaryOriginal ?? job.summary}</p>
+            {job.summaryOriginal ? (
+              <p className="mt-2 max-w-2xl text-sm text-ink/55">{job.summary}</p>
+            ) : null}
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <button
                 onClick={() => apply(job)}
@@ -86,7 +94,49 @@ function JobDetail() {
 
           <section className="rounded-2xl border border-ink/10 bg-card p-6">
             <h2 className="mb-4 text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">
-              Why this fits you
+              AI assessment
+            </h2>
+            <div className="mb-4 flex flex-wrap gap-6">
+              <div>
+                <div className="font-display text-3xl font-extrabold text-azure">
+                  {careerMatch.immediateFit}
+                </div>
+                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">Immediate fit</div>
+              </div>
+              <div>
+                <div className="font-display text-3xl font-extrabold text-ochre">
+                  {careerMatch.careerGrowthValue}
+                </div>
+                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">
+                  Career growth value
+                </div>
+              </div>
+              {careerMatch.notRecommended ? (
+                <span className="self-center rounded-full bg-ochre/20 px-2.5 py-1 text-[11px] font-semibold text-ochre">
+                  Not Recommended
+                </span>
+              ) : null}
+            </div>
+            <ExplanationBlock match={careerMatch} />
+            <div className="mt-5 flex flex-wrap gap-2">
+              <button
+                onClick={() => recordFeedback(job, "not_for_me")}
+                className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold text-ink/60 hover:bg-sand"
+              >
+                Not for me
+              </button>
+              <button
+                onClick={() => recordFeedback(job, "dismissed")}
+                className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold text-ink/60 hover:bg-sand"
+              >
+                Dismiss
+              </button>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-ink/10 bg-card p-6">
+            <h2 className="mb-4 text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">
+              Profile score breakdown
             </h2>
             <div className="mb-4">
               <div className="mb-1 flex justify-between text-xs font-medium">
