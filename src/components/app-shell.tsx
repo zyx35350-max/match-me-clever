@@ -7,6 +7,7 @@ import { useWorkspace } from "@/lib/store";
 const navItems = [
   { to: "/", label: "Dashboard" },
   { to: "/profile", label: "Profile" },
+  { to: "/directions", label: "Directions" },
   { to: "/matching", label: "Matching" },
   { to: "/today", label: "Today" },
   { to: "/saved", label: "Saved" },

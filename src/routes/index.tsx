@@ -30,7 +30,7 @@ function Dashboard() {
   const ranked = rankJobs(profile, jobs);
   const top = ranked[0];
   const next = ranked.slice(1, 3);
-  const today = new Date().toLocaleDateString(undefined, {
+  const today = new Date().toLocaleDateString("en-GB", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -65,7 +65,7 @@ function Dashboard() {
                   {today}
                 </div>
                 <h1 className="font-display text-4xl leading-none font-extrabold">
-                  Good morning, {profile.name.split(" ")[0]}
+                  Your career workspace
                 </h1>
                 <p className="mt-3 max-w-md text-ink/70">
                   {fresh} roles posted in the last two days were scored against your profile. Your
@@ -272,7 +272,7 @@ export function relative(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const hours = Math.round(diff / 3_600_000);
   if (hours < 1) return "Just now";
-  if (hours < 24) return `Today · ${new Date(iso).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}`;
+  if (hours < 24) return `Today · ${new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
   if (hours < 48) return "Yesterday";
-  return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
