@@ -5,6 +5,8 @@ import { AppShell } from "@/components/app-shell";
 import { BreakdownGrid, MatchRow, ScoreBar } from "@/components/match-parts";
 import { formatSalary, labelMode, rankJobs } from "@/lib/matching";
 import { useWorkspace } from "@/lib/store";
+import { useCareer } from "@/lib/use-career";
+import { feedbackLabel } from "@/lib/career-engine";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,7 +28,10 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const { profile, jobs, activity, applications, saved } = useWorkspace();
+  const { profile, jobs, activity, applications, saved, feedback, suggestions, acceptSuggestion, dismissSuggestion } =
+    useWorkspace();
+  const { matches, topDirection, aiProfile } = useCareer();
+  const todayPicks = matches.filter((m) => m.job.postedDaysAgo <= 3 && !m.notRecommended).slice(0, 2);
   const ranked = rankJobs(profile, jobs);
   const top = ranked[0];
   const next = ranked.slice(1, 3);
@@ -162,6 +167,120 @@ function Dashboard() {
             <StatCard label="Applications" value={applications.length} note={`${inReview} in review`} />
             <StatCard label="Interviews" value={interviews} note="Scheduled" tone="azure" />
             <StatCard label="Offers" value={offers} note="In hand" tone="ochre" />
+          </div>
+
+          <div className="rounded-2xl border border-ink/10 bg-card p-6">
+            <div className="text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">
+              AI insight
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-ink/75">
+              Your strongest current advantage is the combination of e-commerce operations, product
+              research and hands-on AI tools. You have strong transferable skills for AI-related
+              roles, but formal AI project evidence is currently a gap.
+            </p>
+            <p className="mt-3 text-sm text-ink/65">
+              <span className="font-semibold">Best current direction:</span>{" "}
+              {topDirection ? `${topDirection.direction.name} (${topDirection.score}/100 AI assessment)` : "—"}
+            </p>
+            <p className="mt-2 text-xs text-ink/55">{aiProfile.identityHypothesis}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                to="/directions"
+                className="rounded-lg bg-ink px-3 py-1.5 text-xs font-semibold text-cream hover:bg-azure-deep"
+              >
+                Explore directions
+              </Link>
+              <Link
+                to="/matching"
+                className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold hover:bg-sand"
+              >
+                Open AI career profile
+              </Link>
+            </div>
+          </div>
+
+          {suggestions.length ? (
+            <div className="rounded-2xl border border-azure/30 bg-azure/8 p-5">
+              {suggestions.map((s) => (
+                <div key={s.id} className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="max-w-md text-sm font-semibold">{s.message}</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => acceptSuggestion(s)}
+                      className="rounded-lg bg-azure px-3 py-1.5 text-xs font-semibold text-cream"
+                    >
+                      Yes, update
+                    </button>
+                    <button
+                      onClick={() => dismissSuggestion(s.id)}
+                      className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold"
+                    >
+                      Keep as is
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="space-y-3">
+            <div className="mb-1 flex items-center justify-between">
+              <h2 className="font-display text-xl font-bold">Today's recommended jobs</h2>
+              <Link to="/today" className="text-sm font-semibold text-azure">
+                Open today
+              </Link>
+            </div>
+            {todayPicks.map((m) => (
+              <div
+                key={m.job.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-card p-5"
+              >
+                <div className="min-w-[220px] flex-1">
+                  <Link
+                    to="/jobs/$jobId"
+                    params={{ jobId: m.job.id }}
+                    className="font-display font-bold hover:text-azure"
+                  >
+                    {m.job.titleOriginal ?? m.job.title}
+                  </Link>
+                  <div className="text-xs text-ink/55">
+                    {m.job.company} · {m.direction?.name ?? "Exploration"}
+                  </div>
+                  <p className="mt-1 text-[13px] text-ink/70">{m.explanation.recommendation}</p>
+                </div>
+                <div className="flex gap-5 text-right text-sm">
+                  <div>
+                    <div className="font-display text-lg font-bold text-azure">{m.immediateFit}</div>
+                    <div className="text-[10px] tracking-[0.15em] text-ink/50 uppercase">Fit</div>
+                  </div>
+                  <div>
+                    <div className="font-display text-lg font-bold text-ochre">
+                      {m.careerGrowthValue}
+                    </div>
+                    <div className="text-[10px] tracking-[0.15em] text-ink/50 uppercase">Growth</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-2xl bg-sand p-5">
+            <div className="text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">
+              Recent feedback
+            </div>
+            {feedback.length === 0 ? (
+              <p className="mt-2 text-sm text-ink/60">
+                No feedback yet — save, apply or mark “not for me” and the assistant starts learning.
+              </p>
+            ) : (
+              <ul className="mt-2 space-y-1 text-sm text-ink/70">
+                {feedback.slice(0, 4).map((f) => (
+                  <li key={f.id}>
+                    {feedbackLabel(f.action)} — {f.jobTitle}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div className="space-y-3">
