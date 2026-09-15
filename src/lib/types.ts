@@ -77,7 +77,7 @@ export interface ActivityEntry {
   jobId: string;
   jobTitle: string;
   company: string;
-  kind: "saved" | "unsaved" | "applied" | "status" | "profile";
+  kind: "saved" | "unsaved" | "applied" | "status" | "profile" | "feedback";
   label: string;
   at: string; // ISO
 }
