@@ -466,7 +466,7 @@ function explain(args: {
   career: CareerProfile;
   job: Job;
   track: EmploymentType;
-  direction?: CareerDirection;
+  direction: CareerDirection | undefined;
   matchedSkills: string[];
   missingSkills: string[];
   negatives: NegativeSignal[];
@@ -586,7 +586,7 @@ export function buildSuggestions(
     const direction = getDirection(dirId);
     if (!direction || count < 2) continue;
     const key = direction.interestKeys[0];
-    if (profile.learning[key] >= 5) continue;
+    if (!key || profile.learning[key] >= 5) continue;
     suggestions.push({
       id: `sug-${dirId}`,
       message: `Based on your recent choices, you seem increasingly interested in ${direction.name} roles. Would you like to update your career profile?`,

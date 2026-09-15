@@ -184,7 +184,7 @@ export interface JobMatch {
   notRecommended: boolean;
   matchedSkills: string[];
   missingSkills: string[];
-  direction?: CareerDirection;
+  direction: CareerDirection | undefined;
   explanation: JobExplanation;
 }
 
@@ -212,6 +212,6 @@ export interface ProfileSuggestion {
   message: string;
   because: string;
   /** Direction to raise interest in, when the suggestion is accepted. */
-  directionId?: string;
-  interestKey?: keyof LearningProfile;
+  directionId?: string | undefined;
+  interestKey?: keyof LearningProfile | undefined;
 }
