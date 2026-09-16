@@ -64,6 +64,23 @@ export interface Job {
   language?: "en" | "zh";
 }
 
+/** Canonical concept metadata added under a listing; never replaces originals. */
+export interface JobNormalization {
+  canonicalSkills: string[];
+  canonicalResponsibilities: string[];
+  canonicalCareerDirections: string[];
+  normalizedTitleConcepts: string[];
+  normalizedIndustryConcepts: string[];
+}
+
+/** A listing with its source wording preserved plus canonical concepts. */
+export interface NormalizedJob extends Job {
+  originalTitle: string;
+  originalDescription: string;
+  originalLanguage: "en" | "zh";
+  normalized: JobNormalization;
+}
+
 export type ApplicationStatus =
   | "saved"
   | "applied"
@@ -89,20 +106,3 @@ export interface Application {
   notes?: string;
 }
 
-export interface ScoreBreakdown {
-  skills: number;
-  salary: number;
-  location: number;
-  title: number;
-}
-
-export interface MatchResult {
-  job: Job;
-  score: number;
-  breakdown: ScoreBreakdown;
-  matchedSkills: string[];
-  missingSkills: string[];
-  reasons: string[];
-  gaps: string[];
-  summary: string;
-}
