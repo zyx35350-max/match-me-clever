@@ -3,9 +3,8 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { BreakdownGrid, FitBadge, ScoreBar, WhyItFits } from "@/components/match-parts";
 import { ExplanationBlock } from "@/components/career-match-card";
-import { matchJob } from "@/lib/career-engine";
-import { directionScoreMap } from "@/lib/career-engine";
-import { formatSalary, labelMode, scoreJob } from "@/lib/matching";
+import { buildMatchContext, calculateJobMatch } from "@/lib/career-engine";
+import { formatSalary, labelMode } from "@/lib/matching";
 import { statusLabel, useWorkspace } from "@/lib/store";
 
 export const Route = createFileRoute("/jobs/$jobId")({
@@ -50,8 +49,9 @@ function JobDetail() {
     );
   }
 
-  const match = scoreJob(profile, job);
-  const careerMatch = matchJob({ career, profile, directionScores: directionScoreMap(career) }, job);
+  // Same authoritative engine as every list view — one score per job.
+  const match = calculateJobMatch(buildMatchContext(career, profile), job);
+  const careerMatch = match;
   const status = statusFor(job.id);
 
   return (
