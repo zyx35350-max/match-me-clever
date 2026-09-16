@@ -1,51 +1,15 @@
+import { conceptKey } from "./concepts";
 import type { CareerDirection, CareerProfile } from "./career-types";
 
 /**
- * Bilingual concept map. Matching happens on the canonical English concept,
- * while the UI always keeps the original job title and description.
+ * Concept normalization lives in ./concepts (canonical bilingual taxonomy).
+ * Re-exported here so existing call sites keep working.
  */
-const CONCEPTS: Record<string, string> = {
-  产品设计: "Product Design",
-  产品运营: "Product Operations",
-  产品经理: "Product Management",
-  跨境电商: "Cross-border E-commerce",
-  海外市场研究: "Overseas Market Research",
-  市场研究: "Market Research",
-  ai视觉: "AI Visual",
-  ai绘图: "AI Visual",
-  选品: "Product Selection",
-  产品开发: "Product Development",
-  竞品分析: "Competitor Analysis",
-  "listing优化": "Listing Optimization",
-  电商运营: "E-commerce Operations",
-  广告投放: "Advertising Operations",
-  广告运营: "Advertising Operations",
-  数据监控: "Data Monitoring",
-  数据分析: "Data Analysis",
-  供应链: "Supply Chain Coordination",
-  库存管理: "Supply Chain Coordination",
-  短视频剪辑: "Short Video Editing",
-  视频剪辑: "Short Video Editing",
-  内容运营: "Content Operations",
-  文案: "Copywriting",
-  自动化: "Automation",
-  提示词: "Prompt Engineering",
-  编程: "Basic Programming",
-  客服: "Customer Service",
-  销售: "Sales",
-  数据录入: "Data Entry",
-};
-
-/** Normalize any skill / concept term to its canonical English form. */
 export function normalizeConcept(term: string) {
-  const raw = term.trim();
-  const key = raw.toLowerCase();
-  return (CONCEPTS[raw] ?? CONCEPTS[key] ?? raw).toLowerCase();
+  return conceptKey(term);
 }
 
-export function sameConcept(a: string, b: string) {
-  return normalizeConcept(a) === normalizeConcept(b);
-}
+export { sameConcept } from "./concepts";
 
 export const defaultCareerProfile: CareerProfile = {
   basics: {

@@ -336,10 +336,81 @@ function detectNegatives(profile: CareerProfile, job: Job): NegativeSignal[] {
 
 export interface MatchContext {
   career: CareerProfile;
+  /** Legacy compatibility profile, derived from `career` (salary floor etc.). */
   profile: Profile;
   directionScores: Record<string, number>;
 }
 
+/** Build the match context from the authoritative career profile. */
+export function buildMatchContext(career: CareerProfile, profile: Profile): MatchContext {
+  return { career, profile, directionScores: directionScoreMap(career) };
+}
+
+/**
+ * How suitable the job is for the user *today*: proven skills, relevant
+ * experience, preferences and practicalities, minus deal-breaker friction.
+ */
+export function calculateImmediateFit(breakdown: JobMatchBreakdown, penalty: number) {
+  return clamp(
+    breakdown.skillMatch * 0.35 +
+      breakdown.relevantExperience * 0.3 +
+      breakdown.workPreference * 0.15 +
+      breakdown.salary * 0.1 +
+      breakdown.location * 0.1 -
+      penalty * 0.4,
+  );
+}
+
+interface GrowthInputs {
+  breakdown: JobMatchBreakdown;
+  penalty: number;
+  track: EmploymentType;
+  /** New ground the role would open up. */
+  skillAcquisition: number;
+  portfolio: number;
+  industryOutlook: number;
+  workEnvironment: number;
+  stability: number;
+  flexibility: number;
+  lowCommitment: number;
+  income: number;
+}
+
+/**
+ * Long-term career value. Full-time uses the V1 career framework (career fit,
+ * growth, industry outlook, skill acquisition, transferable skills, AI
+ * relevance, salary, work environment, stability) with salary deliberately
+ * small. Part-time uses the portfolio-weighted model.
+ */
+export function calculateCareerGrowthValue(i: GrowthInputs) {
+  const { breakdown: b, penalty } = i;
+  if (i.track === "parttime") {
+    return clamp(
+      i.skillAcquisition * 0.25 +
+        i.portfolio * 0.2 +
+        b.directionFit * 0.2 +
+        b.aiRelevance * 0.15 +
+        i.flexibility * 0.1 +
+        i.income * 0.05 +
+        i.lowCommitment * 0.05 -
+        penalty * 0.6,
+    );
+  }
+  return clamp(
+    b.directionFit * 0.2 +
+      b.growthPotential * 0.2 +
+      i.industryOutlook * 0.1 +
+      i.skillAcquisition * 0.15 +
+      b.transferableSkills * 0.1 +
+      b.aiRelevance * 0.1 +
+      b.salary * 0.05 +
+      i.workEnvironment * 0.05 +
+      i.stability * 0.05 -
+      penalty * 0.6,
+  );
+}
+
+/** The single authoritative per-job scorer used by every page. */
 export function matchJob(ctx: MatchContext, job: Job): JobMatch {
   const { career, profile, directionScores } = ctx;
   const track: EmploymentType = job.employmentType ?? "fulltime";
@@ -395,14 +466,7 @@ export function matchJob(ctx: MatchContext, job: Job): JobMatch {
   );
   const overall = clamp(raw - penalty);
 
-  const immediateFit = clamp(
-    breakdown.skillMatch * 0.35 +
-      breakdown.relevantExperience * 0.3 +
-      breakdown.workPreference * 0.15 +
-      breakdown.salary * 0.1 +
-      breakdown.location * 0.1 -
-      penalty * 0.4,
-  );
+  const immediateFit = calculateImmediateFit(breakdown, penalty);
 
   const portfolio = job.portfolioValue ?? 45;
   const skillAcquisition = clamp(
@@ -411,24 +475,30 @@ export function matchJob(ctx: MatchContext, job: Job): JobMatch {
   const flexibility = job.workMode === "remote" ? 90 : job.workMode === "hybrid" ? 70 : 40;
   const lowCommitment = 100 - Math.min(100, (job.overtimeRisk ?? 30) + 20);
   const income = track === "parttime" ? clamp((job.salaryMax / 9000) * 100) : breakdown.salary;
-
-  const careerGrowthValue = clamp(
-    track === "parttime"
-      ? skillAcquisition * 0.25 +
-          portfolio * 0.2 +
-          breakdown.directionFit * 0.2 +
-          breakdown.aiRelevance * 0.15 +
-          flexibility * 0.1 +
-          income * 0.05 +
-          lowCommitment * 0.05 -
-          penalty * 0.6
-      : breakdown.directionFit * 0.25 +
-          breakdown.growthPotential * 0.25 +
-          skillAcquisition * 0.2 +
-          breakdown.aiRelevance * 0.2 +
-          portfolio * 0.1 -
-          penalty * 0.6,
+  // Proxies for signals the mock listings don't state outright.
+  const industryOutlook = clamp((job.aiRelevance ?? 30) * 0.5 + (job.growthPotential ?? 55) * 0.5);
+  const workEnvironment = clamp(
+    (100 - (job.overtimeRisk ?? 30)) * 0.6 + breakdown.workPreference * 0.4,
   );
+  const stability = clamp(
+    (track === "parttime" ? 45 : 85) -
+      (job.repetitiveWorkRisk ?? 30) * 0.2 -
+      (negatives.length ? 10 : 0),
+  );
+
+  const careerGrowthValue = calculateCareerGrowthValue({
+    breakdown,
+    penalty,
+    track,
+    skillAcquisition,
+    portfolio,
+    industryOutlook,
+    workEnvironment,
+    stability,
+    flexibility,
+    lowCommitment,
+    income,
+  });
 
   const notRecommended = negatives.some((n) => n.isDealBreaker) || overall < 30;
 
@@ -610,3 +680,8 @@ export function feedbackLabel(action: FeedbackAction) {
     accepted: "Accepted",
   }[action];
 }
+
+// -------------------------------------------------------------- public names
+/** Canonical entry points. Pages must use these rather than local formulas. */
+export const calculateJobMatch = matchJob;
+export const calculateCareerDirectionScore = assessDirection;

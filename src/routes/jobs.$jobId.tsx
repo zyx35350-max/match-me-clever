@@ -3,9 +3,8 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { BreakdownGrid, FitBadge, ScoreBar, WhyItFits } from "@/components/match-parts";
 import { ExplanationBlock } from "@/components/career-match-card";
-import { matchJob } from "@/lib/career-engine";
-import { directionScoreMap } from "@/lib/career-engine";
-import { formatSalary, labelMode, scoreJob } from "@/lib/matching";
+import { buildMatchContext, calculateJobMatch } from "@/lib/career-engine";
+import { formatSalary, labelMode } from "@/lib/matching";
 import { statusLabel, useWorkspace } from "@/lib/store";
 
 export const Route = createFileRoute("/jobs/$jobId")({
@@ -50,8 +49,9 @@ function JobDetail() {
     );
   }
 
-  const match = scoreJob(profile, job);
-  const careerMatch = matchJob({ career, profile, directionScores: directionScoreMap(career) }, job);
+  // Same authoritative engine as every list view — one score per job.
+  const match = calculateJobMatch(buildMatchContext(career, profile), job);
+  const careerMatch = match;
   const status = statusFor(job.id);
 
   return (
@@ -65,7 +65,7 @@ function JobDetail() {
           <div className="rounded-2xl bg-sand p-7">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-display text-3xl font-extrabold">{job.titleOriginal ?? job.title}</h1>
-              <FitBadge score={match.score} />
+              <FitBadge score={match.overall} />
             </div>
             <div className="mt-1 text-sm text-ink/60">
               {job.company} · {job.location} · {labelMode(job.workMode)} ·{" "}
@@ -140,10 +140,10 @@ function JobDetail() {
             </h2>
             <div className="mb-4">
               <div className="mb-1 flex justify-between text-xs font-medium">
-                <span className="text-ink/60">{match.summary}</span>
-                <span className="font-semibold text-azure">{match.score}%</span>
+                <span className="text-ink/60">{match.explanation.recommendation}</span>
+                <span className="font-semibold text-azure">{match.overall}%</span>
               </div>
-              <ScoreBar value={match.score} />
+              <ScoreBar value={match.overall} />
             </div>
             <WhyItFits match={match} />
           </section>

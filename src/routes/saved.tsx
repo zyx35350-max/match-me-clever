@@ -2,8 +2,8 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
 import { MatchRow } from "@/components/match-parts";
-import { scoreJob } from "@/lib/matching";
 import { useWorkspace } from "@/lib/store";
+import { useCareer } from "@/lib/use-career";
 
 export const Route = createFileRoute("/saved")({
   head: () => ({
@@ -24,12 +24,10 @@ export const Route = createFileRoute("/saved")({
 });
 
 function SavedPage() {
-  const { profile, jobs, saved } = useWorkspace();
-  const matches = saved
-    .map((id) => jobs.find((j) => j.id === id))
-    .filter((j): j is NonNullable<typeof j> => Boolean(j))
-    .map((job) => scoreJob(profile, job))
-    .sort((a, b) => b.score - a.score);
+  const { saved } = useWorkspace();
+  // Same authoritative matches as every other page, filtered to the shortlist.
+  const { matches: all } = useCareer();
+  const matches = all.filter((m) => saved.includes(m.job.id));
 
   return (
     <AppShell>

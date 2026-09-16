@@ -3,7 +3,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import office from "@/assets/office.jpg";
 import { AppShell } from "@/components/app-shell";
 import { BreakdownGrid, MatchRow, ScoreBar } from "@/components/match-parts";
-import { formatSalary, labelMode, rankJobs } from "@/lib/matching";
+import { formatSalary, labelMode } from "@/lib/matching";
 import { useWorkspace } from "@/lib/store";
 import { useCareer } from "@/lib/use-career";
 import { feedbackLabel } from "@/lib/career-engine";
@@ -28,11 +28,22 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const { profile, jobs, activity, applications, saved, feedback, suggestions, acceptSuggestion, dismissSuggestion } =
-    useWorkspace();
+  const {
+    profile,
+    jobs,
+    activity,
+    applications,
+    saved,
+    feedback,
+    suggestions,
+    acceptSuggestion,
+    dismissSuggestion,
+    hydrated,
+  } = useWorkspace();
+  // One authoritative ranking, shared with Today, Matching, Saved and details.
   const { matches, topDirection, aiProfile } = useCareer();
   const todayPicks = matches.filter((m) => m.job.postedDaysAgo <= 3 && !m.notRecommended).slice(0, 2);
-  const ranked = rankJobs(profile, jobs);
+  const ranked = matches;
   const top = ranked[0];
   const next = ranked.slice(1, 3);
   const today = new Date().toLocaleDateString("en-GB", {
@@ -74,7 +85,8 @@ function Dashboard() {
                 </h1>
                 <p className="mt-3 max-w-md text-ink/70">
                   {fresh} roles posted in the last two days were scored against your profile. Your
-                  strongest fit right now is {top.score}%.
+                  strongest fit right now is {top.immediateFit}, with growth value{" "}
+                  {top.careerGrowthValue}.
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -104,7 +116,7 @@ function Dashboard() {
                 </span>
                 <span className="h-1.5 w-1.5 rounded-full bg-ochre" />
               </div>
-              <div className="text-xs font-semibold text-azure">{top.score}% match</div>
+              <div className="text-xs font-semibold text-azure">{top.overall} overall</div>
             </div>
             <div className="flex flex-col gap-5 sm:flex-row">
               <img
@@ -122,7 +134,7 @@ function Dashboard() {
                     params={{ jobId: top.job.id }}
                     className="font-display text-xl font-bold hover:text-azure"
                   >
-                    {top.job.title}
+                    {top.job.titleOriginal ?? top.job.title}
                   </Link>
                   <span className="rounded-full bg-sage/20 px-2 py-0.5 text-xs font-semibold text-sage">
                     {labelMode(top.job.workMode)}
@@ -135,13 +147,15 @@ function Dashboard() {
                 <div className="mt-4 space-y-3">
                   <div>
                     <div className="mb-1 flex justify-between text-xs font-medium">
-                      <span className="text-ink/60">Why this fits you</span>
-                      <span className="font-semibold text-azure">{top.score}%</span>
+                      <span className="text-ink/60">
+                        Immediate fit {top.immediateFit} · growth value {top.careerGrowthValue}
+                      </span>
+                      <span className="font-semibold text-azure">{top.overall}%</span>
                     </div>
-                    <ScoreBar value={top.score} />
+                    <ScoreBar value={top.overall} />
                   </div>
                   <div className="border-l-2 border-ochre pl-3 text-[13px] leading-relaxed text-ink/70">
-                    {top.summary} {top.reasons[0]}
+                    {top.explanation.fits[0]} {top.explanation.tradeoff}
                   </div>
                 </div>
               </div>
@@ -312,7 +326,9 @@ function Dashboard() {
                     }`}
                   />
                   <div className="text-sm font-semibold">{entry.label}</div>
-                  <div className="text-xs text-cream/50">{relative(entry.at)}</div>
+                  <div className="text-xs text-cream/50">
+                    {hydrated ? relative(entry.at) : ""}
+                  </div>
                 </div>
               ))}
             </div>

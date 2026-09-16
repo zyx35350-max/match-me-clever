@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 import { fitLabel, formatSalary, labelMode } from "@/lib/matching";
 import { statusLabel, useWorkspace } from "@/lib/store";
-import type { MatchResult } from "@/lib/types";
+import type { JobMatch } from "@/lib/career-types";
 
 export function ScoreBar({ value, tone = "azure" }: { value: number; tone?: "azure" | "ochre" | "sage" }) {
   const bg = tone === "ochre" ? "bg-ochre" : tone === "sage" ? "bg-sage" : "bg-azure";
@@ -27,8 +27,8 @@ export function FitBadge({ score }: { score: number }) {
   );
 }
 
-export function MatchRow({ match }: { match: MatchResult }) {
-  const { job, score } = match;
+export function MatchRow({ match }: { match: JobMatch }) {
+  const { job, overall } = match;
   const { isSaved, toggleSaved, statusFor } = useWorkspace();
   const status = statusFor(job.id);
 
@@ -41,11 +41,16 @@ export function MatchRow({ match }: { match: MatchResult }) {
             params={{ jobId: job.id }}
             className="font-display font-bold hover:text-azure"
           >
-            {job.title}
+            {job.titleOriginal ?? job.title}
           </Link>
           <span className="rounded-full bg-sand px-2 py-0.5 text-[11px] font-semibold text-ink/60">
             {labelMode(job.workMode)}
           </span>
+          {match.notRecommended ? (
+            <span className="rounded-full bg-ochre/20 px-2 py-0.5 text-[11px] font-semibold text-ochre">
+              Not Recommended
+            </span>
+          ) : null}
           {status ? (
             <span className="rounded-full bg-azure/12 px-2 py-0.5 text-[11px] font-semibold text-azure">
               {statusLabel(status)}
@@ -53,15 +58,26 @@ export function MatchRow({ match }: { match: MatchResult }) {
           ) : null}
         </div>
         <div className="mt-0.5 text-xs text-ink/55">
-          {job.company} · {job.location} · {formatSalary(job.salaryMin)}–
-          {formatSalary(job.salaryMax)}
+          {job.company} · {job.location} ·{" "}
+          {job.salaryNote ?? `${formatSalary(job.salaryMin)}–${formatSalary(job.salaryMax)}`}
         </div>
-        <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-ink/70">{match.reasons[0]}</p>
+        <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-ink/70">
+          {match.explanation.fits[0]}
+        </p>
       </div>
-      <div className="w-28">
-        <div className="text-right font-display text-lg font-bold text-azure">{score}%</div>
+      <div className="w-32">
+        <div className="flex justify-end gap-3 text-right">
+          <div>
+            <div className="font-display text-lg font-bold text-azure">{match.immediateFit}</div>
+            <div className="text-[10px] tracking-[0.12em] text-ink/50 uppercase">Fit</div>
+          </div>
+          <div>
+            <div className="font-display text-lg font-bold text-ochre">{match.careerGrowthValue}</div>
+            <div className="text-[10px] tracking-[0.12em] text-ink/50 uppercase">Growth</div>
+          </div>
+        </div>
         <div className="mt-1">
-          <ScoreBar value={score} />
+          <ScoreBar value={overall} />
         </div>
       </div>
       <div className="flex items-center gap-2">
@@ -83,16 +99,16 @@ export function MatchRow({ match }: { match: MatchResult }) {
   );
 }
 
-export function WhyItFits({ match }: { match: MatchResult }) {
+export function WhyItFits({ match }: { match: JobMatch }) {
   return (
     <div className="space-y-2">
-      {match.reasons.map((reason) => (
+      {match.explanation.fits.map((reason) => (
         <div key={reason} className="flex gap-2 text-[13px] leading-relaxed text-ink/75">
           <span className="mt-px font-semibold text-azure">+</span>
           <span>{reason}</span>
         </div>
       ))}
-      {match.gaps.map((gap) => (
+      {match.explanation.concerns.map((gap) => (
         <div key={gap} className="flex gap-2 text-[13px] leading-relaxed text-ink/60">
           <span className="mt-px font-semibold text-ochre">−</span>
           <span>{gap}</span>
@@ -102,12 +118,19 @@ export function WhyItFits({ match }: { match: MatchResult }) {
   );
 }
 
-export function BreakdownGrid({ match }: { match: MatchResult }) {
+/** The nine weighted components of the authoritative match model. */
+export function BreakdownGrid({ match }: { match: JobMatch }) {
+  const b = match.breakdown;
   const rows: Array<[string, number, "azure" | "ochre" | "sage"]> = [
-    ["Skill overlap (50%)", match.breakdown.skills, "ochre"],
-    ["Salary fit (20%)", match.breakdown.salary, "azure"],
-    ["Location & mode (15%)", match.breakdown.location, "sage"],
-    ["Title & level (15%)", match.breakdown.title, "azure"],
+    ["Career direction fit (20%)", b.directionFit, "ochre"],
+    ["Skill match (20%)", b.skillMatch, "azure"],
+    ["Relevant experience (15%)", b.relevantExperience, "sage"],
+    ["Growth potential (15%)", b.growthPotential, "ochre"],
+    ["AI relevance (10%)", b.aiRelevance, "azure"],
+    ["Transferable skills (8%)", b.transferableSkills, "sage"],
+    ["Work preference (5%)", b.workPreference, "azure"],
+    ["Salary (4%)", b.salary, "ochre"],
+    ["Location / work mode (3%)", b.location, "sage"],
   ];
   return (
     <div className="space-y-3">
@@ -120,6 +143,12 @@ export function BreakdownGrid({ match }: { match: MatchResult }) {
           <ScoreBar value={value} tone={tone} />
         </div>
       ))}
+      {match.negatives.length ? (
+        <div className="pt-1 text-xs text-ochre">
+          {match.negatives.map((n) => `−${n.penalty} ${n.label}`).join(" · ")}
+        </div>
+      ) : null}
+      <p className="pt-1 text-[11px] text-ink/45">AI assessment, not an exact measurement.</p>
     </div>
   );
 }

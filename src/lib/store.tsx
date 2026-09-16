@@ -17,13 +17,25 @@ import type {
   UserFeedback,
 } from "./career-types";
 import { buildSuggestions, feedbackLabel } from "./career-engine";
-import { defaultProfile } from "./mock-jobs";
-import type { ActivityEntry, Application, ApplicationStatus, Job, Profile } from "./types";
+import { defaultIdentity, deriveLegacyProfile, type ProfileIdentity } from "./profile-bridge";
+import type {
+  ActivityEntry,
+  Application,
+  ApplicationStatus,
+  Job,
+  NormalizedJob,
+  Profile,
+} from "./types";
 
 const KEY = "solstice-workspace-v1";
 
 interface Persisted {
-  profile: Profile;
+  /**
+   * Compatibility identity only (display name, headline, salary floor).
+   * `career` is the single authoritative profile — the flat `Profile` shape is
+   * derived from it, never stored separately.
+   */
+  identity: ProfileIdentity;
   career: CareerProfile;
   saved: string[];
   applications: Application[];
@@ -35,47 +47,47 @@ interface Persisted {
 const seedActivity: ActivityEntry[] = [
   {
     id: "seed-3",
-    jobId: "lumen-senior-product-designer",
-    jobTitle: "Senior Product Designer",
-    company: "Lumen Studio",
+    jobId: "shiro-ai-ecommerce-operations",
+    jobTitle: "AI E-commerce Operations Specialist",
+    company: "Shiro Global",
     kind: "applied",
-    label: "Applied to Senior Product Designer",
+    label: "Applied to AI E-commerce Operations Specialist",
     at: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
   },
   {
     id: "seed-2",
-    jobId: "northwind-lead-ux-engineer",
-    jobTitle: "Lead UX Engineer",
-    company: "Northwind Labs",
+    jobId: "beacon-ai-product-research",
+    jobTitle: "AI Product Research Associate",
+    company: "Beacon Labs",
     kind: "status",
-    label: "Status moved to In review — Northwind Labs",
+    label: "Status moved to In review — Beacon Labs",
     at: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
   },
   {
     id: "seed-1",
-    jobId: "cobalt-head-of-design",
-    jobTitle: "Head of Design",
-    company: "Cobalt",
+    jobId: "yuanli-ai-visual-designer",
+    jobTitle: "AI Visual Creation Specialist",
+    company: "Yuanli Studio",
     kind: "saved",
-    label: "Saved Head of Design",
+    label: "Saved AI Visual Creation Specialist",
     at: new Date(Date.now() - 1000 * 60 * 60 * 52).toISOString(),
   },
 ];
 
 const initial: Persisted = {
-  profile: defaultProfile,
+  identity: defaultIdentity,
   career: defaultCareerProfile,
   feedback: [],
   dismissedSuggestions: [],
-  saved: ["cobalt-head-of-design", "vela-principal-product-designer"],
+  saved: ["pivot-ai-prompt-project", "yuanli-ai-visual-designer"],
   applications: [
     {
-      jobId: "lumen-senior-product-designer",
+      jobId: "shiro-ai-ecommerce-operations",
       status: "applied",
       appliedAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
     },
     {
-      jobId: "northwind-lead-ux-engineer",
+      jobId: "beacon-ai-product-research",
       status: "in_review",
       appliedAt: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
     },
@@ -84,7 +96,9 @@ const initial: Persisted = {
 };
 
 interface Store extends Persisted {
-  jobs: Job[];
+  jobs: NormalizedJob[];
+  /** Derived compatibility view of `career`. Read-only source of truth: career. */
+  profile: Profile;
   hydrated: boolean;
   suggestions: ProfileSuggestion[];
   updateProfile: (next: Profile) => void;
@@ -106,6 +120,24 @@ function newId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+/** Older saves stored a full flat profile (including a demo persona). */
+function migrate(raw: string): Persisted {
+  const parsed = JSON.parse(raw) as Partial<Persisted> & { profile?: Partial<Profile> };
+  const legacy = parsed.profile;
+  const identity: ProfileIdentity = parsed.identity ?? {
+    name:
+      legacy?.name && legacy.name !== "Maya Okonkwo" ? legacy.name : defaultIdentity.name,
+    headline:
+      legacy?.headline && legacy.headline !== "Product Designer"
+        ? legacy.headline
+        : defaultIdentity.headline,
+    minSalary: legacy?.minSalary ?? defaultIdentity.minSalary,
+  };
+  const next = { ...initial, ...parsed, identity } as Persisted & { profile?: unknown };
+  delete next.profile;
+  return next;
+}
+
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<Persisted>(initial);
   const [hydrated, setHydrated] = useState(false);
@@ -113,7 +145,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(KEY);
-      if (raw) setState({ ...initial, ...(JSON.parse(raw) as Persisted) });
+      if (raw) setState(migrate(raw));
     } catch {
       /* ignore malformed storage */
     }
@@ -135,9 +167,61 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const recordFeedback = useCallback(
+    (job: Job, action: FeedbackAction) => {
+      setState((prev) => ({
+        ...prev,
+        feedback: [
+          {
+            id: newId(),
+            jobId: job.id,
+            jobTitle: job.title,
+            action,
+            ...(job.careerDirection ? { directionId: job.careerDirection } : {}),
+            at: new Date().toISOString(),
+          },
+          ...prev.feedback.filter((f) => !(f.jobId === job.id && f.action === action)),
+        ].slice(0, 120),
+      }));
+      if (action !== "viewed") {
+        log({
+          jobId: job.id,
+          jobTitle: job.title,
+          company: job.company,
+          kind: "feedback",
+          label: `${feedbackLabel(action)} — ${job.title}`,
+        });
+      }
+    },
+    [log],
+  );
+
+  /**
+   * The flat profile is a compatibility view. Edits are written back onto the
+   * authoritative career profile (or the display identity), so no second
+   * profile can drift out of sync.
+   */
   const updateProfile = useCallback(
     (next: Profile) => {
-      setState((prev) => ({ ...prev, profile: next }));
+      setState((prev) => ({
+        ...prev,
+        identity: {
+          name: next.name,
+          headline: next.headline,
+          minSalary: next.minSalary,
+        },
+        career: {
+          ...prev.career,
+          basics: {
+            ...prev.career.basics,
+            workMode: next.workModePreference,
+            preferredLocations: [
+              next.location,
+              ...prev.career.basics.preferredLocations.slice(1),
+            ],
+          },
+        },
+      }));
       log({
         jobId: "",
         jobTitle: "",
@@ -186,8 +270,15 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         kind: "applied",
         label: `Applied to ${job.title} — ${job.company}`,
       });
+      recordFeedback(job, "applied");
     },
-    [log],
+    [log, recordFeedback],
+  );
+
+  /** Application statuses that are also behavioural signals. */
+  const STATUS_FEEDBACK: Partial<Record<ApplicationStatus, FeedbackAction>> = useMemo(
+    () => ({ applied: "applied", interview: "interview", rejected: "rejected", offer: "accepted" }),
+    [],
   );
 
   const setStatus = useCallback(
@@ -205,8 +296,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         kind: "status",
         label: `Status moved to ${statusLabel(status)} — ${job.company}`,
       });
+      const action = STATUS_FEEDBACK[status];
+      if (action) recordFeedback(job, action);
     },
-    [log],
+    [log, recordFeedback, STATUS_FEEDBACK],
   );
 
   const updateCareer = useCallback(
@@ -219,35 +312,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         kind: "profile",
         label: "Career profile updated — directions and matches re-scored",
       });
-    },
-    [log],
-  );
-
-  const recordFeedback = useCallback(
-    (job: Job, action: FeedbackAction) => {
-      setState((prev) => ({
-        ...prev,
-        feedback: [
-          {
-            id: newId(),
-            jobId: job.id,
-            jobTitle: job.title,
-            action,
-            ...(job.careerDirection ? { directionId: job.careerDirection } : {}),
-            at: new Date().toISOString(),
-          },
-          ...prev.feedback.filter((f) => !(f.jobId === job.id && f.action === action)),
-        ].slice(0, 120),
-      }));
-      if (action !== "viewed") {
-        log({
-          jobId: job.id,
-          jobTitle: job.title,
-          company: job.company,
-          kind: "feedback",
-          label: `${feedbackLabel(action)} — ${job.title}`,
-        });
-      }
     },
     [log],
   );
@@ -294,10 +358,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     [state.career, state.feedback, state.dismissedSuggestions],
   );
 
+  const profile = useMemo(
+    () => deriveLegacyProfile(state.career, state.identity),
+    [state.career, state.identity],
+  );
+
   const value = useMemo<Store>(
     () => ({
       ...state,
       jobs: allJobs,
+      profile,
       hydrated,
       suggestions,
       updateProfile,
@@ -314,6 +384,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     }),
     [
       state,
+      profile,
       hydrated,
       suggestions,
       updateProfile,
