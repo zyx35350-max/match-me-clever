@@ -466,14 +466,7 @@ export function matchJob(ctx: MatchContext, job: Job): JobMatch {
   );
   const overall = clamp(raw - penalty);
 
-  const immediateFit = clamp(
-    breakdown.skillMatch * 0.35 +
-      breakdown.relevantExperience * 0.3 +
-      breakdown.workPreference * 0.15 +
-      breakdown.salary * 0.1 +
-      breakdown.location * 0.1 -
-      penalty * 0.4,
-  );
+  const immediateFit = calculateImmediateFit(breakdown, penalty);
 
   const portfolio = job.portfolioValue ?? 45;
   const skillAcquisition = clamp(
@@ -482,24 +475,30 @@ export function matchJob(ctx: MatchContext, job: Job): JobMatch {
   const flexibility = job.workMode === "remote" ? 90 : job.workMode === "hybrid" ? 70 : 40;
   const lowCommitment = 100 - Math.min(100, (job.overtimeRisk ?? 30) + 20);
   const income = track === "parttime" ? clamp((job.salaryMax / 9000) * 100) : breakdown.salary;
-
-  const careerGrowthValue = clamp(
-    track === "parttime"
-      ? skillAcquisition * 0.25 +
-          portfolio * 0.2 +
-          breakdown.directionFit * 0.2 +
-          breakdown.aiRelevance * 0.15 +
-          flexibility * 0.1 +
-          income * 0.05 +
-          lowCommitment * 0.05 -
-          penalty * 0.6
-      : breakdown.directionFit * 0.25 +
-          breakdown.growthPotential * 0.25 +
-          skillAcquisition * 0.2 +
-          breakdown.aiRelevance * 0.2 +
-          portfolio * 0.1 -
-          penalty * 0.6,
+  // Proxies for signals the mock listings don't state outright.
+  const industryOutlook = clamp((job.aiRelevance ?? 30) * 0.5 + (job.growthPotential ?? 55) * 0.5);
+  const workEnvironment = clamp(
+    (100 - (job.overtimeRisk ?? 30)) * 0.6 + breakdown.workPreference * 0.4,
   );
+  const stability = clamp(
+    (track === "parttime" ? 45 : 85) -
+      (job.repetitiveWorkRisk ?? 30) * 0.2 -
+      (negatives.length ? 10 : 0),
+  );
+
+  const careerGrowthValue = calculateCareerGrowthValue({
+    breakdown,
+    penalty,
+    track,
+    skillAcquisition,
+    portfolio,
+    industryOutlook,
+    workEnvironment,
+    stability,
+    flexibility,
+    lowCommitment,
+    income,
+  });
 
   const notRecommended = negatives.some((n) => n.isDealBreaker) || overall < 30;
 
