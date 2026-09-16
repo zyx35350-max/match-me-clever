@@ -3,7 +3,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import office from "@/assets/office.jpg";
 import { AppShell } from "@/components/app-shell";
 import { BreakdownGrid, MatchRow, ScoreBar } from "@/components/match-parts";
-import { formatSalary, labelMode, rankJobs } from "@/lib/matching";
+import { formatSalary, labelMode } from "@/lib/matching";
 import { useWorkspace } from "@/lib/store";
 import { useCareer } from "@/lib/use-career";
 import { feedbackLabel } from "@/lib/career-engine";
@@ -28,11 +28,22 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const { profile, jobs, activity, applications, saved, feedback, suggestions, acceptSuggestion, dismissSuggestion } =
-    useWorkspace();
+  const {
+    profile,
+    jobs,
+    activity,
+    applications,
+    saved,
+    feedback,
+    suggestions,
+    acceptSuggestion,
+    dismissSuggestion,
+    hydrated,
+  } = useWorkspace();
+  // One authoritative ranking, shared with Today, Matching, Saved and details.
   const { matches, topDirection, aiProfile } = useCareer();
   const todayPicks = matches.filter((m) => m.job.postedDaysAgo <= 3 && !m.notRecommended).slice(0, 2);
-  const ranked = rankJobs(profile, jobs);
+  const ranked = matches;
   const top = ranked[0];
   const next = ranked.slice(1, 3);
   const today = new Date().toLocaleDateString("en-GB", {
