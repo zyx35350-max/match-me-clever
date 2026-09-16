@@ -13,12 +13,12 @@ export { sameConcept } from "./concepts";
 
 export const defaultCareerProfile: CareerProfile = {
   basics: {
-    education: "Bachelor's degree",
-    yearsExperience: 4,
+    education: "Associate degree",
+    yearsExperience: 1,
     careerStage: "Early-mid career, changing direction",
-    preferredLocations: ["Remote", "Shenzhen", "Guangzhou"],
+    preferredLocations: ["Shenzhen", "Huiyang", "Zhuhai"],
     relocation: "Open to relocation for the right direction",
-    workMode: "remote",
+    workMode: "any",
     languages: ["Chinese (native)", "English (working)"],
   },
   skills: [
