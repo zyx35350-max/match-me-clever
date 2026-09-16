@@ -680,3 +680,8 @@ export function feedbackLabel(action: FeedbackAction) {
     accepted: "Accepted",
   }[action];
 }
+
+// -------------------------------------------------------------- public names
+/** Canonical entry points. Pages must use these rather than local formulas. */
+export const calculateJobMatch = matchJob;
+export const calculateCareerDirectionScore = assessDirection;

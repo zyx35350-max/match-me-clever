@@ -1,5 +1,6 @@
+import { normalizeJobConcepts } from "./job-normalize";
 import { mockJobs } from "./mock-jobs";
-import type { Job } from "./types";
+import type { Job, NormalizedJob } from "./types";
 
 /**
  * Mock listings aimed at the AI-adjacent directions, including bilingual
@@ -350,5 +351,11 @@ function withDefaults(job: Job): Job {
   };
 }
 
-/** Every listing in the workspace: new career-track jobs plus the originals. */
-export const allJobs: Job[] = [...careerJobs.map(withDefaults), ...mockJobs.map(withDefaults)];
+/**
+ * Every listing in the workspace: career-track jobs plus the originals, each
+ * carrying canonical bilingual concept metadata. Original titles and
+ * descriptions are untouched — normalization only adds fields.
+ */
+export const allJobs: NormalizedJob[] = [...careerJobs, ...mockJobs]
+  .map(withDefaults)
+  .map(normalizeJobConcepts);
