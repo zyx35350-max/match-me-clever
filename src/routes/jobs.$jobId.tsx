@@ -65,7 +65,7 @@ function JobDetail() {
           <div className="rounded-2xl bg-sand p-7">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-display text-3xl font-extrabold">{job.titleOriginal ?? job.title}</h1>
-              <FitBadge score={match.score} />
+              <FitBadge score={match.overall} />
             </div>
             <div className="mt-1 text-sm text-ink/60">
               {job.company} · {job.location} · {labelMode(job.workMode)} ·{" "}
@@ -140,10 +140,10 @@ function JobDetail() {
             </h2>
             <div className="mb-4">
               <div className="mb-1 flex justify-between text-xs font-medium">
-                <span className="text-ink/60">{match.summary}</span>
-                <span className="font-semibold text-azure">{match.score}%</span>
+                <span className="text-ink/60">{match.explanation.recommendation}</span>
+                <span className="font-semibold text-azure">{match.overall}%</span>
               </div>
-              <ScoreBar value={match.score} />
+              <ScoreBar value={match.overall} />
             </div>
             <WhyItFits match={match} />
           </section>
