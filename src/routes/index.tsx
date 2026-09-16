@@ -326,7 +326,9 @@ function Dashboard() {
                     }`}
                   />
                   <div className="text-sm font-semibold">{entry.label}</div>
-                  <div className="text-xs text-cream/50">{relative(entry.at)}</div>
+                  <div className="text-xs text-cream/50">
+                    {hydrated ? relative(entry.at) : ""}
+                  </div>
                 </div>
               ))}
             </div>
