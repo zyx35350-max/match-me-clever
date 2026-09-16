@@ -3,24 +3,24 @@ import { useMemo, useState } from "react";
 import {
   assessAllDirections,
   buildAICareerProfile,
-  directionScoreMap,
+  buildMatchContext,
   matchJobs,
   type MatchContext,
 } from "./career-engine";
 import { useWorkspace } from "./store";
 import type { EmploymentType } from "./types";
 
-/** Shared derived career data: directions, AI profile hypothesis, job matches. */
+/**
+ * Shared derived career data: directions, AI profile hypothesis, job matches.
+ * Every page reads matches from here, so a job scores the same everywhere.
+ */
 export function useCareer(track?: EmploymentType) {
   const { career, profile, jobs } = useWorkspace();
   const [refreshedAt, setRefreshedAt] = useState(0);
 
   const directions = useMemo(() => assessAllDirections(career), [career]);
 
-  const ctx = useMemo<MatchContext>(
-    () => ({ career, profile, directionScores: directionScoreMap(career) }),
-    [career, profile],
-  );
+  const ctx = useMemo<MatchContext>(() => buildMatchContext(career, profile), [career, profile]);
 
   const matches = useMemo(() => matchJobs(ctx, jobs, track), [ctx, jobs, track]);
 

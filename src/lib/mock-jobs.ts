@@ -1,27 +1,7 @@
-import type { Job, Profile } from "./types";
+import type { Job } from "./types";
 
-export const defaultProfile: Profile = {
-  name: "Maya Okonkwo",
-  headline: "Product Designer",
-  location: "Lisbon, PT",
-  summary:
-    "Product designer with 8 years across design systems, design ops and 0-to-1 product work. Looking for a senior or lead role on a small, focused team.",
-  targetTitles: ["Product Designer", "Design Systems Lead", "UX Engineer"],
-  skills: [
-    { name: "Figma", weight: 5 },
-    { name: "Design Systems", weight: 5 },
-    { name: "Prototyping", weight: 4 },
-    { name: "Design Ops", weight: 4 },
-    { name: "User Research", weight: 3 },
-    { name: "Product Strategy", weight: 3 },
-    { name: "Team Leadership", weight: 3 },
-    { name: "Accessibility", weight: 2 },
-  ],
-  workModePreference: "remote",
-  minSalary: 130000,
-  seniority: "senior",
-};
-
+/** Original V1 mock listings. The demo persona that lived here was removed in
+ * V1.1 — the authoritative profile is `defaultCareerProfile`. */
 export const mockJobs: Job[] = [
   {
     id: "lumen-senior-product-designer",
