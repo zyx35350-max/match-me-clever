@@ -19,19 +19,25 @@ async function main() {
 
   const firstResult = ingestDiscoveredJobs(store, [first]);
   assert.equal(firstResult.records.length, 1);
-  assert.equal(firstResult.records[0].lifecycle.status, "discovered");
+  const firstRecord = firstResult.records[0];
+  assert.ok(firstRecord);
+  assert.equal(firstRecord.lifecycle.status, "discovered");
 
   const duplicate = makeJob("job-1", "2026-09-21T10:00:00.000Z");
   const secondResult = ingestDiscoveredJobs(firstResult, [duplicate]);
   assert.equal(secondResult.records.length, 1);
   assert.equal(secondResult.duplicates.length, 1);
-  assert.equal(secondResult.records[0].lifecycle.status, "active");
-  assert.equal(secondResult.records[0].raw.fetchedAt, duplicate.fetchedAt);
+  const secondRecord = secondResult.records[0];
+  assert.ok(secondRecord);
+  assert.equal(secondRecord.lifecycle.status, "active");
+  assert.equal(secondRecord.raw.fetchedAt, duplicate.fetchedAt);
 
   const secondJob = makeJob("job-2", "2026-09-21T11:00:00.000Z", "AI Product Designer");
   const thirdResult = ingestDiscoveredJobs(secondResult, [secondJob]);
   assert.equal(thirdResult.records.length, 2);
-  assert.equal(thirdResult.records[1].lifecycle.status, "discovered");
+  const thirdRecord = thirdResult.records[1];
+  assert.ok(thirdRecord);
+  assert.equal(thirdRecord.lifecycle.status, "discovered");
 
   console.log("V1.2.2 discovery pipeline acceptance passed.");
 }
