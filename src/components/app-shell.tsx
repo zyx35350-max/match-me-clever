@@ -38,12 +38,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             {navItems.map((item) => (
               <Link
                 key={item.to}
-                to={item.to}
+                to={item.to === "/import" ? "/" : item.to}
                 activeOptions={{ exact: item.to === "/" }}
                 className="rounded-full px-3 py-2 transition-colors hover:bg-sand"
                 activeProps={{ className: "bg-ink text-cream hover:bg-ink" }}
               >
-                {item.label}
+                {item.label === "Import Job" ? <a href="/import">Import Job</a> : item.label}
               </Link>
             ))}
           </nav>
@@ -66,7 +66,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {navItems.map((item) => (
             <Link
               key={item.to}
-              to={item.to}
+              to={item.to === "/import" ? "/" : item.to}
               activeOptions={{ exact: item.to === "/" }}
               className="rounded-full px-3 py-1.5 whitespace-nowrap"
               activeProps={{ className: "bg-ink text-cream" }}
