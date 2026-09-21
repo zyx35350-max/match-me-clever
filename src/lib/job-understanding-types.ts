@@ -14,7 +14,7 @@
  *   two are independent signals.
  */
 
-import type { JobNormalization } from "./types";
+import type { EmploymentType, JobNormalization, WorkMode } from "./types";
 
 export type JobLanguage = "zh" | "en" | "mixed" | "unknown";
 
@@ -46,8 +46,8 @@ export interface JobSemanticExtraction {
   careerDirections: string[];
   experienceRequirements?: string[];
   educationRequirements?: string[];
-  workMode?: string;
-  employmentType?: string;
+  workMode?: WorkMode;
+  employmentType?: EmploymentType;
   languageRequirements?: string[];
   englishRequirement: EnglishRequirement;
   internationalSignals: InternationalSignals;
