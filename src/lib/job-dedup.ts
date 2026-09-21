@@ -86,7 +86,7 @@ export function deduplicateJobs(existingJobs: RawJob[], incomingJobs: RawJob[]):
 }
 
 function normalizeText(value: string): string {
-  return value.trim().replace(/\\s+/g, " ").toLocaleLowerCase();
+  return value.trim().replace(/\s+/g, " ").toLocaleLowerCase();
 }
 
 function normalizeUrl(url: string): string {
@@ -95,9 +95,9 @@ function normalizeUrl(url: string): string {
     parsed.hash = "";
     parsed.search = "";
     parsed.hostname = parsed.hostname.toLowerCase();
-    parsed.pathname = parsed.pathname.replace(/\\/$/, "");
+    parsed.pathname = parsed.pathname.replace(/\/$/, "");
     return parsed.toString();
   } catch {
-    return url.trim().replace(/\\/$/, "").toLowerCase();
+    return url.trim().replace(/\/$/, "").toLowerCase();
   }
 }
