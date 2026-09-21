@@ -4,9 +4,9 @@ import {
   assessAllDirections,
   buildAICareerProfile,
   buildMatchContext,
-  matchJobs,
   type MatchContext,
 } from "./career-engine";
+import { matchJobsWithUnderstanding } from "./job-understanding-matcher";
 import { useWorkspace } from "./store";
 import type { EmploymentType } from "./types";
 
@@ -22,7 +22,10 @@ export function useCareer(track?: EmploymentType) {
 
   const ctx = useMemo<MatchContext>(() => buildMatchContext(career, profile), [career, profile]);
 
-  const matches = useMemo(() => matchJobs(ctx, jobs, track), [ctx, jobs, track]);
+  const matches = useMemo(
+    () => matchJobsWithUnderstanding(ctx, jobs, track),
+    [ctx, jobs, track],
+  );
 
   const aiProfile = useMemo(
     () => buildAICareerProfile(career),
