@@ -4,7 +4,15 @@ import { formatSalary } from "@/lib/matching";
 import { useWorkspace } from "@/lib/store";
 import type { JobMatch } from "@/lib/career-types";
 
-function DualScore({ label, value, tone }: { label: string; value: number; tone: "azure" | "ochre" }) {
+function DualScore({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: "azure" | "ochre";
+}) {
   const color = tone === "azure" ? "text-azure" : "text-ochre";
   const bar = tone === "azure" ? "bg-azure" : "bg-ochre";
   return (
@@ -43,7 +51,9 @@ export function ExplanationBlock({ match }: { match: JobMatch }) {
         </div>
       ))}
       <div>
-        <div className="text-[11px] font-semibold tracking-[0.15em] text-ink/50 uppercase">Career value</div>
+        <div className="text-[11px] font-semibold tracking-[0.15em] text-ink/50 uppercase">
+          Career value
+        </div>
         <p className="mt-1 text-[13px] leading-relaxed text-ink/75">{e.careerValue}</p>
       </div>
       <div className="rounded-xl bg-sand p-3">
@@ -57,7 +67,13 @@ export function ExplanationBlock({ match }: { match: JobMatch }) {
   );
 }
 
-export function CareerMatchCard({ match, compact = false }: { match: JobMatch; compact?: boolean }) {
+export function CareerMatchCard({
+  match,
+  compact = false,
+}: {
+  match: JobMatch;
+  compact?: boolean;
+}) {
   const { job } = match;
   const { isSaved, toggleSaved, apply, recordFeedback, feedbackFor, statusFor } = useWorkspace();
   const feedback = feedbackFor(job.id);
@@ -80,7 +96,9 @@ export function CareerMatchCard({ match, compact = false }: { match: JobMatch; c
               {job.titleOriginal ?? job.title}
             </Link>
             {job.titleOriginal ? (
-              <span className="text-xs text-ink/45">({job.title})</span>
+              <span className="text-xs text-ink/45">
+                ({job.title})
+              </span>
             ) : null}
             <span className="rounded-full bg-sand px-2 py-0.5 text-[11px] font-semibold text-ink/60">
               {job.employmentType === "parttime" ? "Part-time" : "Full-time"}
@@ -163,7 +181,9 @@ export function CareerMatchCard({ match, compact = false }: { match: JobMatch; c
           Not for me
         </button>
         {feedback ? (
-          <span className="text-[11px] font-semibold text-sage">Logged: {feedback.replace("_", " ")}</span>
+          <span className="text-[11px] font-semibold text-sage">
+            Logged: {feedback.replace("_", " ")}
+          </span>
         ) : null}
       </div>
     </div>
