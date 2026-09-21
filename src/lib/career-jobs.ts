@@ -29,8 +29,7 @@ export const careerJobs: Job[] = [
     postedDaysAgo: 0,
     summary:
       "Run cross-border listings with an AI-first toolchain: generated imagery, assisted copy, automated ad reporting.",
-    summaryOriginal:
-      "以AI工具为核心运营跨境店铺：AI生成图、辅助文案、广告数据自动化报表。",
+    summaryOriginal: "以AI工具为核心运营跨境店铺：AI生成图、辅助文案、广告数据自动化报表。",
     responsibilities: [
       "Own listing quality and AI-generated creative for 200+ SKUs",
       "Run assisted keyword and ad iteration weekly",
@@ -90,7 +89,12 @@ export const careerJobs: Job[] = [
     employmentType: "fulltime",
     salaryMin: 70000,
     salaryMax: 100000,
-    skills: ["AI Product Image Generation", "Photoshop", "Prompt Engineering", "Short Video Editing"],
+    skills: [
+      "AI Product Image Generation",
+      "Photoshop",
+      "Prompt Engineering",
+      "Short Video Editing",
+    ],
     seniority: "mid",
     postedDaysAgo: 2,
     summary:
@@ -155,7 +159,12 @@ export const careerJobs: Job[] = [
     employmentType: "fulltime",
     salaryMin: 60000,
     salaryMax: 88000,
-    skills: ["Content Operations", "Short Video Editing", "Copywriting", "Overseas Market Research"],
+    skills: [
+      "Content Operations",
+      "Short Video Editing",
+      "Copywriting",
+      "Overseas Market Research",
+    ],
     seniority: "mid",
     postedDaysAgo: 3,
     summary:
@@ -189,8 +198,7 @@ export const careerJobs: Job[] = [
     skills: ["Prompt Engineering", "Listing Optimization", "AI Product Image Generation"],
     seniority: "mid",
     postedDaysAgo: 0,
-    summary:
-      "Build a reusable AI prompt and copy system for a small brand's 60-SKU catalogue.",
+    summary: "Build a reusable AI prompt and copy system for a small brand's 60-SKU catalogue.",
     responsibilities: [
       "Design the prompt library and tone rules",
       "Ship rewritten copy for 60 listings",
@@ -248,8 +256,7 @@ export const careerJobs: Job[] = [
     skills: ["Short Video Editing", "AI Product Image Generation", "Content Operations"],
     seniority: "mid",
     postedDaysAgo: 2,
-    summary:
-      "Cut AI-assisted product videos in weekly batches for overseas channels.",
+    summary: "Cut AI-assisted product videos in weekly batches for overseas channels.",
     summaryOriginal: "为海外渠道按周批量剪辑AI辅助的产品短视频。",
     responsibilities: [
       "Produce 6-8 short videos per week",
@@ -313,8 +320,7 @@ export const careerJobs: Job[] = [
     skills: ["Sales", "Cross-border E-commerce Operations", "Customer Service"],
     seniority: "mid",
     postedDaysAgo: 2,
-    summary:
-      "Cold outreach and closing for a cross-border trading company, with monthly quota.",
+    summary: "Cold outreach and closing for a cross-border trading company, with monthly quota.",
     summaryOriginal: "跨境贸易公司电话与线索开发，承担月度业绩指标。",
     responsibilities: [
       "Hit a monthly new-client quota",

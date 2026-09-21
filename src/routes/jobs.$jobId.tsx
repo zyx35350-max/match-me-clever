@@ -64,7 +64,9 @@ function JobDetail() {
         <div className="col-span-12 space-y-6 lg:col-span-8">
           <div className="rounded-2xl bg-sand p-7">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="font-display text-3xl font-extrabold">{job.titleOriginal ?? job.title}</h1>
+              <h1 className="font-display text-3xl font-extrabold">
+                {job.titleOriginal ?? job.title}
+              </h1>
               <FitBadge score={match.overall} />
             </div>
             <div className="mt-1 text-sm text-ink/60">
@@ -101,7 +103,9 @@ function JobDetail() {
                 <div className="font-display text-3xl font-extrabold text-azure">
                   {careerMatch.immediateFit}
                 </div>
-                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">Immediate fit</div>
+                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">
+                  Immediate fit
+                </div>
               </div>
               <div>
                 <div className="font-display text-3xl font-extrabold text-ochre">

@@ -13,10 +13,30 @@ import type { JobSemanticExtraction } from "./job-understanding-types";
  */
 
 const DIRECTION_RULES: Array<{ id: string; terms: string[] }> = [
-  { id: "ai-ecommerce", terms: ["电商", "电子商务", "e-commerce", "ecommerce", "temu", "ebay", "amazon"] },
-  { id: "ai-product", terms: ["产品经理", "产品负责人", "product manager", "product owner", "product management"] },
-  { id: "ai-content", terms: ["内容运营", "内容创作", "内容策划", "content", "copywriter", "social media"] },
-  { id: "ai-visual", terms: ["视觉设计", "视觉", "平面设计", "设计师", "visual", "graphic design", "creative designer"] },
+  {
+    id: "ai-ecommerce",
+    terms: ["电商", "电子商务", "e-commerce", "ecommerce", "temu", "ebay", "amazon"],
+  },
+  {
+    id: "ai-product",
+    terms: ["产品经理", "产品负责人", "product manager", "product owner", "product management"],
+  },
+  {
+    id: "ai-content",
+    terms: ["内容运营", "内容创作", "内容策划", "content", "copywriter", "social media"],
+  },
+  {
+    id: "ai-visual",
+    terms: [
+      "视觉设计",
+      "视觉",
+      "平面设计",
+      "设计师",
+      "visual",
+      "graphic design",
+      "creative designer",
+    ],
+  },
   { id: "ai-operations", terms: ["运营", "operations", "运营经理", "运营专员"] },
 ];
 
@@ -47,7 +67,9 @@ function sourceText(job: Job): string {
     ...job.responsibilities,
     ...job.skills,
     job.industry ?? "",
-  ].filter(Boolean).join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 function includesAny(text: string, terms: string[]): boolean {
@@ -66,7 +88,8 @@ function extractRequirements(text: string, patterns: RegExp[]): string[] {
 
 function extractLanguageRequirements(text: string): string[] {
   const results: string[] = [];
-  const languagePattern = /(英语|英文|english|中文|汉语|普通话|mandarin|language)[^。；;\n]{0,40}/gi;
+  const languagePattern =
+    /(英语|英文|english|中文|汉语|普通话|mandarin|language)[^。；;\n]{0,40}/gi;
   for (const match of text.matchAll(languagePattern)) {
     if (match[0]) results.push(match[0].trim());
   }
@@ -74,9 +97,7 @@ function extractLanguageRequirements(text: string): string[] {
 }
 
 function extractCareerDirections(text: string): string[] {
-  return DIRECTION_RULES
-    .filter((rule) => includesAny(text, rule.terms))
-    .map((rule) => rule.id);
+  return DIRECTION_RULES.filter((rule) => includesAny(text, rule.terms)).map((rule) => rule.id);
 }
 
 function extractInternationalSignals(text: string): JobSemanticExtraction["internationalSignals"] {
@@ -84,20 +105,38 @@ function extractInternationalSignals(text: string): JobSemanticExtraction["inter
 
   // Only set a signal when the wording gives direct evidence. In particular,
   // "global team" is kept independent from company ownership/type.
-  if (/(海外业务|海外市场|国际市场|overseas business|overseas market|international market|global market|serving global customers)/i.test(text)) {
+  if (
+    /(海外业务|海外市场|国际市场|overseas business|overseas market|international market|global market|serving global customers)/i.test(
+      text,
+    )
+  ) {
     signals.overseasBusiness = true;
   }
 
-  if (/(全球团队|国际团队|global team|international team|distributed team|team across countries|cross[- ]border team)/i.test(text)) {
+  if (
+    /(全球团队|国际团队|global team|international team|distributed team|team across countries|cross[- ]border team)/i.test(
+      text,
+    )
+  ) {
     signals.globalTeam = true;
   }
 
-  if (/(英语|英文|english)[^。；;\n]{0,32}(?:沟通|交流|邮件|会议|工作|使用|communication|communicate|meetings|email|working language)/i.test(text) ||
-      /(?:english communication|communicate in english|english-speaking environment|working language is english)/i.test(text)) {
+  if (
+    /(英语|英文|english)[^。；;\n]{0,32}(?:沟通|交流|邮件|会议|工作|使用|communication|communicate|meetings|email|working language)/i.test(
+      text,
+    ) ||
+    /(?:english communication|communicate in english|english-speaking environment|working language is english)/i.test(
+      text,
+    )
+  ) {
     signals.englishUsage = true;
   }
 
-  if (/(跨境协作|跨国协作|海外团队协作|国际协作|cross[- ]border collaboration|cross[- ]border cooperation|collaborat(?:e|ion) with (?:overseas|international|global) teams)/i.test(text)) {
+  if (
+    /(跨境协作|跨国协作|海外团队协作|国际协作|cross[- ]border collaboration|cross[- ]border cooperation|collaborat(?:e|ion) with (?:overseas|international|global) teams)/i.test(
+      text,
+    )
+  ) {
     signals.crossBorderCollaboration = true;
   }
 

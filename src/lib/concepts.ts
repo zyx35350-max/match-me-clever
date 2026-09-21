@@ -100,17 +100,18 @@ export const concepts: ConceptDef[] = [
   },
   {
     id: "supply_chain_coordination",
-    en: [
-      "Inventory / Supply Chain Coordination",
-      "Supply Chain Coordination",
-      "Supply Chain",
-    ],
+    en: ["Inventory / Supply Chain Coordination", "Supply Chain Coordination", "Supply Chain"],
     zh: ["供应链", "供应链协调", "库存与供应链协调"],
     related: ["inventory_management"],
   },
   {
     id: "ai_product_image_generation",
-    en: ["AI Product Image Generation", "AI Image Generation", "AI Visual", "AI-assisted Visual Creation"],
+    en: [
+      "AI Product Image Generation",
+      "AI Image Generation",
+      "AI Visual",
+      "AI-assisted Visual Creation",
+    ],
     zh: ["AI产品图生成", "AI视觉", "AI绘图", "AI出图"],
     related: ["visual_design", "prompt_engineering"],
   },

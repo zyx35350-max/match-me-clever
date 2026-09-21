@@ -36,8 +36,8 @@ export function AICareerProfileCard({
             “{aiProfile.identityHypothesis}”
           </p>
           <p className="mt-2 text-xs text-ink/55">
-            Generated from your structured profile. Facts, preferences and AI inferences are labelled
-            separately — inferences are guesses you can overrule.
+            Generated from your structured profile. Facts, preferences and AI inferences are
+            labelled separately — inferences are guesses you can overrule.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">

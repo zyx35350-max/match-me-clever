@@ -36,12 +36,33 @@ function makeCareer(): CareerProfile {
       languages: ["Chinese", "English"],
     },
     skills: [
-      { id: "ai-image", name: "AI Product Image Generation", level: "working", evidence: "portfolio practice", years: 1, confidence: 4 },
-      { id: "photoshop", name: "Photoshop", level: "working", evidence: "work experience", years: 1, confidence: 4 },
+      {
+        id: "ai-image",
+        name: "AI Product Image Generation",
+        level: "working",
+        evidence: "portfolio practice",
+        years: 1,
+        confidence: 4,
+      },
+      {
+        id: "photoshop",
+        name: "Photoshop",
+        level: "working",
+        evidence: "work experience",
+        years: 1,
+        confidence: 4,
+      },
     ],
     evidence: [],
     workContent: { creativity: 5, communication: 3, analysis: 4, execution: 4 },
-    priorities: { growth: 5, industryOutlook: 5, transferableSkills: 5, salary: 3, workingHours: 4, stability: 3 },
+    priorities: {
+      growth: 5,
+      industryOutlook: 5,
+      transferableSkills: 5,
+      salary: 3,
+      workingHours: 4,
+      stability: 3,
+    },
     workStyle: { remote: 5, hybrid: 4, onsite: 2 },
     otherPreferences: [],
     dealBreakers: [],
@@ -107,34 +128,44 @@ function testUnderstanding() {
   });
   assert.equal(buildJobUnderstanding(mixed).language, "mixed");
 
-  const required = buildJobUnderstanding(makeJob({
-    summary: "English communication is required for meetings and email.",
-  }));
+  const required = buildJobUnderstanding(
+    makeJob({
+      summary: "English communication is required for meetings and email.",
+    }),
+  );
   assert.equal(required.semantic.englishRequirement, "required");
   assert.equal(required.semantic.internationalSignals.englishUsage, true);
 
-  const preferred = buildJobUnderstanding(makeJob({
-    summary: "English is preferred; experience with global teams is a plus.",
-  }));
+  const preferred = buildJobUnderstanding(
+    makeJob({
+      summary: "English is preferred; experience with global teams is a plus.",
+    }),
+  );
   assert.equal(preferred.semantic.englishRequirement, "preferred");
   assert.equal(preferred.semantic.internationalSignals.globalTeam, true);
 
-  const genericEnglish = buildJobUnderstanding(makeJob({
-    summary: "Read English materials when needed.",
-  }));
+  const genericEnglish = buildJobUnderstanding(
+    makeJob({
+      summary: "Read English materials when needed.",
+    }),
+  );
   assert.equal(genericEnglish.semantic.englishRequirement, "unknown");
 
-  const globalOnly = buildJobUnderstanding(makeJob({
-    summary: "Work with a global team on product visuals.",
-    responsibilities: ["Create visuals"],
-  }));
+  const globalOnly = buildJobUnderstanding(
+    makeJob({
+      summary: "Work with a global team on product visuals.",
+      responsibilities: ["Create visuals"],
+    }),
+  );
   assert.equal(globalOnly.semantic.internationalSignals.globalTeam, true);
   assert.equal(globalOnly.semantic.internationalSignals.overseasBusiness, undefined);
   assert.equal(globalOnly.companyType, undefined);
 
-  const overseas = buildJobUnderstanding(makeJob({
-    summary: "Manage overseas markets and cross-border collaboration.",
-  }));
+  const overseas = buildJobUnderstanding(
+    makeJob({
+      summary: "Manage overseas markets and cross-border collaboration.",
+    }),
+  );
   assert.equal(overseas.semantic.internationalSignals.overseasBusiness, true);
   assert.equal(overseas.semantic.internationalSignals.crossBorderCollaboration, true);
 

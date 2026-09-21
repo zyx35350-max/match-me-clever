@@ -125,8 +125,7 @@ function migrate(raw: string): Persisted {
   const parsed = JSON.parse(raw) as Partial<Persisted> & { profile?: Partial<Profile> };
   const legacy = parsed.profile;
   const identity: ProfileIdentity = parsed.identity ?? {
-    name:
-      legacy?.name && legacy.name !== "Maya Okonkwo" ? legacy.name : defaultIdentity.name,
+    name: legacy?.name && legacy.name !== "Maya Okonkwo" ? legacy.name : defaultIdentity.name,
     headline:
       legacy?.headline && legacy.headline !== "Product Designer"
         ? legacy.headline
@@ -215,10 +214,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           basics: {
             ...prev.career.basics,
             workMode: next.workModePreference,
-            preferredLocations: [
-              next.location,
-              ...prev.career.basics.preferredLocations.slice(1),
-            ],
+            preferredLocations: [next.location, ...prev.career.basics.preferredLocations.slice(1)],
           },
         },
       }));
@@ -237,7 +233,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     (job: Job) => {
       setState((prev) => {
         const has = prev.saved.includes(job.id);
-        return { ...prev, saved: has ? prev.saved.filter((id) => id !== job.id) : [job.id, ...prev.saved] };
+        return {
+          ...prev,
+          saved: has ? prev.saved.filter((id) => id !== job.id) : [job.id, ...prev.saved],
+        };
       });
       const wasSaved = state.saved.includes(job.id);
       log({
@@ -373,7 +372,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       updateProfile,
       updateCareer,
       recordFeedback,
-      feedbackFor: (id) => state.feedback.find((f) => f.jobId === id && f.action !== "viewed")?.action,
+      feedbackFor: (id) =>
+        state.feedback.find((f) => f.jobId === id && f.action !== "viewed")?.action,
       acceptSuggestion,
       dismissSuggestion,
       toggleSaved,

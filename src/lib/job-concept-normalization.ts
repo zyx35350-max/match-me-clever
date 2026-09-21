@@ -12,7 +12,9 @@ export function normalizeJobConcepts(input: {
   responsibilities: string[];
   careerDirections: string[];
 }): JobNormalization {
-  const normalizeList = (terms: string[]) => [...new Set(terms.map((term) => conceptKey(term)).filter(Boolean))];
+  const normalizeList = (terms: string[]) => [
+    ...new Set(terms.map((term) => conceptKey(term)).filter(Boolean)),
+  ];
 
   return {
     canonicalSkills: normalizeSkillConcepts(input.skills),

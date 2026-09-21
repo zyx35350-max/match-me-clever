@@ -31,7 +31,9 @@ function strength(skill: ProvenSkill) {
 function findSkill(profile: CareerProfile, term: string) {
   const target = normalizeConcept(term);
   return profile.skills.find(
-    (s) => normalizeConcept(s.name) === target || (s.nameOriginal && normalizeConcept(s.nameOriginal) === target),
+    (s) =>
+      normalizeConcept(s.name) === target ||
+      (s.nameOriginal && normalizeConcept(s.nameOriginal) === target),
   );
 }
 
@@ -57,16 +59,22 @@ const DIRECTION_WEIGHTS = {
   market: 0.05,
 };
 
-export function assessDirection(profile: CareerProfile, direction: CareerDirection): DirectionAssessment {
+export function assessDirection(
+  profile: CareerProfile,
+  direction: CareerDirection,
+): DirectionAssessment {
   const { learning, priorities } = profile;
   const interestAvg =
-    direction.interestKeys.reduce((sum, k) => sum + learning[k], 0) / (direction.interestKeys.length || 1);
+    direction.interestKeys.reduce((sum, k) => sum + learning[k], 0) /
+    (direction.interestKeys.length || 1);
 
   const breakdown = {
     currentExperience: direction.coreSkills.length ? coverage(profile, direction.coreSkills) : 35,
     interest: clamp(interestAvg * 20),
     transferable: coverage(profile, direction.transferableSkills),
-    aiRelevance: clamp(direction.aiRelevance * 0.6 + direction.aiRelevance * (learning.ai / 5) * 0.4),
+    aiRelevance: clamp(
+      direction.aiRelevance * 0.6 + direction.aiRelevance * (learning.ai / 5) * 0.4,
+    ),
     growth: clamp(direction.growthPotential * 0.8 + priorities.growth * 4),
     learning: clamp(((learning.willingness + learning.uncertaintyTolerance) / 2) * 20),
     market: direction.marketOpportunity,
@@ -87,7 +95,9 @@ export function assessDirection(profile: CareerProfile, direction: CareerDirecti
   if (matchedCore.length) {
     why.push(`You already work in ${matchedCore.slice(0, 3).join(", ")}.`);
   } else {
-    why.push("This sits outside your current day-to-day, so it reads as an exploration rather than a step across.");
+    why.push(
+      "This sits outside your current day-to-day, so it reads as an exploration rather than a step across.",
+    );
   }
   if (breakdown.interest >= 80) why.push("Your stated interest in this area is high.");
 
@@ -100,10 +110,12 @@ export function assessDirection(profile: CareerProfile, direction: CareerDirecti
   if (breakdown.currentExperience >= 60) advantages.push("Direct experience means a shorter ramp.");
   if (matchedTransfer.length)
     advantages.push(`Transferable: ${matchedTransfer.slice(0, 3).join(", ")}.`);
-  if (breakdown.learning >= 80) advantages.push("High learning willingness suits a direction still forming.");
+  if (breakdown.learning >= 80)
+    advantages.push("High learning willingness suits a direction still forming.");
 
   const gaps: string[] = [];
-  if (missingCore.length) gaps.push(`Not yet on your profile: ${missingCore.slice(0, 3).join(", ")}.`);
+  if (missingCore.length)
+    gaps.push(`Not yet on your profile: ${missingCore.slice(0, 3).join(", ")}.`);
   gaps.push("No formal project evidence in this direction yet — only adjacent work.");
 
   return {
@@ -135,11 +147,21 @@ export function buildAICareerProfile(profile: CareerProfile): AICareerProfile {
   const ranked = assessAllDirections(profile);
   const top = ranked.slice(0, 3);
   const advanced = profile.skills.filter((s) => s.level === "advanced" || s.level === "proficient");
-  const learningSkills = profile.skills.filter((s) => s.level === "learning" || s.level === "working");
+  const learningSkills = profile.skills.filter(
+    (s) => s.level === "learning" || s.level === "working",
+  );
 
   const fact = (text: string, because: string): ProfileClaim => ({ kind: "fact", text, because });
-  const pref = (text: string, because: string): ProfileClaim => ({ kind: "preference", text, because });
-  const inf = (text: string, because: string): ProfileClaim => ({ kind: "inference", text, because });
+  const pref = (text: string, because: string): ProfileClaim => ({
+    kind: "preference",
+    text,
+    because,
+  });
+  const inf = (text: string, because: string): ProfileClaim => ({
+    kind: "inference",
+    text,
+    because,
+  });
 
   return {
     identityHypothesis:
@@ -165,7 +187,10 @@ export function buildAICareerProfile(profile: CareerProfile): AICareerProfile {
         title: "Core Strengths",
         claims: [
           fact(
-            `Advanced or proficient in ${advanced.slice(0, 5).map((s) => s.name).join(", ")}.`,
+            `Advanced or proficient in ${advanced
+              .slice(0, 5)
+              .map((s) => s.name)
+              .join(", ")}.`,
             "Level and years recorded on each skill.",
           ),
           ...profile.evidence.slice(0, 3).map((e) => fact(e.label, e.detail)),
@@ -208,7 +233,10 @@ export function buildAICareerProfile(profile: CareerProfile): AICareerProfile {
         title: "AI Potential",
         claims: [
           pref(`AI interest rated ${profile.learning.ai}/5.`, "Your own rating."),
-          fact("AI tools already used in production for listing imagery.", "Skill evidence on file."),
+          fact(
+            "AI tools already used in production for listing imagery.",
+            "Skill evidence on file.",
+          ),
           inf(
             "Strong potential, thin proof: the tool use is real but there is no packaged AI project a hiring team can inspect.",
             "No portfolio or project evidence is recorded in the AI directions yet.",
@@ -420,7 +448,10 @@ export function matchJob(ctx: MatchContext, job: Job): JobMatch {
   const missingSkills = job.skills.filter((s) => !findSkill(career, s));
 
   const skillMatch = coverage(career, job.skills);
-  const matchedYears = matchedSkills.reduce((sum, s) => sum + (findSkill(career, s)?.years ?? 0), 0);
+  const matchedYears = matchedSkills.reduce(
+    (sum, s) => sum + (findSkill(career, s)?.years ?? 0),
+    0,
+  );
   const relevantExperience = clamp(
     (matchedSkills.length / (job.skills.length || 1)) * 60 +
       Math.min(40, (matchedYears / Math.max(1, matchedSkills.length)) * 12),
@@ -428,7 +459,8 @@ export function matchJob(ctx: MatchContext, job: Job): JobMatch {
 
   const workModeRating = career.workStyle[job.workMode];
   const contentBoost =
-    (career.workContent.creativity + career.workContent.analysis + career.workContent.execution) / 3;
+    (career.workContent.creativity + career.workContent.analysis + career.workContent.execution) /
+    3;
   const workPreference = clamp(workModeRating * 14 + contentBoost * 6);
 
   const salary =
@@ -442,7 +474,8 @@ export function matchJob(ctx: MatchContext, job: Job): JobMatch {
   const locationHit =
     career.basics.preferredLocations.some((loc) =>
       job.location.toLowerCase().includes(loc.toLowerCase()),
-    ) || (prefersRemote && job.workMode === "remote");
+    ) ||
+    (prefersRemote && job.workMode === "remote");
   const location = locationHit ? 95 : job.workMode === "remote" ? 80 : 50;
 
   const breakdown: JobMatchBreakdown = {
@@ -470,7 +503,9 @@ export function matchJob(ctx: MatchContext, job: Job): JobMatch {
 
   const portfolio = job.portfolioValue ?? 45;
   const skillAcquisition = clamp(
-    (job.aiRelevance ?? 30) * 0.4 + (100 - breakdown.skillMatch) * 0.3 + (job.growthPotential ?? 55) * 0.3,
+    (job.aiRelevance ?? 30) * 0.4 +
+      (100 - breakdown.skillMatch) * 0.3 +
+      (job.growthPotential ?? 55) * 0.3,
   );
   const flexibility = job.workMode === "remote" ? 90 : job.workMode === "hybrid" ? 70 : 40;
   const lowCommitment = 100 - Math.min(100, (job.overtimeRisk ?? 30) + 20);
@@ -577,7 +612,9 @@ function explain(args: {
 
   const learn = [
     ...(direction ? direction.learnable.slice(0, 2) : []),
-    ...(missingSkills.length ? [`On-the-job exposure to ${missingSkills.slice(0, 3).join(", ")}.`] : []),
+    ...(missingSkills.length
+      ? [`On-the-job exposure to ${missingSkills.slice(0, 3).join(", ")}.`]
+      : []),
   ];
   if (!learn.length) learn.push("Little new ground — this repeats what you can already do.");
 
@@ -585,7 +622,9 @@ function explain(args: {
     n.isDealBreaker ? `${n.label} — one of your deal breakers.` : `${n.label} is a risk here.`,
   );
   if (missingSkills.length >= 3)
-    concerns.push(`Asks for ${missingSkills.slice(0, 2).join(" and ")}, currently gaps on your profile.`);
+    concerns.push(
+      `Asks for ${missingSkills.slice(0, 2).join(" and ")}, currently gaps on your profile.`,
+    );
   if (track === "parttime" && (job.salaryMax ?? 0) < 5000)
     concerns.push("Pay is low; it only makes sense for the evidence it creates.");
   if (!concerns.length) concerns.push("No significant red flags detected in the listing.");

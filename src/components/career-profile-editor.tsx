@@ -15,7 +15,15 @@ const inputClass =
 
 const levels: SkillLevel[] = ["learning", "working", "proficient", "advanced"];
 
-function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+function Section({
+  title,
+  hint,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <section className="rounded-2xl border border-ink/10 bg-card p-6">
       <h2 className="text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">{title}</h2>
@@ -188,7 +196,10 @@ export function CareerProfileEditor() {
             <select
               value={draft.basics.workMode}
               onChange={(e) =>
-                set("basics", { ...draft.basics, workMode: e.target.value as CareerProfile["basics"]["workMode"] })
+                set("basics", {
+                  ...draft.basics,
+                  workMode: e.target.value as CareerProfile["basics"]["workMode"],
+                })
               }
               className={inputClass}
             >
@@ -202,7 +213,9 @@ export function CareerProfileEditor() {
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
-            <span className="mb-1.5 block text-xs font-semibold text-ink/60">Preferred locations</span>
+            <span className="mb-1.5 block text-xs font-semibold text-ink/60">
+              Preferred locations
+            </span>
             <ListEditor
               values={draft.basics.preferredLocations}
               onChange={(next) => set("basics", { ...draft.basics, preferredLocations: next })}
@@ -237,7 +250,12 @@ export function CareerProfileEditor() {
                   <span className="text-xs text-ink/45">{skill.nameOriginal}</span>
                 ) : null}
                 <button
-                  onClick={() => set("skills", draft.skills.filter((_, idx) => idx !== i))}
+                  onClick={() =>
+                    set(
+                      "skills",
+                      draft.skills.filter((_, idx) => idx !== i),
+                    )
+                  }
                   className="ml-auto text-xs font-semibold text-ink/40 hover:text-destructive"
                 >
                   Remove
@@ -307,10 +325,16 @@ export function CareerProfileEditor() {
         </button>
       </Section>
 
-      <Section title="C · Evidence & achievements" hint="Structured proof the assistant can quote back to you.">
+      <Section
+        title="C · Evidence & achievements"
+        hint="Structured proof the assistant can quote back to you."
+      >
         <div className="space-y-3">
           {draft.evidence.map((item, i) => (
-            <div key={item.id} className="grid gap-2 rounded-xl border border-ink/10 p-4 sm:grid-cols-2">
+            <div
+              key={item.id}
+              className="grid gap-2 rounded-xl border border-ink/10 p-4 sm:grid-cols-2"
+            >
               <Field label="Achievement">
                 <input
                   value={item.label}
@@ -326,7 +350,12 @@ export function CareerProfileEditor() {
                     className={inputClass}
                   />
                   <button
-                    onClick={() => set("evidence", draft.evidence.filter((_, idx) => idx !== i))}
+                    onClick={() =>
+                      set(
+                        "evidence",
+                        draft.evidence.filter((_, idx) => idx !== i),
+                      )
+                    }
                     className="shrink-0 px-2 text-xs font-semibold text-ink/40 hover:text-destructive"
                   >
                     Remove
@@ -423,7 +452,10 @@ export function CareerProfileEditor() {
         </div>
       </Section>
 
-      <Section title="E · Deal breakers" hint="Severe deal breakers can mark a job Not Recommended — never hidden.">
+      <Section
+        title="E · Deal breakers"
+        hint="Severe deal breakers can mark a job Not Recommended — never hidden."
+      >
         <div className="space-y-2">
           {draft.dealBreakers.map((breaker, i) => (
             <div key={breaker.id} className="flex flex-wrap items-center gap-2">
@@ -434,14 +466,21 @@ export function CareerProfileEditor() {
               />
               <select
                 value={breaker.severity}
-                onChange={(e) => setBreaker(i, { severity: e.target.value as DealBreaker["severity"] })}
+                onChange={(e) =>
+                  setBreaker(i, { severity: e.target.value as DealBreaker["severity"] })
+                }
                 className="rounded-lg border border-ink/15 bg-card px-2.5 py-2 text-xs font-semibold"
               >
                 <option value="severe">severe</option>
                 <option value="moderate">moderate</option>
               </select>
               <button
-                onClick={() => set("dealBreakers", draft.dealBreakers.filter((_, idx) => idx !== i))}
+                onClick={() =>
+                  set(
+                    "dealBreakers",
+                    draft.dealBreakers.filter((_, idx) => idx !== i),
+                  )
+                }
                 className="text-xs font-semibold text-ink/40 hover:text-destructive"
               >
                 Remove
@@ -478,7 +517,9 @@ export function CareerProfileEditor() {
             ))}
           </div>
           <div>
-            <span className="mb-1.5 block text-xs font-semibold text-ink/60">Interested skills</span>
+            <span className="mb-1.5 block text-xs font-semibold text-ink/60">
+              Interested skills
+            </span>
             <ListEditor
               values={draft.learning.interestedSkills}
               onChange={(next) => set("learning", { ...draft.learning, interestedSkills: next })}

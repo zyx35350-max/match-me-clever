@@ -23,12 +23,7 @@ export type EmploymentType = "fulltime" | "parttime";
 
 /** Tags that trigger negative matching signals. */
 export type NegativeTag =
-  | "pure_sales"
-  | "customer_service"
-  | "data_entry"
-  | "repetitive"
-  | "no_growth"
-  | "unpaid_overtime";
+  "pure_sales" | "customer_service" | "data_entry" | "repetitive" | "no_growth" | "unpaid_overtime";
 
 export interface Job {
   id: string;
@@ -82,12 +77,7 @@ export interface NormalizedJob extends Job {
 }
 
 export type ApplicationStatus =
-  | "saved"
-  | "applied"
-  | "in_review"
-  | "interview"
-  | "offer"
-  | "rejected";
+  "saved" | "applied" | "in_review" | "interview" | "offer" | "rejected";
 
 export interface ActivityEntry {
   id: string;
@@ -105,4 +95,3 @@ export interface Application {
   appliedAt: string;
   notes?: string;
 }
-

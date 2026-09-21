@@ -17,7 +17,8 @@ export const Route = createFileRoute("/directions")({
       { property: "og:title", content: "Career Directions — Solstice" },
       {
         property: "og:description",
-        content: "AI × E-commerce, Product, Content, Visual, Operations and open exploration, scored for you.",
+        content:
+          "AI × E-commerce, Product, Content, Visual, Operations and open exploration, scored for you.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -71,7 +72,9 @@ function DirectionCard({ assessment }: { assessment: DirectionAssessment }) {
         </div>
         <div className="text-right">
           <div className="font-display text-3xl font-extrabold text-azure">{assessment.score}</div>
-          <div className="text-[10px] tracking-[0.2em] text-ink/45 uppercase">AI assessment / 100</div>
+          <div className="text-[10px] tracking-[0.2em] text-ink/45 uppercase">
+            AI assessment / 100
+          </div>
         </div>
       </div>
 
@@ -125,7 +128,9 @@ function Block({
   if (!items.length) return null;
   return (
     <div>
-      <div className="text-[11px] font-semibold tracking-[0.15em] text-ink/50 uppercase">{title}</div>
+      <div className="text-[11px] font-semibold tracking-[0.15em] text-ink/50 uppercase">
+        {title}
+      </div>
       <ul className="mt-1.5 space-y-1">
         {items.map((item) => (
           <li key={item} className="flex gap-2 text-[13px] leading-relaxed text-ink/75">

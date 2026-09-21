@@ -42,7 +42,9 @@ function Dashboard() {
   } = useWorkspace();
   // One authoritative ranking, shared with Today, Matching, Saved and details.
   const { matches, topDirection, aiProfile } = useCareer();
-  const todayPicks = matches.filter((m) => m.job.postedDaysAgo <= 3 && !m.notRecommended).slice(0, 2);
+  const todayPicks = matches
+    .filter((m) => m.job.postedDaysAgo <= 3 && !m.notRecommended)
+    .slice(0, 2);
   const ranked = matches;
   const top = ranked[0];
   const next = ranked.slice(1, 3);
@@ -178,7 +180,11 @@ function Dashboard() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
-            <StatCard label="Applications" value={applications.length} note={`${inReview} in review`} />
+            <StatCard
+              label="Applications"
+              value={applications.length}
+              note={`${inReview} in review`}
+            />
             <StatCard label="Interviews" value={interviews} note="Scheduled" tone="azure" />
             <StatCard label="Offers" value={offers} note="In hand" tone="ochre" />
           </div>
@@ -194,7 +200,9 @@ function Dashboard() {
             </p>
             <p className="mt-3 text-sm text-ink/65">
               <span className="font-semibold">Best current direction:</span>{" "}
-              {topDirection ? `${topDirection.direction.name} (${topDirection.score}/100 AI assessment)` : "—"}
+              {topDirection
+                ? `${topDirection.direction.name} (${topDirection.score}/100 AI assessment)`
+                : "—"}
             </p>
             <p className="mt-2 text-xs text-ink/55">{aiProfile.identityHypothesis}</p>
             <div className="mt-4 flex flex-wrap gap-2">
@@ -264,14 +272,18 @@ function Dashboard() {
                 </div>
                 <div className="flex gap-5 text-right text-sm">
                   <div>
-                    <div className="font-display text-lg font-bold text-azure">{m.immediateFit}</div>
+                    <div className="font-display text-lg font-bold text-azure">
+                      {m.immediateFit}
+                    </div>
                     <div className="text-[10px] tracking-[0.15em] text-ink/50 uppercase">Fit</div>
                   </div>
                   <div>
                     <div className="font-display text-lg font-bold text-ochre">
                       {m.careerGrowthValue}
                     </div>
-                    <div className="text-[10px] tracking-[0.15em] text-ink/50 uppercase">Growth</div>
+                    <div className="text-[10px] tracking-[0.15em] text-ink/50 uppercase">
+                      Growth
+                    </div>
                   </div>
                 </div>
               </div>
@@ -284,7 +296,8 @@ function Dashboard() {
             </div>
             {feedback.length === 0 ? (
               <p className="mt-2 text-sm text-ink/60">
-                No feedback yet — save, apply or mark “not for me” and the assistant starts learning.
+                No feedback yet — save, apply or mark “not for me” and the assistant starts
+                learning.
               </p>
             ) : (
               <ul className="mt-2 space-y-1 text-sm text-ink/70">
@@ -326,9 +339,7 @@ function Dashboard() {
                     }`}
                   />
                   <div className="text-sm font-semibold">{entry.label}</div>
-                  <div className="text-xs text-cream/50">
-                    {hydrated ? relative(entry.at) : ""}
-                  </div>
+                  <div className="text-xs text-cream/50">{hydrated ? relative(entry.at) : ""}</div>
                 </div>
               ))}
             </div>
@@ -396,7 +407,9 @@ function StatCard({
   const color = tone === "azure" ? "text-azure" : tone === "ochre" ? "text-ochre" : "text-sage";
   return (
     <div className="rounded-2xl border border-ink/10 bg-card p-5">
-      <div className="text-[11px] font-semibold tracking-[0.2em] text-ink/50 uppercase">{label}</div>
+      <div className="text-[11px] font-semibold tracking-[0.2em] text-ink/50 uppercase">
+        {label}
+      </div>
       <div className="mt-1 font-display text-3xl font-extrabold">{value}</div>
       <div className={`mt-1 text-xs font-semibold ${color}`}>{note}</div>
     </div>
@@ -407,7 +420,8 @@ export function relative(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const hours = Math.round(diff / 3_600_000);
   if (hours < 1) return "Just now";
-  if (hours < 24) return `Today · ${new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
+  if (hours < 24)
+    return `Today · ${new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
   if (hours < 48) return "Yesterday";
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }

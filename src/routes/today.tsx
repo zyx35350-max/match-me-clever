@@ -55,14 +55,20 @@ function TodayPage() {
             </div>
             <div className="flex gap-6 text-right">
               <div>
-                <div className="font-display text-3xl font-extrabold text-azure">{lead.immediateFit}</div>
-                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">Immediate fit</div>
+                <div className="font-display text-3xl font-extrabold text-azure">
+                  {lead.immediateFit}
+                </div>
+                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">
+                  Immediate fit
+                </div>
               </div>
               <div>
                 <div className="font-display text-3xl font-extrabold text-ochre">
                   {lead.careerGrowthValue}
                 </div>
-                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">Growth value</div>
+                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">
+                  Growth value
+                </div>
               </div>
             </div>
           </div>

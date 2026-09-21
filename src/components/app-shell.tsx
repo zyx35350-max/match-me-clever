@@ -27,7 +27,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             <div className="leading-none">
               <div className="font-display text-[19px] font-extrabold tracking-tight">Solstice</div>
-              <div className="text-[10px] tracking-[0.25em] text-azure uppercase">AI Job Search</div>
+              <div className="text-[10px] tracking-[0.25em] text-azure uppercase">
+                AI Job Search
+              </div>
             </div>
           </Link>
 

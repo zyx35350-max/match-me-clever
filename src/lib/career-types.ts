@@ -103,7 +103,12 @@ export interface CareerDirection {
   aiRelevance: number;
   growthPotential: number;
   marketOpportunity: number;
-  interestKeys: Array<keyof Pick<LearningProfile, "ai" | "programming" | "automation" | "product" | "content" | "visual">>;
+  interestKeys: Array<
+    keyof Pick<
+      LearningProfile,
+      "ai" | "programming" | "automation" | "product" | "content" | "visual"
+    >
+  >;
   nextStep: string;
 }
 

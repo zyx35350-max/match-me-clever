@@ -4,7 +4,13 @@ import { fitLabel, formatSalary, labelMode } from "@/lib/matching";
 import { statusLabel, useWorkspace } from "@/lib/store";
 import type { JobMatch } from "@/lib/career-types";
 
-export function ScoreBar({ value, tone = "azure" }: { value: number; tone?: "azure" | "ochre" | "sage" }) {
+export function ScoreBar({
+  value,
+  tone = "azure",
+}: {
+  value: number;
+  tone?: "azure" | "ochre" | "sage";
+}) {
   const bg = tone === "ochre" ? "bg-ochre" : tone === "sage" ? "bg-sage" : "bg-azure";
   return (
     <div className="h-2 overflow-hidden rounded-full bg-sand">
@@ -72,7 +78,9 @@ export function MatchRow({ match }: { match: JobMatch }) {
             <div className="text-[10px] tracking-[0.12em] text-ink/50 uppercase">Fit</div>
           </div>
           <div>
-            <div className="font-display text-lg font-bold text-ochre">{match.careerGrowthValue}</div>
+            <div className="font-display text-lg font-bold text-ochre">
+              {match.careerGrowthValue}
+            </div>
             <div className="text-[10px] tracking-[0.12em] text-ink/50 uppercase">Growth</div>
           </div>
         </div>

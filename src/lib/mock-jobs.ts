@@ -90,8 +90,7 @@ export const mockJobs: Job[] = [
     skills: ["Design Systems", "Brand Design", "Figma"],
     seniority: "senior",
     postedDaysAgo: 4,
-    summary:
-      "Steward Halden's brand system across product, packaging and retail touchpoints.",
+    summary: "Steward Halden's brand system across product, packaging and retail touchpoints.",
     responsibilities: [
       "Maintain brand guidelines and asset library",
       "Review work from external studios",
@@ -128,8 +127,7 @@ export const mockJobs: Job[] = [
     skills: ["Figma", "Prototyping", "User Research", "Experimentation"],
     seniority: "mid",
     postedDaysAgo: 0,
-    summary:
-      "Design and ship experiments across onboarding, pricing and activation surfaces.",
+    summary: "Design and ship experiments across onboarding, pricing and activation surfaces.",
     responsibilities: [
       "Run a weekly experiment cadence with growth engineering",
       "Design onboarding and paywall variants",
@@ -223,8 +221,7 @@ export const mockJobs: Job[] = [
     skills: ["Brand Design", "Motion Design", "Figma"],
     seniority: "senior",
     postedDaysAgo: 6,
-    summary:
-      "Craft campaign and product visuals for consumer clients in a studio environment.",
+    summary: "Craft campaign and product visuals for consumer clients in a studio environment.",
     responsibilities: [
       "Art-direct campaign work",
       "Produce motion and static assets",

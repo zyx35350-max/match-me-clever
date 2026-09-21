@@ -149,12 +149,36 @@ export const defaultCareerProfile: CareerProfile = {
     },
   ],
   evidence: [
-    { id: "ev-sku", label: "Managed 300+ SKUs", detail: "Across selection, listing and restock cycles." },
-    { id: "ev-slow", label: "Cleared 20+ slow-moving products", detail: "Bundling, pricing and ad adjustments." },
-    { id: "ev-ctr", label: "Improved some advertising CTR by 10%", detail: "Creative and keyword iteration on selected campaigns." },
-    { id: "ev-rating", label: "Maintained >90% positive rating", detail: "Quality control plus faster issue resolution." },
-    { id: "ev-orders", label: "TEMU store daily average 800+ orders", detail: "Sustained over the peak season." },
-    { id: "ev-rank", label: "Store consistently in category Top 15", detail: "Ranking held across multiple months." },
+    {
+      id: "ev-sku",
+      label: "Managed 300+ SKUs",
+      detail: "Across selection, listing and restock cycles.",
+    },
+    {
+      id: "ev-slow",
+      label: "Cleared 20+ slow-moving products",
+      detail: "Bundling, pricing and ad adjustments.",
+    },
+    {
+      id: "ev-ctr",
+      label: "Improved some advertising CTR by 10%",
+      detail: "Creative and keyword iteration on selected campaigns.",
+    },
+    {
+      id: "ev-rating",
+      label: "Maintained >90% positive rating",
+      detail: "Quality control plus faster issue resolution.",
+    },
+    {
+      id: "ev-orders",
+      label: "TEMU store daily average 800+ orders",
+      detail: "Sustained over the peak season.",
+    },
+    {
+      id: "ev-rank",
+      label: "Store consistently in category Top 15",
+      detail: "Ranking held across multiple months.",
+    },
   ],
   workContent: { creativity: 5, communication: 3, analysis: 4, execution: 4 },
   priorities: {
@@ -219,7 +243,8 @@ export const careerDirections: CareerDirection[] = [
     growthPotential: 70,
     marketOpportunity: 80,
     interestKeys: ["ai", "automation"],
-    nextStep: "Rebuild one past listing end-to-end with AI tools and record the before/after numbers.",
+    nextStep:
+      "Rebuild one past listing end-to-end with AI tools and record the before/after numbers.",
   },
   {
     id: "ai-product",
@@ -241,7 +266,11 @@ export const careerDirections: CareerDirection[] = [
     nameOriginal: "AI × 内容创意",
     blurb: "Turn product storytelling and short video into an AI-assisted content practice.",
     coreSkills: ["Short Video Editing", "Listing Optimization"],
-    transferableSkills: ["Overseas Market Research", "Competitor Analysis", "AI Product Image Generation"],
+    transferableSkills: [
+      "Overseas Market Research",
+      "Competitor Analysis",
+      "AI Product Image Generation",
+    ],
     learnable: ["AI scriptwriting", "Content systems", "Channel analytics"],
     aiRelevance: 70,
     growthPotential: 75,
@@ -256,7 +285,11 @@ export const careerDirections: CareerDirection[] = [
     blurb: "Build on AI image generation and Photoshop toward commercial visual work.",
     coreSkills: ["AI Product Image Generation", "Photoshop"],
     transferableSkills: ["Listing Optimization", "Short Video Editing"],
-    learnable: ["Advanced image workflows", "Brand-consistent art direction", "Model fine-tuning basics"],
+    learnable: [
+      "Advanced image workflows",
+      "Brand-consistent art direction",
+      "Model fine-tuning basics",
+    ],
     aiRelevance: 80,
     growthPotential: 70,
     marketOpportunity: 65,
@@ -268,14 +301,19 @@ export const careerDirections: CareerDirection[] = [
     name: "AI × Operations",
     nameOriginal: "AI × 运营",
     blurb: "Apply automation and data monitoring to make operations teams faster.",
-    coreSkills: ["E-commerce Operations", "Data Monitoring", "Inventory / Supply Chain Coordination"],
+    coreSkills: [
+      "E-commerce Operations",
+      "Data Monitoring",
+      "Inventory / Supply Chain Coordination",
+    ],
     transferableSkills: ["Basic Programming", "Advertising Operations"],
     learnable: ["Workflow automation", "SQL / spreadsheets at scale", "Ops metrics design"],
     aiRelevance: 65,
     growthPotential: 70,
     marketOpportunity: 70,
     interestKeys: ["automation", "ai", "programming"],
-    nextStep: "Automate one recurring report you used to build by hand and document the time saved.",
+    nextStep:
+      "Automate one recurring report you used to build by hand and document the time saved.",
   },
   {
     id: "explore",
@@ -289,7 +327,8 @@ export const careerDirections: CareerDirection[] = [
     growthPotential: 60,
     marketOpportunity: 55,
     interestKeys: ["ai"],
-    nextStep: "Pick one small paid or unpaid project outside your current lane and run it for two weeks.",
+    nextStep:
+      "Pick one small paid or unpaid project outside your current lane and run it for two weeks.",
   },
 ];
 

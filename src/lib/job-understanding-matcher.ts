@@ -37,9 +37,6 @@ export function matchUnderstoodJob(
 }
 
 /** Convenience wrapper: build the understanding layer before matching. */
-export function matchRawJobWithUnderstanding(
-  ctx: MatchContext,
-  job: Job,
-): JobMatch {
+export function matchRawJobWithUnderstanding(ctx: MatchContext, job: Job): JobMatch {
   return matchUnderstoodJob(ctx, job, buildJobUnderstanding(job));
 }

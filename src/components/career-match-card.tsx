@@ -18,7 +18,9 @@ function DualScore({
   return (
     <div className="min-w-[124px] flex-1">
       <div className="flex items-baseline justify-between">
-        <span className="text-[10px] font-semibold tracking-[0.15em] text-ink/50 uppercase">{label}</span>
+        <span className="text-[10px] font-semibold tracking-[0.15em] text-ink/50 uppercase">
+          {label}
+        </span>
         <span className={`font-display text-lg font-bold ${color}`}>{value}</span>
       </div>
       <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-sand">
@@ -40,7 +42,9 @@ export function ExplanationBlock({ match }: { match: JobMatch }) {
     <div className="space-y-3">
       {rows.map(([title, items]) => (
         <div key={title}>
-          <div className="text-[11px] font-semibold tracking-[0.15em] text-ink/50 uppercase">{title}</div>
+          <div className="text-[11px] font-semibold tracking-[0.15em] text-ink/50 uppercase">
+            {title}
+          </div>
           <ul className="mt-1 space-y-1">
             {items.map((item) => (
               <li key={item} className="text-[13px] leading-relaxed text-ink/75">
@@ -95,11 +99,7 @@ export function CareerMatchCard({
             >
               {job.titleOriginal ?? job.title}
             </Link>
-            {job.titleOriginal ? (
-              <span className="text-xs text-ink/45">
-                ({job.title})
-              </span>
-            ) : null}
+            {job.titleOriginal ? <span className="text-xs text-ink/45">({job.title})</span> : null}
             <span className="rounded-full bg-sand px-2 py-0.5 text-[11px] font-semibold text-ink/60">
               {job.employmentType === "parttime" ? "Part-time" : "Full-time"}
             </span>
