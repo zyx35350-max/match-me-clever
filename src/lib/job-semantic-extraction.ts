@@ -21,17 +21,13 @@ const DIRECTION_RULES: Array<{ id: string; terms: string[] }> = [
 ];
 
 const ENGLISH_REQUIRED_PATTERNS = [
-  /英语.{0,12}(必须|required|流利|熟练|工作语言)/i,
-  /英文.{0,12}(必须|required|流利|熟练|工作语言)/i,
-  /英语能力.{0,12}(要求|必须|required|流利|熟练)/i,
-  /english.{0,24}(required|must|fluent|proficient|working language)/i,
-  /(required|must).{0,24}english/i,
+  /(?:英语|英文|english)[^。；;\n]{0,32}(?:必须|required|must|mandatory|必需|流利|熟练|工作语言)/i,
+  /(?:required|must|mandatory|fluent|proficient|working language)[^。；;\n]{0,32}(?:英语|英文|english)/i,
 ];
 
 const ENGLISH_PREFERRED_PATTERNS = [
-  /英语.{0,12}(优先|加分|preferred|优先考虑)/i,
-  /英文.{0,12}(优先|加分)/i,
-  /english.{0,24}(preferred|plus|a bonus|nice to have)/i,
+  /(?:英语|英文|english)[^。；;\n]{0,32}(?:优先|加分|preferred|plus|bonus|nice to have)/i,
+  /(?:preferred|plus|bonus|nice to have)[^。；;\n]{0,32}(?:英语|英文|english)/i,
 ];
 
 const EXPERIENCE_PATTERNS = [
@@ -87,9 +83,19 @@ function detectEnglishRequirement(
   text: string,
   languageRequirements: string[],
 ): JobSemanticExtraction["englishRequirement"] {
-  const combined = [text, ...languageRequirements].join("\n");
-  if (ENGLISH_REQUIRED_PATTERNS.some((pattern) => pattern.test(combined))) return "required";
-  if (ENGLISH_PREFERRED_PATTERNS.some((pattern) => pattern.test(combined))) return "preferred";
+  const evidence = [...new Set(languageRequirements)].filter((item) =>
+    /(英语|英文|english)/i.test(item),
+  );
+  const combined = evidence.join("\n");
+
+  // Only classify from language-specific evidence. A generic word such as
+  // "English materials" must not become a hard requirement.
+  if (combined && ENGLISH_REQUIRED_PATTERNS.some((pattern) => pattern.test(combined))) {
+    return "required";
+  }
+  if (combined && ENGLISH_PREFERRED_PATTERNS.some((pattern) => pattern.test(combined))) {
+    return "preferred";
+  }
   return "unknown";
 }
 
