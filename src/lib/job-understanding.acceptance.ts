@@ -84,7 +84,7 @@ function testUnderstanding() {
     summary: "负责产品视觉与内容创作。",
     summaryOriginal: "负责产品视觉与内容创作。",
     responsibilities: ["设计产品图片"],
-    skills: ["AI出图", "Photoshop"],
+    skills: ["AI出图", "PS"],
   });
   const zhResult = buildJobUnderstanding(zh);
   assert.equal(zhResult.language, "zh");
