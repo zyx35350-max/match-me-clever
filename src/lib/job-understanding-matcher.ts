@@ -38,6 +38,6 @@ export function matchUnderstoodJob(
 export function matchRawJobWithUnderstanding(
   ctx: MatchContext,
   job: Job,
-  ): JobMatch {
+): JobMatch {
   return matchUnderstoodJob(ctx, job, buildJobUnderstanding(job));
 }
