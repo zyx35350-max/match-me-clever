@@ -38,7 +38,7 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
   const text = input.text.trim();
   if (!text) throw new Error("Please paste a job description before importing.");
 
-  const lines = text.split(/\\r?\\n/).map((line) => line.trim()).filter(Boolean);
+  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
   const title =
     labeled(text, ["title", "job title", "职位", "职位名称"]) ??
     lines.find((line) => !/^(company|location|地点|公司)\\s*[:：-]/i.test(line)) ??
