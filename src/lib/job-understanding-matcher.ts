@@ -1,7 +1,8 @@
-import type { CareerProfile, JobMatch } from "./career-types";
+import type { JobMatch } from "./career-types";
 import type { Job } from "./types";
 import type { JobUnderstanding } from "./job-understanding-types";
 import { matchJob, type MatchContext } from "./career-engine";
+import { buildJobUnderstanding } from "./job-understanding";
 
 /**
  * Match an understood job without changing the existing scoring formula.
@@ -37,7 +38,6 @@ export function matchUnderstoodJob(
 export function matchRawJobWithUnderstanding(
   ctx: MatchContext,
   job: Job,
-  buildUnderstanding: (job: Job) => JobUnderstanding,
-): JobMatch {
-  return matchUnderstoodJob(ctx, job, buildUnderstanding(job));
+  ): JobMatch {
+  return matchUnderstoodJob(ctx, job, buildJobUnderstanding(job));
 }
