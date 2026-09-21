@@ -40,3 +40,16 @@ export function matchUnderstoodJob(
 export function matchRawJobWithUnderstanding(ctx: MatchContext, job: Job): JobMatch {
   return matchUnderstoodJob(ctx, job, buildJobUnderstanding(job));
 }
+
+
+/** Match a collection through Job Understanding before the single Career Engine scorer. */
+export function matchJobsWithUnderstanding(
+  ctx: MatchContext,
+  jobs: Job[],
+  track?: JobMatch["track"],
+): JobMatch[] {
+  return jobs
+    .filter((job) => !track || (job.employmentType ?? "fulltime") === track)
+    .map((job) => matchRawJobWithUnderstanding(ctx, job))
+    .sort((a, b) => b.overall - a.overall);
+}
