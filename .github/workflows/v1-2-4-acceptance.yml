@@ -1,0 +1,26 @@
+name: V1.2.4 Acceptance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx --yes tsx src/lib/user-job-import.acceptance.ts
+      - run: npx tsc --noEmit
+      - run: npm run build
+      - run: npm run format
+      - run: npm run lint
