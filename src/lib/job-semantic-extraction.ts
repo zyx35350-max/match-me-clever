@@ -79,6 +79,31 @@ function extractCareerDirections(text: string): string[] {
     .map((rule) => rule.id);
 }
 
+function extractInternationalSignals(text: string): JobSemanticExtraction["internationalSignals"] {
+  const signals: JobSemanticExtraction["internationalSignals"] = {};
+
+  // Only set a signal when the wording gives direct evidence. In particular,
+  // "global team" is kept independent from company ownership/type.
+  if (/(海外业务|海外市场|国际市场|overseas business|overseas market|international market|global market|serving global customers)/i.test(text)) {
+    signals.overseasBusiness = true;
+  }
+
+  if (/(全球团队|国际团队|global team|international team|distributed team|team across countries|cross[- ]border team)/i.test(text)) {
+    signals.globalTeam = true;
+  }
+
+  if (/(英语|英文|english)[^。；;\n]{0,32}(?:沟通|交流|邮件|会议|工作|使用|communication|communicate|meetings|email|working language)/i.test(text) ||
+      /(?:english communication|communicate in english|english-speaking environment|working language is english)/i.test(text)) {
+    signals.englishUsage = true;
+  }
+
+  if (/(跨境协作|跨国协作|海外团队协作|国际协作|cross[- ]border collaboration|cross[- ]border cooperation|collaborat(?:e|ion) with (?:overseas|international|global) teams)/i.test(text)) {
+    signals.crossBorderCollaboration = true;
+  }
+
+  return signals;
+}
+
 function detectEnglishRequirement(
   text: string,
   languageRequirements: string[],
@@ -117,6 +142,6 @@ export function extractJobSemantics(job: Job): JobSemanticExtraction {
     employmentType: job.employmentType,
     languageRequirements,
     englishRequirement: detectEnglishRequirement(text, languageRequirements),
-    internationalSignals: {},
+    internationalSignals: extractInternationalSignals(text),
   };
 }
