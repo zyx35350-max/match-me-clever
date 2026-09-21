@@ -177,13 +177,15 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     (raw: RawJob) => {
       const result = ingestAndAdaptJobs({ records: state.importedJobRecords }, [raw]);
       if (!result.records.length) return { added: false, warnings: ["This job was already imported."] };
-      const latest = result.records[result.records.length - 1];
+      const latest = result.records.at(-1);
+      if (!latest) return { added: false, warnings: ["The imported job could not be normalized."] };
       const normalized = normalizeJobConcepts(latest.job);
+      const storedRecord: JobRecord = { raw: latest.raw, lifecycle: latest.lifecycle };
       setState((prev) => ({
         ...prev,
         importedJobRecords: [
-          ...prev.importedJobRecords.filter((record) => record.raw.id !== latest.raw.id),
-          latest,
+          ...prev.importedJobRecords.filter((record) => record.raw.id !== storedRecord.raw.id),
+          storedRecord,
         ],
       }));
       log({
@@ -381,7 +383,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, dismissedSuggestions: [...prev.dismissedSuggestions, id] }));
   }, []);
 
-  const importedJobs = useMemo(() => state.importedJobRecords.map((record) => normalizeJobConcepts(record.job)), [state.importedJobRecords]);
+  const importedJobs = useMemo(() => state.importedJobRecords.map((record) => normalizeJobConcepts(adaptStoredRecord(record))), [state.importedJobRecords]);
   const jobs = useMemo(() => [...allJobs, ...importedJobs], [importedJobs]);
 
   const suggestions = useMemo(
