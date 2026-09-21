@@ -62,5 +62,7 @@ export interface JobUnderstanding {
   titleTranslated?: string;
   descriptionTranslated?: string;
   semantic: JobSemanticExtraction;
+  /** Canonical concepts derived from the extracted source terms; originals remain untouched. */
+  normalized?: JobNormalization;
   companyType?: CompanyClassification;
 }
