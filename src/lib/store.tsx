@@ -17,6 +17,7 @@ import type {
   UserFeedback,
 } from "./career-types";
 import { buildSuggestions, feedbackLabel } from "./career-engine";
+import { adaptRawJobToJob } from "./job-adapter";
 import { ingestAndAdaptJobs } from "./job-discovery-adapter";
 import type { JobRecord } from "./job-discovery-pipeline";
 import { normalizeJobConcepts } from "./job-normalize";
@@ -456,4 +457,6 @@ export function statusLabel(status: ApplicationStatus) {
     offer: "Offer",
     rejected: "Closed",
   }[status];
+}function adaptStoredRecord(record: JobRecord): Job {
+  return adaptRawJobToJob(record.raw).job;
 }
