@@ -1,0 +1,116 @@
+import type { Job } from "./types";
+import type { JobSemanticExtraction } from "./job-understanding-types";
+
+/**
+ * Deterministic semantic extraction for raw jobs.
+ *
+ * V1.1.5 deliberately stays conservative:
+ * - structured fields already supplied by the source are copied as facts;
+ * - simple requirement phrases are extracted from the source wording;
+ * - career directions are only added when the title/text contains explicit
+ *   direction terms;
+ * - nothing is invented when the listing is silent.
+ */
+
+const DIRECTION_RULES: Array<{ id: string; terms: string[] }> = [
+  { id: "ai-ecommerce", terms: ["电商", "电子商务", "e-commerce", "ecommerce", "temu", "ebay", "amazon"] },
+  { id: "ai-product", terms: ["产品经理", "产品负责人", "product manager", "product owner", "product management"] },
+  { id: "ai-content", terms: ["内容运营", "内容创作", "内容策划", "content", "copywriter", "social media"] },
+  { id: "ai-visual", terms: ["视觉设计", "视觉", "平面设计", "设计师", "visual", "graphic design", "creative designer"] },
+  { id: "ai-operations", terms: ["运营", "operations", "运营经理", "运营专员"] },
+];
+
+const ENGLISH_REQUIRED_PATTERNS = [
+  /英语.{0,12}(必须|required|流利|熟练|工作语言)/i,
+  /英文.{0,12}(必须|required|流利|熟练|工作语言)/i,
+  /英语能力.{0,12}(要求|必须|required|流利|熟练)/i,
+  /english.{0,24}(required|must|fluent|proficient|working language)/i,
+  /(required|must).{0,24}english/i,
+];
+
+const ENGLISH_PREFERRED_PATTERNS = [
+  /英语.{0,12}(优先|加分|preferred|优先考虑)/i,
+  /英文.{0,12}(优先|加分)/i,
+  /english.{0,24}(preferred|plus|a bonus|nice to have)/i,
+];
+
+const EXPERIENCE_PATTERNS = [
+  /(?:至少|不少于|最低|minimum of)\s*(\d+(?:\.\d+)?)\s*(?:年|years?)/i,
+  /\b(\d+(?:\.\d+)?)\+?\s*years?\b/i,
+  /(?:工作经验|经验要求|experience)[:：]?\s*([^。；;\n]+)/i,
+];
+
+const EDUCATION_PATTERNS = [
+  /(?:本科|大专|专科|硕士|博士|学士|bachelor'?s?|master'?s?|phd|degree)/i,
+];
+
+function sourceText(job: Job): string {
+  return [
+    job.titleOriginal ?? job.title,
+    job.summaryOriginal ?? job.summary,
+    ...job.responsibilities,
+    ...job.skills,
+    job.industry ?? "",
+  ].filter(Boolean).join("\n");
+}
+
+function includesAny(text: string, terms: string[]): boolean {
+  const lower = text.toLowerCase();
+  return terms.some((term) => lower.includes(term.toLowerCase()));
+}
+
+function extractRequirements(text: string, patterns: RegExp[]): string[] {
+  const results: string[] = [];
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[0]) results.push(match[0].trim());
+  }
+  return [...new Set(results)];
+}
+
+function extractLanguageRequirements(text: string): string[] {
+  const results: string[] = [];
+  const languagePattern = /(英语|英文|english|中文|汉语|普通话|mandarin|language)[^。；;\n]{0,40}/gi;
+  for (const match of text.matchAll(languagePattern)) {
+    if (match[0]) results.push(match[0].trim());
+  }
+  return [...new Set(results)].slice(0, 5);
+}
+
+function extractCareerDirections(text: string): string[] {
+  return DIRECTION_RULES
+    .filter((rule) => includesAny(text, rule.terms))
+    .map((rule) => rule.id);
+}
+
+function detectEnglishRequirement(
+  text: string,
+  languageRequirements: string[],
+): JobSemanticExtraction["englishRequirement"] {
+  const combined = [text, ...languageRequirements].join("\n");
+  if (ENGLISH_REQUIRED_PATTERNS.some((pattern) => pattern.test(combined))) return "required";
+  if (ENGLISH_PREFERRED_PATTERNS.some((pattern) => pattern.test(combined))) return "preferred";
+  return "unknown";
+}
+
+/**
+ * Extract semantic information without translating or mutating the original Job.
+ */
+export function extractJobSemantics(job: Job): JobSemanticExtraction {
+  const text = sourceText(job);
+  const languageRequirements = extractLanguageRequirements(text);
+
+  return {
+    title: job.titleOriginal ?? job.title,
+    skills: [...job.skills],
+    responsibilities: [...job.responsibilities],
+    careerDirections: extractCareerDirections(text),
+    experienceRequirements: extractRequirements(text, EXPERIENCE_PATTERNS),
+    educationRequirements: extractRequirements(text, EDUCATION_PATTERNS),
+    workMode: job.workMode,
+    employmentType: job.employmentType,
+    languageRequirements,
+    englishRequirement: detectEnglishRequirement(text, languageRequirements),
+    internationalSignals: {},
+  };
+}
