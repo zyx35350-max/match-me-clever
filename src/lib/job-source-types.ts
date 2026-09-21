@@ -6,21 +6,10 @@
  */
 
 export type JobSourceType =
-  | "user_import"
-  | "company_site"
-  | "job_board"
-  | "aggregator"
-  | "api"
-  | "licensed_feed"
-  | "other";
+  "user_import" | "company_site" | "job_board" | "aggregator" | "api" | "licensed_feed" | "other";
 
 export type AccessPolicy =
-  | "manual_import"
-  | "public_page"
-  | "official_api"
-  | "licensed_feed"
-  | "restricted"
-  | "unknown";
+  "manual_import" | "public_page" | "official_api" | "licensed_feed" | "restricted" | "unknown";
 
 export type FetchStatus =
   | "pending"

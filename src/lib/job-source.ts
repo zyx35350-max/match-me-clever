@@ -1,9 +1,4 @@
-import type {
-  FetchResult,
-  JobSource,
-  JobSourceAdapter,
-  RawJob,
-} from "./job-source-types";
+import type { FetchResult, JobSource, JobSourceAdapter, RawJob } from "./job-source-types";
 
 export const USER_IMPORT_SOURCE: JobSource = {
   id: "user-import",
@@ -97,9 +92,7 @@ export const defaultJobSources: JobSource[] = [
 
 export function sourceCanDiscover(source: JobSource) {
   return (
-    source.enabled &&
-    source.accessPolicy !== "restricted" &&
-    source.accessPolicy !== "unknown"
+    source.enabled && source.accessPolicy !== "restricted" && source.accessPolicy !== "unknown"
   );
 }
 
