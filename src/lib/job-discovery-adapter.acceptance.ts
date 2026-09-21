@@ -26,10 +26,12 @@ async function main() {
   });
 
   assert.equal(first.records.length, 1);
-  assert.equal(first.records[0].job.id, first.records[0].raw.id);
-  assert.equal(first.records[0].lifecycle.status, "discovered");
-  assert.equal(first.records[0].job.title, "AI Visual Designer");
-  assert.equal(first.records[0].job.source, USER_IMPORT_SOURCE.id);
+  const firstRecord = first.records[0];
+  assert.ok(firstRecord);
+  assert.equal(firstRecord.job.id, firstRecord.raw.id);
+  assert.equal(firstRecord.lifecycle.status, "discovered");
+  assert.equal(firstRecord.job.title, "AI Visual Designer");
+  assert.equal(firstRecord.job.source, USER_IMPORT_SOURCE.id);
 
   const secondStore: JobDiscoveryStore = { records: first.records };
   const refreshed = ingestAndAdaptJobs(
@@ -40,8 +42,10 @@ async function main() {
 
   assert.equal(refreshed.records.length, 1);
   assert.equal(refreshed.duplicates.length, 1);
-  assert.equal(refreshed.records[0].lifecycle.status, "active");
-  assert.equal(refreshed.records[0].raw.fetchedAt, "2026-09-21T15:00:00.000Z");
+  const refreshedRecord = refreshed.records[0];
+  assert.ok(refreshedRecord);
+  assert.equal(refreshedRecord.lifecycle.status, "active");
+  assert.equal(refreshedRecord.raw.fetchedAt, "2026-09-21T15:00:00.000Z");
 
   console.log("V1.2.3 discovery adapter integration passed.");
 }
