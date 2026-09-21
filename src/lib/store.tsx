@@ -17,6 +17,10 @@ import type {
   UserFeedback,
 } from "./career-types";
 import { buildSuggestions, feedbackLabel } from "./career-engine";
+import { ingestAndAdaptJobs } from "./job-discovery-adapter";
+import type { JobRecord } from "./job-discovery-pipeline";
+import { normalizeJobConcepts } from "./job-normalize";
+import type { RawJob } from "./job-source-types";
 import { defaultIdentity, deriveLegacyProfile, type ProfileIdentity } from "./profile-bridge";
 import type {
   ActivityEntry,
@@ -42,6 +46,7 @@ interface Persisted {
   activity: ActivityEntry[];
   feedback: UserFeedback[];
   dismissedSuggestions: string[];
+  importedJobRecords: JobRecord[];
 }
 
 const seedActivity: ActivityEntry[] = [
@@ -79,6 +84,7 @@ const initial: Persisted = {
   career: defaultCareerProfile,
   feedback: [],
   dismissedSuggestions: [],
+  importedJobRecords: [],
   saved: ["pivot-ai-prompt-project", "yuanli-ai-visual-designer"],
   applications: [
     {
@@ -112,6 +118,7 @@ interface Store extends Persisted {
   apply: (job: Job) => void;
   setStatus: (job: Job, status: ApplicationStatus) => void;
   statusFor: (jobId: string) => ApplicationStatus | undefined;
+  importRawJob: (raw: RawJob) => { added: boolean; warnings: string[] };
 }
 
 const StoreContext = createContext<Store | null>(null);
@@ -165,6 +172,31 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       ),
     }));
   }, []);
+
+  const importRawJob = useCallback(
+    (raw: RawJob) => {
+      const result = ingestAndAdaptJobs({ records: state.importedJobRecords }, [raw]);
+      if (!result.records.length) return { added: false, warnings: ["This job was already imported."] };
+      const latest = result.records[result.records.length - 1];
+      const normalized = normalizeJobConcepts(latest.job);
+      setState((prev) => ({
+        ...prev,
+        importedJobRecords: [
+          ...prev.importedJobRecords.filter((record) => record.raw.id !== latest.raw.id),
+          latest,
+        ],
+      }));
+      log({
+        jobId: normalized.id,
+        jobTitle: normalized.title,
+        company: normalized.company,
+        kind: "saved",
+        label: "Imported job — " + normalized.title,
+      });
+      return { added: true, warnings: latest.warnings };
+    },
+    [log, state.importedJobRecords],
+  );
 
   const recordFeedback = useCallback(
     (job: Job, action: FeedbackAction) => {
@@ -349,12 +381,15 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, dismissedSuggestions: [...prev.dismissedSuggestions, id] }));
   }, []);
 
+  const importedJobs = useMemo(() => state.importedJobRecords.map((record) => normalizeJobConcepts(record.job)), [state.importedJobRecords]);
+  const jobs = useMemo(() => [...allJobs, ...importedJobs], [importedJobs]);
+
   const suggestions = useMemo(
     () =>
-      buildSuggestions(state.career, state.feedback, allJobs).filter(
+      buildSuggestions(state.career, state.feedback, jobs).filter(
         (s) => !state.dismissedSuggestions.includes(s.id),
       ),
-    [state.career, state.feedback, state.dismissedSuggestions],
+    [state.career, state.feedback, state.dismissedSuggestions, jobs],
   );
 
   const profile = useMemo(
@@ -365,7 +400,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Store>(
     () => ({
       ...state,
-      jobs: allJobs,
+      jobs,
       profile,
       hydrated,
       suggestions,
@@ -381,6 +416,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       apply,
       setStatus,
       statusFor: (id) => state.applications.find((a) => a.jobId === id)?.status,
+      importRawJob,
     }),
     [
       state,
@@ -395,6 +431,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       toggleSaved,
       apply,
       setStatus,
+      importRawJob,
+      jobs,
     ],
   );
 
