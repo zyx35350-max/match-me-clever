@@ -32,10 +32,9 @@ export function ingestAndAdaptJobs(
 
   return {
     records: pipeline.records.map((record) => {
-      const adapted = adaptRawJobToJob(record.raw, {
-        lifecycle: record.lifecycle,
-        defaults,
-      });
+      const adapted = defaults
+        ? adaptRawJobToJob(record.raw, { lifecycle: record.lifecycle, defaults })
+        : adaptRawJobToJob(record.raw, { lifecycle: record.lifecycle });
 
       return {
         raw: adapted.raw,
