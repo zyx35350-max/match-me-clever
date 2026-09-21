@@ -58,7 +58,7 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
     source: USER_IMPORT_SOURCE,
     rawTitle: title,
     rawDescription: description,
-    ...(clean(input.sourceUrl) ? { sourceUrl: clean(input.sourceUrl) } : {}),
+    ...(clean(input.sourceUrl) ? { sourceUrl: clean(input.sourceUrl)! } : {}),
     ...(company ? { companyName: company } : {}),
     ...(location ? { locationText: location } : {}),
   });
