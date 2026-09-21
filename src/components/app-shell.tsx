@@ -35,17 +35,23 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
 
           <nav className="hidden items-center gap-1 text-sm font-medium md:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to === "/import" ? "/" : item.to}
-                activeOptions={{ exact: item.to === "/" }}
-                className="rounded-full px-3 py-2 transition-colors hover:bg-sand"
-                activeProps={{ className: "bg-ink text-cream hover:bg-ink" }}
-              >
-                {item.label === "Import Job" ? <a href="/import">Import Job</a> : item.label}
-              </Link>
-            ))}
+            {navItems.map((item) =>
+              item.to === "/import" ? (
+                <a key={item.to} href="/import" className="rounded-full px-3 py-2 transition-colors hover:bg-sand">
+                  {item.label}
+                </a>
+              ) : (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  activeOptions={{ exact: item.to === "/" }}
+                  className="rounded-full px-3 py-2 transition-colors hover:bg-sand"
+                  activeProps={{ className: "bg-ink text-cream hover:bg-ink" }}
+                >
+                  {item.label}
+                </Link>
+              ),
+            )}
           </nav>
 
           <div className="ml-auto flex items-center gap-3">
@@ -63,17 +69,23 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
         <nav className="flex items-center gap-1 overflow-x-auto border-t border-ink/10 px-4 py-2 text-sm font-medium md:hidden">
-          {navItems.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to === "/import" ? "/" : item.to}
-              activeOptions={{ exact: item.to === "/" }}
-              className="rounded-full px-3 py-1.5 whitespace-nowrap"
-              activeProps={{ className: "bg-ink text-cream" }}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) =>
+            item.to === "/import" ? (
+              <a key={item.to} href="/import" className="rounded-full px-3 py-1.5 whitespace-nowrap">
+                {item.label}
+              </a>
+            ) : (
+              <Link
+                key={item.to}
+                to={item.to}
+                activeOptions={{ exact: item.to === "/" }}
+                className="rounded-full px-3 py-1.5 whitespace-nowrap"
+                activeProps={{ className: "bg-ink text-cream" }}
+              >
+                {item.label}
+              </Link>
+            ),
+          )}
         </nav>
       </header>
       <main className="mx-auto max-w-[1200px] px-5 py-8">{children}</main>
