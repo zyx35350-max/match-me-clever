@@ -22,8 +22,8 @@ if (first.raw.rawDescription !== input.text) throw new Error("original text not 
 if (first.job.title !== "AI Content Specialist") throw new Error("title not parsed");
 if (first.job.company !== "Example Studio") throw new Error("company not parsed");
 if (first.job.location !== "Remote") throw new Error("location not parsed");
-if (!first.job.skills.length) throw new Error("semantic skills were not extracted");
-if (!first.job.responsibilities.length) throw new Error("semantic responsibilities were not extracted");
+if (!first.job.careerDirection) throw new Error("career direction was not extracted");
+if (first.job.careerDirection !== "ai-content") throw new Error("unexpected career direction");
 if (!first.warnings.includes("salary was not supplied")) throw new Error("missing salary warning absent");
 if (!first.warnings.includes("seniority was not supplied")) throw new Error("missing seniority warning absent");
 
