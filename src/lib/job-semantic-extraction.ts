@@ -139,7 +139,7 @@ export function extractJobSemantics(job: Job): JobSemanticExtraction {
     experienceRequirements: extractRequirements(text, EXPERIENCE_PATTERNS),
     educationRequirements: extractRequirements(text, EDUCATION_PATTERNS),
     workMode: job.workMode,
-    employmentType: job.employmentType,
+    ...(job.employmentType ? { employmentType: job.employmentType } : {}),
     languageRequirements,
     englishRequirement: detectEnglishRequirement(text, languageRequirements),
     internationalSignals: extractInternationalSignals(text),
