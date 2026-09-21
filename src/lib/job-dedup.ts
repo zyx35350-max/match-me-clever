@@ -29,11 +29,7 @@ export function compareJobs(existing: RawJob, candidate: RawJob): DedupMatch {
     candidate.externalId?.trim() &&
     existing.externalId.trim() === candidate.externalId.trim()
   ) {
-    return {
-      duplicate: true,
-      matchType: "external_id",
-      existingJobId: existing.id,
-    };
+    return { duplicate: true, matchType: "external_id", existingJobId: existing.id };
   }
 
   if (
@@ -42,11 +38,7 @@ export function compareJobs(existing: RawJob, candidate: RawJob): DedupMatch {
     candidate.sourceUrl?.trim() &&
     normalizeUrl(existing.sourceUrl) === normalizeUrl(candidate.sourceUrl)
   ) {
-    return {
-      duplicate: true,
-      matchType: "source_url",
-      existingJobId: existing.id,
-    };
+    return { duplicate: true, matchType: "source_url", existingJobId: existing.id };
   }
 
   if (
@@ -55,11 +47,7 @@ export function compareJobs(existing: RawJob, candidate: RawJob): DedupMatch {
     candidate.contentHash?.trim() &&
     existing.contentHash.trim() === candidate.contentHash.trim()
   ) {
-    return {
-      duplicate: true,
-      matchType: "content_hash",
-      existingJobId: existing.id,
-    };
+    return { duplicate: true, matchType: "content_hash", existingJobId: existing.id };
   }
 
   if (
@@ -67,20 +55,13 @@ export function compareJobs(existing: RawJob, candidate: RawJob): DedupMatch {
     normalizeText(existing.rawTitle) === normalizeText(candidate.rawTitle) &&
     normalizeText(existing.rawDescription) === normalizeText(candidate.rawDescription)
   ) {
-    return {
-      duplicate: true,
-      matchType: "exact_content",
-      existingJobId: existing.id,
-    };
+    return { duplicate: true, matchType: "exact_content", existingJobId: existing.id };
   }
 
   return { duplicate: false, matchType: "none" };
 }
 
-export function deduplicateJobs(
-  existingJobs: RawJob[],
-  incomingJobs: RawJob[],
-): DedupResult {
+export function deduplicateJobs(existingJobs: RawJob[], incomingJobs: RawJob[]): DedupResult {
   const uniqueJobs = [...existingJobs];
   const duplicates: DedupResult["duplicates"] = [];
 
@@ -89,23 +70,23 @@ export function deduplicateJobs(
       .map((existing) => compareJobs(existing, candidate))
       .find((result) => result.duplicate);
 
-    if (match?.duplicate && match.existingJobId) {
-      duplicates.push({
-        job: candidate,
-        existingJobId: match.existingJobId,
-        matchType: match.matchType,
-      });
+    if (!match || !match.duplicate || match.matchType === "none" || !match.existingJobId) {
+      uniqueJobs.push(candidate);
       continue;
     }
 
-    uniqueJobs.push(candidate);
+    duplicates.push({
+      job: candidate,
+      existingJobId: match.existingJobId,
+      matchType: match.matchType,
+    });
   }
 
   return { uniqueJobs, duplicates };
 }
 
 function normalizeText(value: string): string {
-  return value.trim().replace(/\s+/g, " ").toLocaleLowerCase();
+  return value.trim().replace(/\\s+/g, " ").toLocaleLowerCase();
 }
 
 function normalizeUrl(url: string): string {
@@ -114,9 +95,9 @@ function normalizeUrl(url: string): string {
     parsed.hash = "";
     parsed.search = "";
     parsed.hostname = parsed.hostname.toLowerCase();
-    parsed.pathname = parsed.pathname.replace(/\/$/, "");
+    parsed.pathname = parsed.pathname.replace(/\\/$/, "");
     return parsed.toString();
   } catch {
-    return url.trim().replace(/\/$/, "").toLowerCase();
+    return url.trim().replace(/\\/$/, "").toLowerCase();
   }
 }
