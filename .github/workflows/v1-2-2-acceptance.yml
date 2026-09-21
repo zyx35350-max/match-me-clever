@@ -22,6 +22,7 @@ jobs:
       - run: npx --yes tsx src/lib/job-dedup-lifecycle.acceptance.ts
       - run: npx --yes tsx src/lib/job-discovery-pipeline.acceptance.ts
       - run: npx --yes tsx src/lib/job-adapter.acceptance.ts
+      - run: npx --yes tsx src/lib/job-discovery-adapter.acceptance.ts
       - run: npx tsc --noEmit
       - run: npm run build
       - run: npm run format
