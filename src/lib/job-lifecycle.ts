@@ -1,11 +1,6 @@
 import type { RawJob } from "./job-source-types";
 
-export type JobLifecycleStatus =
-  | "discovered"
-  | "active"
-  | "stale"
-  | "closed"
-  | "expired";
+export type JobLifecycleStatus = "discovered" | "active" | "stale" | "closed" | "expired";
 
 export interface JobLifecycle {
   status: JobLifecycleStatus;
@@ -27,24 +22,16 @@ export function createJobLifecycle(
   };
 }
 
-export function touchJobLifecycle(
-  lifecycle: JobLifecycle,
-  seenAt: string,
-): JobLifecycle {
+export function touchJobLifecycle(lifecycle: JobLifecycle, seenAt: string): JobLifecycle {
   return {
     ...lifecycle,
     status:
-      lifecycle.status === "closed" || lifecycle.status === "expired"
-        ? lifecycle.status
-        : "active",
+      lifecycle.status === "closed" || lifecycle.status === "expired" ? lifecycle.status : "active",
     lastSeenAt: seenAt,
   };
 }
 
-export function markJobStale(
-  lifecycle: JobLifecycle,
-  staleAt: string,
-): JobLifecycle {
+export function markJobStale(lifecycle: JobLifecycle, staleAt: string): JobLifecycle {
   if (lifecycle.status === "closed" || lifecycle.status === "expired") {
     return lifecycle;
   }
@@ -56,10 +43,7 @@ export function markJobStale(
   };
 }
 
-export function closeJobLifecycle(
-  lifecycle: JobLifecycle,
-  closedAt: string,
-): JobLifecycle {
+export function closeJobLifecycle(lifecycle: JobLifecycle, closedAt: string): JobLifecycle {
   return {
     ...lifecycle,
     status: "closed",
@@ -67,10 +51,7 @@ export function closeJobLifecycle(
   };
 }
 
-export function expireJobLifecycle(
-  lifecycle: JobLifecycle,
-  expiredAt: string,
-): JobLifecycle {
+export function expireJobLifecycle(lifecycle: JobLifecycle, expiredAt: string): JobLifecycle {
   return {
     ...lifecycle,
     status: "expired",

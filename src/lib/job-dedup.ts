@@ -1,11 +1,7 @@
 import type { RawJob } from "./job-source-types";
 
 export type DedupMatchType =
-  | "external_id"
-  | "source_url"
-  | "content_hash"
-  | "exact_content"
-  | "none";
+  "external_id" | "source_url" | "content_hash" | "exact_content" | "none";
 
 export interface DedupMatch {
   duplicate: boolean;

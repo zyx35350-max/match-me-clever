@@ -1,10 +1,6 @@
 import type { RawJob } from "./job-source-types";
 import { deduplicateJobs } from "./job-dedup";
-import {
-  createJobLifecycle,
-  touchJobLifecycle,
-  type JobLifecycle,
-} from "./job-lifecycle";
+import { createJobLifecycle, touchJobLifecycle, type JobLifecycle } from "./job-lifecycle";
 
 export interface JobRecord {
   raw: RawJob;

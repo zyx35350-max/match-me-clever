@@ -8,7 +8,8 @@ function raw(externalId: string, fetchedAt: string) {
     source: USER_IMPORT_SOURCE,
     externalId,
     rawTitle: "AI Visual Designer",
-    rawDescription: "Create AI-assisted product visuals and collaborate with an international team.",
+    rawDescription:
+      "Create AI-assisted product visuals and collaborate with an international team.",
     companyName: "Example Studio",
     locationText: "Remote",
     fetchedAt,
@@ -34,11 +35,13 @@ async function main() {
   assert.equal(firstRecord.job.source, USER_IMPORT_SOURCE.id);
 
   const secondStore: JobDiscoveryStore = { records: first.records };
-  const refreshed = ingestAndAdaptJobs(
-    secondStore,
-    [raw("job-1", "2026-09-21T15:00:00.000Z")],
-    { workMode: "remote", employmentType: "fulltime", salaryMin: 10000, salaryMax: 16000, seniority: "mid" },
-  );
+  const refreshed = ingestAndAdaptJobs(secondStore, [raw("job-1", "2026-09-21T15:00:00.000Z")], {
+    workMode: "remote",
+    employmentType: "fulltime",
+    salaryMin: 10000,
+    salaryMax: 16000,
+    seniority: "mid",
+  });
 
   assert.equal(refreshed.records.length, 1);
   assert.equal(refreshed.duplicates.length, 1);
