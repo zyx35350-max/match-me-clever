@@ -1,13 +1,13 @@
 import type { Job } from "./types";
 import { detectJobLanguage } from "./job-language";
+import { extractJobSemantics } from "./job-semantic-extraction";
 import type { JobUnderstanding } from "./job-understanding-types";
 
 /**
- * Build the non-destructive understanding shell for a raw job.
+ * Build the non-destructive understanding layer for a raw job.
  *
- * This stage deliberately does not translate, infer facts, or classify the
- * company. It only detects the source language and creates safe placeholders
- * for later V1.1.5 stages.
+ * Translation, company classification, and international-signal inference
+ * remain separate future stages.
  */
 export function buildJobUnderstanding(job: Job): JobUnderstanding {
   const language = detectJobLanguage({
@@ -19,15 +19,6 @@ export function buildJobUnderstanding(job: Job): JobUnderstanding {
 
   return {
     language,
-    semantic: {
-      skills: [],
-      responsibilities: [],
-      careerDirections: [],
-      experienceRequirements: [],
-      educationRequirements: [],
-      languageRequirements: [],
-      englishRequirement: "unknown",
-      internationalSignals: {},
-    },
+    semantic: extractJobSemantics(job),
   };
 }
