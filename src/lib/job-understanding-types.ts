@@ -14,6 +14,8 @@
  *   two are independent signals.
  */
 
+import type { JobNormalization } from "./types";
+
 export type JobLanguage = "zh" | "en" | "mixed" | "unknown";
 
 export type EnglishRequirement = "required" | "preferred" | "unknown";
