@@ -12,6 +12,7 @@ const navItems = [
   { to: "/today", label: "Today" },
   { to: "/saved", label: "Saved" },
   { to: "/activity", label: "Activity" },
+  { to: "/import", label: "Import Job" },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
