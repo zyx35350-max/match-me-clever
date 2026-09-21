@@ -22,9 +22,11 @@ export function matchUnderstoodJob(
   const matchableJob: Job = {
     ...job,
     skills: canonicalSkills?.length ? canonicalSkills : job.skills,
-    careerDirection:
-      job.careerDirection ??
-      (canonicalDirections.length === 1 ? canonicalDirections[0] : undefined),
+    ...(job.careerDirection
+      ? { careerDirection: job.careerDirection }
+      : canonicalDirections.length === 1
+        ? { careerDirection: canonicalDirections[0] }
+        : {}),
   };
 
   const result = matchJob(ctx, matchableJob);
