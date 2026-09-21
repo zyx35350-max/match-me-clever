@@ -21,8 +21,8 @@ export function buildJobUnderstanding(job: Job): JobUnderstanding {
     language,
     semantic,
     normalized: normalizeJobConcepts({
-      title: semantic.title,
-      industry: job.industry,
+      ...(semantic.title ? { title: semantic.title } : {}),
+      ...(job.industry ? { industry: job.industry } : {}),
       skills: semantic.skills,
       responsibilities: semantic.responsibilities,
       careerDirections: semantic.careerDirections,
