@@ -28,7 +28,9 @@ if (!first.warnings.includes("seniority was not supplied")) throw new Error("mis
 const deduped = deduplicateJobs([first.raw], [second.raw]);
 if (deduped.uniqueJobs.length !== 1) throw new Error("duplicate import was not removed");
 if (deduped.duplicates.length !== 1) throw new Error("duplicate record was not reported");
-if (deduped.duplicates[0].matchType !== "source_url") throw new Error("duplicate match type was not source_url");
+const duplicate = deduped.duplicates[0];
+if (!duplicate) throw new Error("duplicate record details missing");
+if (duplicate.matchType !== "source_url") throw new Error("duplicate match type was not source_url");
 
 const missingMetadata = parseUserJobText({
   text: `Product Designer
