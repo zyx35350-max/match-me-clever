@@ -1,13 +1,11 @@
 import type { Job } from "./types";
 import { detectJobLanguage } from "./job-language";
 import { extractJobSemantics } from "./job-semantic-extraction";
+import { normalizeJobConcepts } from "./job-concept-normalization";
 import type { JobUnderstanding } from "./job-understanding-types";
 
 /**
  * Build the non-destructive understanding layer for a raw job.
- *
- * Translation, company classification, and international-signal inference
- * remain separate future stages.
  */
 export function buildJobUnderstanding(job: Job): JobUnderstanding {
   const language = detectJobLanguage({
@@ -17,8 +15,17 @@ export function buildJobUnderstanding(job: Job): JobUnderstanding {
     skills: job.skills,
   });
 
+  const semantic = extractJobSemantics(job);
+
   return {
     language,
-    semantic: extractJobSemantics(job),
+    semantic,
+    normalized: normalizeJobConcepts({
+      title: semantic.title,
+      industry: job.industry,
+      skills: semantic.skills,
+      responsibilities: semantic.responsibilities,
+      careerDirections: semantic.careerDirections,
+    }),
   };
 }
