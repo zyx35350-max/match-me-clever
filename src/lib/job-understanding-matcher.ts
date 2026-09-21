@@ -41,7 +41,6 @@ export function matchRawJobWithUnderstanding(ctx: MatchContext, job: Job): JobMa
   return matchUnderstoodJob(ctx, job, buildJobUnderstanding(job));
 }
 
-
 /** Match a collection through Job Understanding before the single Career Engine scorer. */
 export function matchJobsWithUnderstanding(
   ctx: MatchContext,
