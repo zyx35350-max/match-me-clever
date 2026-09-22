@@ -52,7 +52,22 @@ function isExperienceLine(line: string) {
 }
 
 function looksLikeLocation(line: string) {
-  return /^(?:.+[-－—].+|.+(?:区|县|市|省))$/.test(line) && !parseSalary(line) && !isExperienceLine(line);
+  return (
+    /^(?:.+[-－—].+|.+(?:区|县|市|省))$/.test(line) &&
+    !parseSalary(line) &&
+    !isExperienceLine(line) &&
+    !/^(?:中技|中专|高中|大专|本科|硕士|博士|英语|招\d+人|收藏|立即投递)$/.test(line)
+  );
+}
+
+function parseCompany(text: string, lines: string[]): string | undefined {
+  const labeledCompany = labeled(text, ["company", "company name", "公司", "公司名称"]);
+  if (labeledCompany) return labeledCompany;
+
+  const companyLine = lines.find((line) =>
+    /(?:有限公司|有限责任公司|股份有限公司|科技有限公司|集团有限公司|公司)$/.test(line),
+  );
+  return clean(companyLine);
 }
 
 /**
@@ -72,7 +87,7 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
 
   const company =
     clean(input.companyName) ??
-    labeled(text, ["company", "company name", "公司", "公司名称"]);
+    parseCompany(text, lines);
 
   const header = lines.slice(0, 10).join(" ");
   const salary = parseSalary(header);
@@ -83,7 +98,8 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
   const location =
     clean(input.locationText) ??
     labeled(text, ["location", "地点", "工作地点", "location / remote"]) ??
-    lines.slice(1, 7).find((line) => looksLikeLocation(line));
+    lines.slice(1, 7).find((line) => looksLikeLocation(line)) ??
+    lines[1];
 
   const raw = createRawJob({
     source: USER_IMPORT_SOURCE,
