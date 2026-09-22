@@ -20,6 +20,18 @@ export type JobLanguage = "zh" | "en" | "mixed" | "unknown";
 
 export type EnglishRequirement = "required" | "preferred" | "unknown";
 
+export type EnglishProficiency =
+  | "CET-4"
+  | "CET-4+"
+  | "CET-6"
+  | "CET-6+"
+  | "proficient_reading_writing"
+  | "proficient_all"
+  | "fluent"
+  | "fluent_speaking"
+  | "working_proficiency"
+  | "unknown";
+
 export type EvidenceLevel = "explicit" | "strong" | "inferred" | "unknown";
 
 export type CompanyType =
@@ -50,6 +62,7 @@ export interface JobSemanticExtraction {
   employmentType?: EmploymentType;
   languageRequirements?: string[];
   englishRequirement: EnglishRequirement;
+  englishProficiency: EnglishProficiency;
   internationalSignals: InternationalSignals;
 }
 

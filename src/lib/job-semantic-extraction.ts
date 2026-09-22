@@ -1,5 +1,5 @@
 import type { Job } from "./types";
-import type { JobSemanticExtraction } from "./job-understanding-types";
+import type { JobSemanticExtraction, EnglishProficiency } from "./job-understanding-types";
 
 /**
  * Deterministic semantic extraction for raw jobs.
@@ -43,6 +43,8 @@ const DIRECTION_RULES: Array<{ id: string; terms: string[] }> = [
 const ENGLISH_REQUIRED_PATTERNS = [
   /(?:英语|英文|english)[^。；;\n]{0,32}(?:必须|required|must|mandatory|必需|流利|熟练|工作语言)/i,
   /(?:required|must|mandatory|fluent|proficient|working language)[^。；;\n]{0,32}(?:英语|英文|english)/i,
+  /(?:英语|英文)[^。；;\n]{0,8}(?:四级|六级)(?:及以上|以上)/,
+  /CET-[46]\+/i,
 ];
 
 const ENGLISH_PREFERRED_PATTERNS = [
@@ -164,6 +166,65 @@ function detectEnglishRequirement(
 }
 
 /**
+ * Proficiency patterns are checked in priority order: CET-6 variants first
+ * (more specific), then CET-4, then proficiency descriptors. Each pattern
+ * captures the matched source text so evidence is always grounded in the
+ * original wording.
+ */
+const PROFICIENCY_RULES: Array<{
+  proficiency: EnglishProficiency;
+  patterns: RegExp[];
+}> = [
+  {
+    proficiency: "CET-6+",
+    patterns: [/英语六级(?:及以上|以上)/, /CET-6\+/i, /cet[\s-]?6\s*(?:及以上|以上|or\s*above)/i],
+  },
+  {
+    proficiency: "CET-6",
+    patterns: [/英语六级/, /\bCET-6\b/i, /\bcet[\s-]?6\b/i],
+  },
+  {
+    proficiency: "CET-4+",
+    patterns: [/英语四级(?:及以上|以上)/, /CET-4\+/i, /cet[\s-]?4\s*(?:及以上|以上|or\s*above)/i],
+  },
+  {
+    proficiency: "CET-4",
+    patterns: [/英语四级/, /\bCET-4\b/i, /\bcet[\s-]?4\b/i],
+  },
+  {
+    proficiency: "fluent_speaking",
+    patterns: [/英语口语流利/, /(?:英语|英文)[^。；;\n]{0,8}口语流利/],
+  },
+  {
+    proficiency: "fluent",
+    patterns: [/英语流利/, /(?:英语|英文)[^。；;\n]{0,4}流利/],
+  },
+  {
+    proficiency: "proficient_all",
+    patterns: [/英语听说读写熟练/, /(?:英语|英文)[^。；;\n]{0,8}听说读写熟练/],
+  },
+  {
+    proficiency: "proficient_reading_writing",
+    patterns: [/英语读写熟练/, /(?:英语|英文)[^。；;\n]{0,8}读写熟练/],
+  },
+  {
+    proficiency: "working_proficiency",
+    patterns: [/工作英语/, /(?:英语|english)[^。；;\n]{0,8}工作能力/i],
+  },
+];
+
+function detectEnglishProficiency(text: string): EnglishProficiency {
+  for (const rule of PROFICIENCY_RULES) {
+    for (const pattern of rule.patterns) {
+      if (pattern.test(text)) {
+        return rule.proficiency;
+      }
+    }
+  }
+  return "unknown";
+}
+
+/**
  * Extract semantic information without translating or mutating the original Job.
  */
 export function extractJobSemantics(job: Job): JobSemanticExtraction {
@@ -181,6 +242,7 @@ export function extractJobSemantics(job: Job): JobSemanticExtraction {
     ...(job.employmentType ? { employmentType: job.employmentType } : {}),
     languageRequirements,
     englishRequirement: detectEnglishRequirement(text, languageRequirements),
+    englishProficiency: detectEnglishProficiency(text),
     internationalSignals: extractInternationalSignals(text),
   };
 }

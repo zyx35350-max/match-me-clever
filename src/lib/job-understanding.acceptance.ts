@@ -151,6 +151,54 @@ function testUnderstanding() {
   );
   assert.equal(genericEnglish.semantic.englishRequirement, "unknown");
 
+  // English proficiency detection
+  const cet4Plus = buildJobUnderstanding(makeJob({ summary: "英语四级及以上" }));
+  assert.equal(cet4Plus.semantic.englishProficiency, "CET-4+");
+  assert.equal(cet4Plus.semantic.englishRequirement, "required");
+
+  const cet4PlusAlt = buildJobUnderstanding(makeJob({ summary: "英语四级以上" }));
+  assert.equal(cet4PlusAlt.semantic.englishProficiency, "CET-4+");
+
+  const cet4 = buildJobUnderstanding(makeJob({ summary: "英语四级" }));
+  assert.equal(cet4.semantic.englishProficiency, "CET-4");
+
+  const cet6Plus = buildJobUnderstanding(makeJob({ summary: "英语六级及以上" }));
+  assert.equal(cet6Plus.semantic.englishProficiency, "CET-6+");
+
+  const cet6 = buildJobUnderstanding(makeJob({ summary: "英语六级" }));
+  assert.equal(cet6.semantic.englishProficiency, "CET-6");
+
+  const cet4Preferred = buildJobUnderstanding(makeJob({ summary: "英语四级优先" }));
+  assert.equal(cet4Preferred.semantic.englishProficiency, "CET-4");
+  assert.equal(cet4Preferred.semantic.englishRequirement, "preferred");
+
+  const readWrite = buildJobUnderstanding(makeJob({ summary: "英语读写熟练" }));
+  assert.equal(readWrite.semantic.englishProficiency, "proficient_reading_writing");
+  assert.equal(readWrite.semantic.englishRequirement, "required");
+
+  const allSkills = buildJobUnderstanding(makeJob({ summary: "英语听说读写熟练" }));
+  assert.equal(allSkills.semantic.englishProficiency, "proficient_all");
+  assert.equal(allSkills.semantic.englishRequirement, "required");
+
+  const fluentSpeaking = buildJobUnderstanding(makeJob({ summary: "英语口语流利" }));
+  assert.equal(fluentSpeaking.semantic.englishProficiency, "fluent_speaking");
+
+  const fluent = buildJobUnderstanding(makeJob({ summary: "英语流利" }));
+  assert.equal(fluent.semantic.englishProficiency, "fluent");
+
+  const realJob = buildJobUnderstanding(
+    makeJob({
+      summary: "英语读写熟练，英语四级及以上，能与外国客户邮件往来。",
+    }),
+  );
+  assert.equal(realJob.semantic.englishProficiency, "CET-4+");
+  assert.equal(realJob.semantic.englishRequirement, "required");
+
+  const noProficiency = buildJobUnderstanding(
+    makeJob({ summary: "Create product visuals for the team." }),
+  );
+  assert.equal(noProficiency.semantic.englishProficiency, "unknown");
+
   const globalOnly = buildJobUnderstanding(
     makeJob({
       summary: "Work with a global team on product visuals.",
