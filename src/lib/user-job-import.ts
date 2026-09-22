@@ -123,7 +123,7 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
       ...adapted.understanding.semantic,
       experienceRequirements: [
         ...(experience ? [experience] : []),
-        ...adapted.understanding.semantic.experienceRequirements.filter(
+        ...(adapted.understanding.semantic.experienceRequirements ?? []).filter(
           (item) => /\d+(?:\.\d+)?年/.test(item),
         ),
       ],
