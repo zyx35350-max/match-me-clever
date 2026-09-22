@@ -32,7 +32,7 @@ function labeled(text: string, labels: string[]) {
 
 function parseSalary(text: string): { min?: number; max?: number; note?: string } {
   const match = text.match(
-    /(\\d+(?:\\.\\d+)?)\\s*(千|万)\\s*(?:-|~|至)\\s*(\\d+(?:\\.\\d+)?)\\s*(千|万)/i,
+    /(\d+(?:\\.\d+)?)\\s*(千|万)\\s*(?:-|~|至)\\s*(\d+(?:\\.\d+)?)\\s*(千|万)/i,
   );
   if (!match) return {};
 
@@ -47,7 +47,7 @@ function parseSalary(text: string): { min?: number; max?: number; note?: string 
 }
 
 function parseExperience(text: string): string | undefined {
-  const match = text.match(/\\d+(?:\\.\\d+)?年(?:及以上|以上)?|无需经验|经验不限/);
+  const match = text.match(/\d+(?:\\.\d+)?年(?:及以上|以上)?|无需经验|经验不限/);
   return clean(match?.[0]);
 }
 
@@ -60,7 +60,7 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
   const text = input.text.trim();
   if (!text) throw new Error("Please paste a job description before importing.");
 
-  const lines = text.split(/\\r?\\n/).map((line) => line.trim()).filter(Boolean);
+  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
 
   const title =
     labeled(text, ["title", "job title", "职位", "职位名称"]) ??
@@ -78,8 +78,8 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
   const location =
     clean(input.locationText) ??
     labeled(text, ["location", "地点", "工作地点", "location / remote"]) ??
-    clean(lines[2]?.match(/^(.+?)(?=\\d+(?:\\.\\d+)?年|无需经验|经验不限)/)?.[1]) ??
-    (lines[2] && !/\\d+(?:\\.\\d+)?年|无需经验|经验不限/.test(lines[2]) ? lines[2] : undefined);
+    clean(lines[2]?.match(/^(.+?)(?=\d+(?:\\.\d+)?年|无需经验|经验不限)/)?.[1]) ??
+    (lines[2] && !/\d+(?:\\.\d+)?年|无需经验|经验不限/.test(lines[2]) ? lines[2] : undefined);
 
   const description = text;
 
