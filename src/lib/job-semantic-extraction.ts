@@ -50,6 +50,82 @@ const ENGLISH_PREFERRED_PATTERNS = [
   /(?:preferred|plus|bonus|nice to have)[^。；;\n]{0,32}(?:英语|英文|english)/i,
 ];
 
+const ENGLISH_PROFICIENCY_RULES: Array<{
+  value: Exclude<JobSemanticExtraction["englishProficiency"], "unknown">;
+  patterns: RegExp[];
+}> = [
+  {
+    value: "CET-6+",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,16}(?:六级|CET[- ]?6)[^。；;\n]{0,8}(?:及以上|以上|or above)/i],
+  },
+  {
+    value: "CET-4+",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,16}(?:四级|CET[- ]?4)[^。；;\n]{0,8}(?:及以上|以上|or above)/i],
+  },
+  {
+    value: "CET-6",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,16}(?:六级|CET[- ]?6)(?![^。；;\n]{0,8}(?:及以上|以上|or above))/i],
+  },
+  {
+    value: "CET-4",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,16}(?:四级|CET[- ]?4)(?![^。；;\n]{0,8}(?:及以上|以上|or above))/i],
+  },
+  {
+    value: "proficient_all",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,20}(?:听说读写|听说读写熟练|all four skills)/i],
+  },
+  {
+    value: "proficient_reading_writing",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,20}(?:读写熟练|读写能力强|reading and writing|reading\/writing)/i],
+  },
+  {
+    value: "fluent_speaking",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,20}(?:口语流利|英语口语流利|fluent speaking|spoken English is fluent)/i],
+  },
+  {
+    value: "fluent",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,20}(?:流利|fluent)/i],
+  },
+  {
+    value: "working_proficiency",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,20}(?:工作语言|作为工作语言|working language|professional working proficiency)/i],
+  },
+];
+
+const ENGLISH_USAGE_RULES: Array<{
+  value: Exclude<JobSemanticExtraction["englishUsage"][number], "unknown">;
+  patterns: RegExp[];
+}> = [
+  {
+    value: "business_email",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,28}(?:邮件|email|emails|email communication)/i],
+  },
+  {
+    value: "customer_communication",
+    patterns: [/(?:外国客户|客户|customer|client)[^。；;\n]{0,16}(?:邮件|沟通|交流|communication|communicate)/i],
+  },
+  {
+    value: "spoken_communication",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,24}(?:口语|speaking|spoken|沟通|交流)/i],
+  },
+  {
+    value: "meetings",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,24}(?:会议|meeting|meetings)/i],
+  },
+  {
+    value: "working_language",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,24}(?:工作语言|working language)/i],
+  },
+  {
+    value: "reading_writing",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,24}(?:读写|reading|writing)/i],
+  },
+  {
+    value: "overseas_collaboration",
+    patterns: [/(?:英语|英文|english)[^。；;\n]{0,28}(?:海外|国际|overseas|international|global)[^。；;\n]{0,12}(?:团队|协作|collaboration|team)/i],
+  },
+];
+
 const EXPERIENCE_PATTERNS = [
   /(?:至少|不少于|最低|minimum of)\s*(\d+(?:\.\d+)?)\s*(?:年|years?)/i,
   /\b(\d+(?:\.\d+)?)\+?\s*years?\b/i,
