@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
-import { parseUserJobText } from "@/lib/user-job-import";
+import { parseUserJobText, type UserJobImportResult } from "@/lib/user-job-import";
 import { useWorkspace } from "@/lib/store";
 
 export const Route = createFileRoute("/import")({
@@ -21,18 +21,20 @@ function ImportJobPage() {
   const [sourceUrl, setSourceUrl] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
+  const [result, setResult] = useState<UserJobImportResult | null>(null);
 
   function submit() {
     setStatus(null);
     setWarnings([]);
+    setResult(null);
     try {
       const parsed = parseUserJobText({ text, sourceUrl });
       const result = importRawJob(parsed.raw);
       setWarnings(result.warnings);
       setStatus(
-        result.added
-          ? "Imported successfully. Open Matching to see the score."
-          : "This job is already in your imported jobs.",
+        stored.added
+          ? "导入成功。岗位已经进入 Matching，可以继续查看匹配结果。"
+          : "这个岗位已经导入过了，本次没有重复添加。",
       );
       if (result.added) setText("");
     } catch (error) {
@@ -71,6 +73,25 @@ function ImportJobPage() {
           </button>
         </div>
         {status ? <div className="rounded-xl border border-ink/10 bg-card p-4 text-sm">{status}</div> : null}
+        {result ? (
+          <div className="rounded-2xl border border-ink/10 bg-card p-5">
+            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-ink/45">Parsed job</div>
+            <h2 className="mt-2 text-xl font-semibold">{result.job.title}</h2>
+            <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+              <div><span className="text-ink/45">公司：</span>{result.job.company}</div>
+              <div><span className="text-ink/45">地点：</span>{result.job.location}</div>
+              <div><span className="text-ink/45">薪资：</span>{result.job.salaryNote ?? "未识别"}</div>
+              <div><span className="text-ink/45">语言：</span>{result.understanding.language}</div>
+              <div><span className="text-ink/45">英语要求：</span>{result.understanding.semantic.englishRequirement}</div>
+              <div><span className="text-ink/45">经验：</span>{result.understanding.semantic.experienceRequirements.join(" · ") || "未识别"}</div>
+            </div>
+            <div className="mt-4 text-sm">
+              <div className="font-semibold">岗位方向</div>
+              <div className="mt-1 text-ink/65">{result.understanding.semantic.careerDirections.join(" · ") || "未识别"}</div>
+            </div>
+          </div>
+        ) : null}
+
         {warnings.length ? (
           <div className="rounded-xl border border-ochre/30 bg-ochre/10 p-4 text-sm">
             <div className="font-semibold">Missing data detected</div>
