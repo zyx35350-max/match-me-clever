@@ -143,24 +143,39 @@ function extractInternationalSignals(text: string): JobSemanticExtraction["inter
   return signals;
 }
 
-function detectEnglishRequirement(
+function extractEnglishDetails(
   text: string,
   languageRequirements: string[],
-): JobSemanticExtraction["englishRequirement"] {
+): Pick<JobSemanticExtraction, "englishRequirement" | "englishProficiency" | "englishUsage" | "englishEvidence"> {
   const evidence = [...new Set(languageRequirements)].filter((item) =>
     /(英语|英文|english)/i.test(item),
   );
-  const combined = evidence.join("\n");
 
-  // Only classify from language-specific evidence. A generic word such as
-  // "English materials" must not become a hard requirement.
-  if (combined && ENGLISH_REQUIRED_PATTERNS.some((pattern) => pattern.test(combined))) {
-    return "required";
+  const englishRequirement =
+    evidence.length && ENGLISH_REQUIRED_PATTERNS.some((pattern) => pattern.test(evidence.join("\n")))
+      ? "required"
+      : evidence.length && ENGLISH_PREFERRED_PATTERNS.some((pattern) => pattern.test(evidence.join("\n")))
+        ? "preferred"
+        : "unknown";
+
+  let englishProficiency: JobSemanticExtraction["englishProficiency"] = "unknown";
+  for (const rule of ENGLISH_PROFICIENCY_RULES) {
+    if (rule.patterns.some((pattern) => pattern.test(text))) {
+      englishProficiency = rule.value;
+      break;
+    }
   }
-  if (combined && ENGLISH_PREFERRED_PATTERNS.some((pattern) => pattern.test(combined))) {
-    return "preferred";
-  }
-  return "unknown";
+
+  const englishUsage = ENGLISH_USAGE_RULES
+    .filter((rule) => rule.patterns.some((pattern) => pattern.test(text)))
+    .map((rule) => rule.value);
+
+  return {
+    englishRequirement,
+    englishProficiency,
+    englishUsage: [...new Set(englishUsage)],
+    englishEvidence: evidence.slice(0, 8),
+  };
 }
 
 /**
@@ -169,6 +184,7 @@ function detectEnglishRequirement(
 export function extractJobSemantics(job: Job): JobSemanticExtraction {
   const text = sourceText(job);
   const languageRequirements = extractLanguageRequirements(text);
+  const englishDetails = extractEnglishDetails(text, languageRequirements);
 
   return {
     title: job.titleOriginal ?? job.title,
@@ -180,7 +196,7 @@ export function extractJobSemantics(job: Job): JobSemanticExtraction {
     workMode: job.workMode,
     ...(job.employmentType ? { employmentType: job.employmentType } : {}),
     languageRequirements,
-    englishRequirement: detectEnglishRequirement(text, languageRequirements),
+    ...englishDetails,
     internationalSignals: extractInternationalSignals(text),
   };
 }
