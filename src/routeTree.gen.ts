@@ -12,12 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as DirectionsRouteImport } from './routes/directions'
+import { Route as ImportRouteImport } from './routes/import'
 import { Route as MatchingRouteImport } from './routes/matching'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as TodayRouteImport } from './routes/today'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
-import { Route as ImportRouteImport } from './routes/import'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -32,6 +32,11 @@ const ActivityRoute = ActivityRouteImport.update({
 const DirectionsRoute = DirectionsRouteImport.update({
   id: '/directions',
   path: '/directions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImportRoute = ImportRouteImport.update({
+  id: '/import',
+  path: '/import',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatchingRoute = MatchingRouteImport.update({
@@ -54,11 +59,6 @@ const TodayRoute = TodayRouteImport.update({
   path: '/today',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ImportRoute = ImportRouteImport.update({
-  id: '/import',
-  path: '/import',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const JobsJobIdRoute = JobsJobIdRouteImport.update({
   id: '/jobs/$jobId',
   path: '/jobs/$jobId',
@@ -69,17 +69,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/directions': typeof DirectionsRoute
+  '/import': typeof ImportRoute
   '/matching': typeof MatchingRoute
   '/profile': typeof ProfileRoute
   '/saved': typeof SavedRoute
   '/today': typeof TodayRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
-  '/import': typeof ImportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/directions': typeof DirectionsRoute
+  '/import': typeof ImportRoute
   '/matching': typeof MatchingRoute
   '/profile': typeof ProfileRoute
   '/saved': typeof SavedRoute
@@ -91,6 +92,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/directions': typeof DirectionsRoute
+  '/import': typeof ImportRoute
   '/matching': typeof MatchingRoute
   '/profile': typeof ProfileRoute
   '/saved': typeof SavedRoute
@@ -103,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/activity'
     | '/directions'
+    | '/import'
     | '/matching'
     | '/profile'
     | '/saved'
@@ -113,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/activity'
     | '/directions'
+    | '/import'
     | '/matching'
     | '/profile'
     | '/saved'
@@ -123,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/activity'
     | '/directions'
+    | '/import'
     | '/matching'
     | '/profile'
     | '/saved'
@@ -134,6 +139,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivityRoute: typeof ActivityRoute
   DirectionsRoute: typeof DirectionsRoute
+  ImportRoute: typeof ImportRoute
   MatchingRoute: typeof MatchingRoute
   ProfileRoute: typeof ProfileRoute
   SavedRoute: typeof SavedRoute
@@ -164,6 +170,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DirectionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/import': {
+      id: '/import'
+      path: '/import'
+      fullPath: '/import'
+      preLoaderRoute: typeof ImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/matching': {
       id: '/matching'
       path: '/matching'
@@ -192,13 +205,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TodayRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/import': {
-      id: '/import'
-      path: '/import'
-      fullPath: '/import'
-      preLoaderRoute: typeof ImportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/jobs/$jobId': {
       id: '/jobs/$jobId'
       path: '/jobs/$jobId'
@@ -213,12 +219,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
   DirectionsRoute: DirectionsRoute,
+  ImportRoute: ImportRoute,
   MatchingRoute: MatchingRoute,
   ProfileRoute: ProfileRoute,
   SavedRoute: SavedRoute,
   TodayRoute: TodayRoute,
   JobsJobIdRoute: JobsJobIdRoute,
-  ImportRoute: ImportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
