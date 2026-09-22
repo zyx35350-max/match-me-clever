@@ -18,6 +18,8 @@ const first = parseUserJobText(input);
 const second = parseUserJobText(input);
 
 if (first.raw.sourceId !== "user-import") throw new Error("wrong source");
+if (first.raw.sourceUrl !== input.sourceUrl) throw new Error("source URL was not preserved");
+if (first.job.sourceUrl !== input.sourceUrl) throw new Error("job source URL was not preserved");
 if (first.raw.rawDescription !== input.text) throw new Error("original text not preserved");
 if (first.job.title !== "AI Content Specialist") throw new Error("title not parsed");
 if (first.job.company !== "Example Studio") throw new Error("company not parsed");
