@@ -36,8 +36,8 @@ function parseSalary(text: string): { min?: number; max?: number; note?: string 
   const toNumber = (value: string, unit: string) =>
     Number(value) * (unit === "万" ? 10000 : 1000);
   return {
-    min: toNumber(match[1], match[2]),
-    max: toNumber(match[3], match[4]),
+    min: toNumber(match[1]!, match[2]!),
+    max: toNumber(match[3]!, match[4]!),
     note: match[0],
   };
 }
