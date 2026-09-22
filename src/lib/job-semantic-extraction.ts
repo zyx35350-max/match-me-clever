@@ -227,13 +227,6 @@ function extractEnglishDetails(
     /(英语|英文|english)/i.test(item),
   );
 
-  const englishRequirement =
-    evidence.length && ENGLISH_REQUIRED_PATTERNS.some((pattern) => pattern.test(evidence.join("\n")))
-      ? "required"
-      : evidence.length && ENGLISH_PREFERRED_PATTERNS.some((pattern) => pattern.test(evidence.join("\n")))
-        ? "preferred"
-        : "unknown";
-
   let englishProficiency: JobSemanticExtraction["englishProficiency"] = "unknown";
   for (const rule of ENGLISH_PROFICIENCY_RULES) {
     if (rule.patterns.some((pattern) => pattern.test(text))) {
@@ -241,6 +234,21 @@ function extractEnglishDetails(
       break;
     }
   }
+
+  const englishEvidenceText = evidence.join("\n");
+  const hasPreferredSignal =
+    evidence.length && ENGLISH_PREFERRED_PATTERNS.some((pattern) => pattern.test(englishEvidenceText));
+  const hasRequiredSignal =
+    evidence.length && ENGLISH_REQUIRED_PATTERNS.some((pattern) => pattern.test(englishEvidenceText));
+
+  // An explicit proficiency/level is itself a requirement unless the JD
+  // explicitly marks English as preferred/bonus.
+  const englishRequirement =
+    hasPreferredSignal
+      ? "preferred"
+      : hasRequiredSignal || englishProficiency !== "unknown"
+        ? "required"
+        : "unknown";
 
   const englishUsage = ENGLISH_USAGE_RULES
     .filter((rule) => rule.patterns.some((pattern) => pattern.test(text)))
