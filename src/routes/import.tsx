@@ -84,12 +84,30 @@ function ImportJobPage() {
               <div><span className="text-ink/45">薪资：</span>{result.job.salaryNote ?? "未识别"}</div>
               <div><span className="text-ink/45">语言：</span>{result.understanding.language}</div>
               <div><span className="text-ink/45">英语要求：</span>{result.understanding.semantic.englishRequirement}</div>
+              <div><span className="text-ink/45">英语等级：</span>{result.understanding.semantic.englishProficiency === "unknown" ? "未识别" : result.understanding.semantic.englishProficiency}</div>
+              <div><span className="text-ink/45">英语使用：</span>{result.understanding.semantic.englishUsage.filter((item) => item !== "unknown").join(" · ") || "未识别"}</div>
               <div><span className="text-ink/45">经验：</span>{result.understanding.semantic.experienceRequirements.join(" · ") || "未识别"}</div>
             </div>
             <div className="mt-4 text-sm">
               <div className="font-semibold">岗位方向</div>
               <div className="mt-1 text-ink/65">{result.understanding.semantic.careerDirections.join(" · ") || "未识别"}</div>
             </div>
+            {result.understanding.semantic.englishEvidence.length ? (
+              <div className="mt-4 rounded-xl border border-ink/10 bg-cream p-3 text-sm">
+                <div className="font-semibold">英语识别依据</div>
+                <ul className="mt-2 list-disc pl-5 text-ink/65">
+                  {result.understanding.semantic.englishEvidence.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+            ) : null}
+            {result.raw.sourceUrl ? (
+              <div className="mt-4 text-sm">
+                <span className="text-ink/45">原始职位：</span>
+                <a href={result.raw.sourceUrl} target="_blank" rel="noreferrer" className="text-azure underline underline-offset-2">
+                  查看原始职位
+                </a>
+              </div>
+            ) : null}
           </div>
         ) : null}
 
