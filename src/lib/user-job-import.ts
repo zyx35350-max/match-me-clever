@@ -60,6 +60,10 @@ function looksLikeLocation(line: string) {
   );
 }
 
+function isSectionHeader(line: string) {
+  return /^(?:responsibilities|requirements|qualifications|职责|要求|任职要求|岗位要求|工作内容|description)[:：]?$/i.test(line);
+}
+
 function parseCompany(text: string, lines: string[]): string | undefined {
   const labeledCompany = labeled(text, ["company", "company name", "公司", "公司名称"]);
   if (labeledCompany) return labeledCompany;
