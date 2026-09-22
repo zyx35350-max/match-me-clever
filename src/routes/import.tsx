@@ -85,7 +85,7 @@ function ImportJobPage() {
               <div><span className="text-ink/45">语言：</span>{result.understanding.language}</div>
               <div><span className="text-ink/45">英语要求：</span>{result.understanding.semantic.englishRequirement}</div>
               <div><span className="text-ink/45">英语等级：</span>{result.understanding.semantic.englishProficiency === "unknown" ? "未识别" : result.understanding.semantic.englishProficiency}</div>
-              <div><span className="text-ink/45">经验：</span>{result.understanding.semantic.experienceRequirements.join(" · ") || "未识别"}</div>
+              <div><span className="text-ink/45">经验：</span>{(result.understanding.semantic.experienceRequirements ?? []).join(" · ") || "未识别"}</div>
             </div>
             <div className="mt-4 text-sm">
               <div className="font-semibold">岗位方向</div>
