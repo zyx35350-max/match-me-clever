@@ -103,7 +103,7 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
     clean(input.locationText) ??
     labeled(text, ["location", "地点", "工作地点", "location / remote"]) ??
     lines.slice(1, 7).find((line) => looksLikeLocation(line)) ??
-    lines[1];
+    (lines[1] && !isSectionHeader(lines[1]) ? lines[1] : undefined);
 
   const raw = createRawJob({
     source: USER_IMPORT_SOURCE,
