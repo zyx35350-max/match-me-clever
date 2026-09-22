@@ -98,7 +98,11 @@ const ENGLISH_USAGE_RULES: Array<{
 }> = [
   {
     value: "business_email",
-    patterns: [/(?:英语|英文|english)[^。；;\n]{0,28}(?:邮件|email|emails|email communication)/i],
+    patterns: [
+      /(?:英语|英文|english)[^。；;\n]{0,80}(?:邮件|email|emails|email communication)/i,
+      /(?:邮件|email|emails|email communication)[^。；;\n]{0,80}(?:英语|英文|english)/i,
+      /(?:外国客户|客户|customer|client)[^。；;\n]{0,24}(?:邮件|email|emails)[^。；;\n]{0,40}(?:英语|英文|english)?/i,
+    ],
   },
   {
     value: "customer_communication",
