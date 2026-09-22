@@ -29,14 +29,15 @@ function ImportJobPage() {
     setResult(null);
     try {
       const parsed = parseUserJobText({ text, sourceUrl });
-      const result = importRawJob(parsed.raw);
-      setWarnings(result.warnings);
+      const stored = importRawJob(parsed.raw);
+      setWarnings(stored.warnings);
+      setResult(parsed);
       setStatus(
         stored.added
           ? "导入成功。岗位已经进入 Matching，可以继续查看匹配结果。"
           : "这个岗位已经导入过了，本次没有重复添加。",
       );
-      if (result.added) setText("");
+      if (stored.added) setText("");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Could not import this job.");
     }
