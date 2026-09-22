@@ -23,7 +23,7 @@ function clean(value: string | undefined) {
 
 function labeled(text: string, labels: string[]) {
   for (const label of labels) {
-    const re = new RegExp(`^\\s*${label}\\s*[:：-]\\s*(.+)\\s*$`, "im");
+    const re = new RegExp("^\\s*" + label + "\\s*[:：-]\\s*(.+)\\s*$", "im");
     const match = text.match(re);
     if (match?.[1]) return clean(match[1]);
   }
@@ -31,14 +31,10 @@ function labeled(text: string, labels: string[]) {
 }
 
 function parseSalary(text: string): { min?: number; max?: number; note?: string } {
-  const match = text.match(
-    /(\d+(?:\\.\d+)?)\\s*(千|万)\\s*(?:-|~|至)\\s*(\d+(?:\\.\d+)?)\\s*(千|万)/i,
-  );
+  const match = text.match(/(\d+(?:\.\d+)?)\s*(千|万)\s*(?:-|~|至)\s*(\d+(?:\.\d+)?)\s*(千|万)/i);
   if (!match) return {};
-
   const toNumber = (value: string, unit: string) =>
     Number(value) * (unit === "万" ? 10000 : 1000);
-
   return {
     min: toNumber(match[1], match[2]),
     max: toNumber(match[3], match[4]),
@@ -47,21 +43,28 @@ function parseSalary(text: string): { min?: number; max?: number; note?: string 
 }
 
 function parseExperience(text: string): string | undefined {
-  const match = text.match(/\d+(?:\\.\d+)?年(?:及以上|以上)?|无需经验|经验不限/);
+  const match = text.match(/(?:\d+(?:\.\d+)?年(?:及以上|以上)?|无需经验|经验不限)/);
   return clean(match?.[0]);
 }
 
+function isExperienceLine(line: string) {
+  return /^(?:\d+(?:\.\d+)?年(?:及以上|以上)?|无需经验|经验不限)$/.test(line);
+}
+
+function looksLikeLocation(line: string) {
+  return /^(?:.+[-－—].+|.+(?:区|县|市|省))$/.test(line) && !parseSalary(line) && !isExperienceLine(line);
+}
+
 /**
- * Deterministic parser for pasted job listings.
+ * Deterministic parser for common Chinese recruitment-site pasted listings.
  * It preserves the complete original text and only extracts metadata supported
- * by the pasted source, including common Chinese recruitment-site formats.
+ * by the pasted source.
  */
 export function parseUserJobText(input: UserJobImportInput): UserJobImportResult {
   const text = input.text.trim();
   if (!text) throw new Error("Please paste a job description before importing.");
 
   const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-
   const title =
     labeled(text, ["title", "job title", "职位", "职位名称"]) ??
     lines[0] ??
@@ -71,22 +74,21 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
     clean(input.companyName) ??
     labeled(text, ["company", "company name", "公司", "公司名称"]);
 
-  const header = lines.slice(0, 8).join(" ");
+  const header = lines.slice(0, 10).join(" ");
   const salary = parseSalary(header);
-  const experience = parseExperience(header);
+  const experience =
+    parseExperience(header) ??
+    parseExperience(text);
 
   const location =
     clean(input.locationText) ??
     labeled(text, ["location", "地点", "工作地点", "location / remote"]) ??
-    clean(lines[2]?.match(/^(.+?)(?=\d+(?:\\.\d+)?年|无需经验|经验不限)/)?.[1]) ??
-    (lines[2] && !/\d+(?:\\.\d+)?年|无需经验|经验不限/.test(lines[2]) ? lines[2] : undefined);
-
-  const description = text;
+    lines.slice(1, 7).find((line) => looksLikeLocation(line));
 
   const raw = createRawJob({
     source: USER_IMPORT_SOURCE,
     rawTitle: title,
-    rawDescription: description,
+    rawDescription: text,
     ...(clean(input.sourceUrl) ? { sourceUrl: clean(input.sourceUrl)! } : {}),
     ...(company ? { companyName: company } : {}),
     ...(location ? { locationText: location } : {}),
@@ -106,7 +108,7 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
       experienceRequirements: [
         ...(experience ? [experience] : []),
         ...adapted.understanding.semantic.experienceRequirements.filter(
-          (item) => /^\d+(?:\.\d+)?年/.test(item),
+          (item) => /\d+(?:\.\d+)?年/.test(item),
         ),
       ],
     },
