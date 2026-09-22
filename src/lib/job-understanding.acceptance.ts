@@ -169,6 +169,75 @@ function testUnderstanding() {
   assert.equal(overseas.semantic.internationalSignals.overseasBusiness, true);
   assert.equal(overseas.semantic.internationalSignals.crossBorderCollaboration, true);
 
+
+  const fullRealJobText = [
+    "外贸业务销售 5.5千-1.1万",
+    "公司：惠州市燚凯橡胶科技有限公司",
+    "地点：惠州-惠阳区",
+    "薪资：5.5千-1.1万",
+    "英语读写熟练",
+    "任职资格：英语四级及以上，能与外国客户邮件往来。",
+    "至少半年以上工作经验。",
+    "外贸及销售经验，邮件营销客户开发优先。",
+    "市场分析判断能力、客户服务意识。",
+    "岗位职责：Google/Facebook/LinkedIn/Ins社媒客户开发；客户询盘、订单、出货、收款及客诉处理。",
+    "关键词：外贸业务、海外社媒运营、独立站运营、B端客户开发、询盘跟进、外贸全流程、英语四级、海外销售、国际贸易、海外市场调研。",
+  ].join("\n");
+
+  const realJob = makeJob({
+    id: "real-jd-foreign-trade-sales",
+    title: "外贸业务销售",
+    company: "惠州市燚凯橡胶科技有限公司",
+    location: "惠州-惠阳区",
+    salaryMin: 5500,
+    salaryMax: 11000,
+    seniority: "junior",
+    summary: fullRealJobText,
+    summaryOriginal: fullRealJobText,
+    responsibilities: [
+      "Google/Facebook/LinkedIn/Ins社媒客户开发",
+      "客户询盘、订单、出货、收款及客诉处理",
+    ],
+    skills: [
+      "外贸业务",
+      "海外社媒运营",
+      "独立站运营",
+      "B端客户开发",
+      "询盘跟进",
+      "外贸全流程",
+      "英语四级",
+      "海外销售",
+      "国际贸易",
+      "海外市场调研",
+    ],
+  });
+  const realResult = buildJobUnderstanding(realJob);
+  assert.equal(realResult.language, "mixed");
+  assert.equal(realResult.semantic.englishRequirement, "required");
+  assert.equal(realResult.semantic.englishProficiency, "CET-4+");
+  assert.ok(realResult.semantic.englishUsage.includes("business_email"));
+  assert.ok(realResult.semantic.englishUsage.includes("customer_communication"));
+  assert.ok(realResult.semantic.englishEvidence.some((item) => item.includes("英语读写熟练")));
+  assert.ok(realResult.semantic.englishEvidence.some((item) => item.includes("英语四级及以上")));
+
+  const levelOnly = buildJobUnderstanding(
+    makeJob({
+      id: "cet4-required",
+      summary: "任职要求：英语四级及以上。",
+    }),
+  );
+  assert.equal(levelOnly.semantic.englishRequirement, "required");
+  assert.equal(levelOnly.semantic.englishProficiency, "CET-4+");
+
+  const levelPreferred = buildJobUnderstanding(
+    makeJob({
+      id: "cet4-preferred",
+      summary: "英语四级优先，有海外经验加分。",
+    }),
+  );
+  assert.equal(levelPreferred.semantic.englishRequirement, "preferred");
+  assert.equal(levelPreferred.semantic.englishProficiency, "CET-4");
+
   const original = makeJob();
   const before = JSON.stringify(original);
   const understood = buildJobUnderstanding(original);
@@ -193,4 +262,4 @@ function testMatcherAdapter() {
 
 testUnderstanding();
 testMatcherAdapter();
-console.log("V1.1.5 acceptance tests passed.");
+console.log("V1.1.5 acceptance tests passed, including the full 外贸业务销售 JD English recognition case.");
