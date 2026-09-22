@@ -36,8 +36,8 @@ function parseSalary(text: string): { min?: number; max?: number; note?: string 
   const toNumber = (value: string, unit: string) =>
     Number(value) * (unit === "万" ? 10000 : 1000);
   return {
-    min: toNumber(match[1], match[2]),
-    max: toNumber(match[3], match[4]),
+    min: toNumber(match[1]!, match[2]!),
+    max: toNumber(match[3]!, match[4]!),
     note: match[0],
   };
 }
@@ -58,6 +58,10 @@ function looksLikeLocation(line: string) {
     !isExperienceLine(line) &&
     !/^(?:中技|中专|高中|大专|本科|硕士|博士|英语|招\d+人|收藏|立即投递)$/.test(line)
   );
+}
+
+function isSectionHeader(line: string) {
+  return /^(?:responsibilities|requirements|qualifications|职责|要求|任职要求|岗位要求|工作内容|description)[:：]?$/i.test(line);
 }
 
 function parseCompany(text: string, lines: string[]): string | undefined {
@@ -99,7 +103,7 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
     clean(input.locationText) ??
     labeled(text, ["location", "地点", "工作地点", "location / remote"]) ??
     lines.slice(1, 7).find((line) => looksLikeLocation(line)) ??
-    lines[1];
+    (lines[1] && !isSectionHeader(lines[1]) ? lines[1] : undefined);
 
   const raw = createRawJob({
     source: USER_IMPORT_SOURCE,
@@ -123,7 +127,7 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
       ...adapted.understanding.semantic,
       experienceRequirements: [
         ...(experience ? [experience] : []),
-        ...adapted.understanding.semantic.experienceRequirements.filter(
+        ...(adapted.understanding.semantic.experienceRequirements ?? []).filter(
           (item) => /\d+(?:\.\d+)?年/.test(item),
         ),
       ],
