@@ -12,6 +12,7 @@ export interface UserJobImportInput {
 export interface UserJobImportResult {
   raw: ReturnType<typeof createRawJob>;
   job: Job;
+  understanding: ReturnType<typeof adaptRawJobToJob>["understanding"];
   warnings: string[];
 }
 
@@ -63,10 +64,31 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
     ...(location ? { locationText: location } : {}),
   });
 
-  const adapted = adaptRawJobToJob(raw);
+  const adapted = adaptRawJobToJob(raw, {
+    defaults: {
+      ...(salaryMin !== undefined ? { salaryMin } : {}),
+      ...(salaryMax !== undefined ? { salaryMax } : {}),
+    },
+  });
+
+  const understanding = {
+    ...adapted.understanding,
+    semantic: {
+      ...adapted.understanding.semantic,
+      experienceRequirements: [
+        ...adapted.understanding.semantic.experienceRequirements,
+        ...(experience ? [experience] : []),
+      ],
+    },
+  };
+
   return {
     raw,
-    job: adapted.job,
+    job: {
+      ...adapted.job,
+      ...(salaryNote ? { salaryNote } : {}),
+    },
+    understanding,
     warnings: adapted.warnings,
   };
 }
