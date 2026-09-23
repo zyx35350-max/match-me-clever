@@ -38,6 +38,7 @@ export type JobRole =
   | "product"
   | "content"
   | "operations"
+  | "project-assistant"
   | "design"
   | "software-engineering"
   | "customer-service"
