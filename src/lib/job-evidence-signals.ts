@@ -4,6 +4,7 @@ import type { JobRole, InternationalSignals } from "./job-understanding-types";
 
 export interface JobEvidenceSignals {
   skills: string[];
+  canonicalSkills: string[];
   aiRelevance?: number;
   growthPotential?: number;
   negativeTags?: Job["negativeTags"];
@@ -110,8 +111,11 @@ export function extractJobEvidenceSignals(
     evidence.push("International/English work signal");
   }
 
+  const canonicalSkills = [...new Set(skills.map((skill) => resolveConcept(skill)).filter(Boolean) as string[])];
+
   return {
     skills: [...new Set(skills)],
+    canonicalSkills,
     ...(aiRelevance !== undefined ? { aiRelevance } : {}),
     ...(growthPotential !== undefined ? { growthPotential } : {}),
     ...(negativeTags.size ? { negativeTags: [...negativeTags] } : {}),
