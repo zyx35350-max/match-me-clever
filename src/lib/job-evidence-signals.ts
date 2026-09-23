@@ -93,7 +93,10 @@ export function extractJobEvidenceSignals(
     negativeTags.add("pure_sales");
     evidence.push("Sales/customer-development role signal");
   }
-  if (\n    role === "customer-service" ||\n    /(?:客服|客户服务|customer service|customer support)/i.test(text)\n  ) {
+  if (
+    role === "customer-service" ||
+    /(?:客服|客户服务|customer service|customer support)/i.test(text)
+  ) {
     negativeTags.add("customer_service");
     evidence.push("Customer-service duty signal");
   }
