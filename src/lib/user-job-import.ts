@@ -37,7 +37,7 @@ function parseSalary(text: string): { min?: number; max?: number; note?: string 
   if (range) {
     const toNumber = (value: string, unit: string) => {
       const normalized = unit.toLowerCase();
-      return Number(value) * (normalized === "万" ? 10000 : 1000);
+      return Number(value) * (normalized === "万" ? 10000 : normalized === "k" ? 1000 : 1000);
     };
     return {
       min: toNumber(range[1]!, range[2]!),
@@ -87,9 +87,12 @@ function parseCompany(text: string, lines: string[]): string | undefined {
   if (labeledCompany) return labeledCompany;
 
   const companyLine = lines.find((line) =>
-    /(?:有限公司|有限责任公司|股份有限公司|科技有限公司|集团有限公司|公司)$/.test(line),
+    /(?:有限公司|有限责任公司|股份有限公司|科技有限公司|集团有限公司|公司)(?:（[^）]*）)?(?:\\s+.+)?$/.test(line),
   );
-  return clean(companyLine);
+  if (!companyLine) return undefined;
+
+  const legalName = companyLine.match(/.*?(?:有限公司|有限责任公司|股份有限公司|科技有限公司|集团有限公司|公司)/)?.[0];
+  return clean(legalName ?? companyLine);
 }
 
 /**
@@ -102,10 +105,13 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
   if (!text) throw new Error("Please paste a job description before importing.");
 
   const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  const title =
+  const rawTitle =
     labeled(text, ["title", "job title", "职位", "职位名称"]) ??
     lines[0] ??
     "Imported Job";
+  const title = clean(
+    rawTitle.replace(/\\s+\\d+(?:\\.\\d+)?\\s*(?:千|k|万)(?:\\s*[-–—~～至]\\s*\\d+(?:\\.\\d+)?\\s*(?:千|k|万))?(?:·.*)?$/i, ""),
+  ) ?? rawTitle;
 
   const company =
     clean(input.companyName) ??
