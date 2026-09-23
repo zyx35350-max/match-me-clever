@@ -38,6 +38,8 @@ export function mapJobRoleToDirections(
       return [{ directionId: "ai-visual", weight: 0.8, source: "mapped-from-role" }];
     case "software-engineering":
       return [{ directionId: "explore", weight: 1, source: "explore-fallback" }];
+    case "project-assistant":
+      return [{ directionId: "explore", weight: 1, source: "explore-fallback" }];
     case "customer-service":
       return [{ directionId: "explore", weight: 1, source: "explore-fallback" }];
     case "unknown":
