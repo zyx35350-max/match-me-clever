@@ -27,8 +27,7 @@ export function extractJobEvidenceSignals(
     ...job.skills,
   ]
     .filter(Boolean)
-    .join("
-")
+    .join("\n")
     .toLowerCase();
 
   const skills: string[] = [];
