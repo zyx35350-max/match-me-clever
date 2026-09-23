@@ -262,6 +262,42 @@ function testUnderstanding() {
   assert.ok(understood.normalized);
 }
 
+function testJobRoleDirectionMapping() {
+  const sales = buildJobUnderstanding(
+    makeJob({
+      title: "外贸业务销售",
+      summary: "负责店铺运营、平台运营、推广并开发海外客户。",
+    }),
+  );
+  assert.equal(sales.semantic.jobRole, "international-sales");
+  assert.equal(
+    sales.semantic.careerDirections.includes("ai-operations"),
+    true,
+  );
+
+  const salesMapping = require("./job-role-direction-mapping") as typeof import("./job-role-direction-mapping");
+  assert.equal(salesMapping.primaryCareerDirection(sales.semantic.jobRole, sales.semantic), "explore");
+
+  const ecommerceSales = buildJobUnderstanding(
+    makeJob({
+      title: "外贸业务销售",
+      summary: "负责TEMU、eBay跨境电商平台店铺运营，并开发海外客户。",
+    }),
+  );
+  assert.equal(
+    salesMapping.primaryCareerDirection(ecommerceSales.semantic.jobRole, ecommerceSales.semantic),
+    "ai-ecommerce",
+  );
+
+  const operations = buildJobUnderstanding(
+    makeJob({ title: "运营专员", summary: "负责运营管理和数据监控。" }),
+  );
+  assert.equal(
+    salesMapping.primaryCareerDirection(operations.semantic.jobRole, operations.semantic),
+    "ai-operations",
+  );
+}
+
 function testMatcherAdapter() {
   const career = makeCareer();
   const ctx = buildMatchContext(career, makeProfile());
@@ -275,5 +311,6 @@ function testMatcherAdapter() {
 }
 
 testUnderstanding();
+testJobRoleDirectionMapping();
 testMatcherAdapter();
 console.log("V1.1.5 acceptance tests passed.");
