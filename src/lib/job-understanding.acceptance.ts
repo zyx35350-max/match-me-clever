@@ -151,6 +151,41 @@ function testUnderstanding() {
   );
   assert.equal(genericEnglish.semantic.englishRequirement, "unknown");
 
+  // Job role detection: title has priority over body keywords.
+  const internationalSales = buildJobUnderstanding(
+    makeJob({
+      title: "外贸业务销售",
+      summary: "负责店铺运营、平台运营、推广并开发海外客户。",
+    }),
+  );
+  assert.equal(internationalSales.semantic.jobRole, "international-sales");
+  assert.deepEqual(internationalSales.semantic.jobRoleEvidence, ["标题含“外贸业务”"]);
+
+  const internationalSalesAlt = buildJobUnderstanding(
+    makeJob({ title: "国际销售", summary: "开发海外客户。" }),
+  );
+  assert.equal(internationalSalesAlt.semantic.jobRole, "international-sales");
+
+  const overseasSales = buildJobUnderstanding(
+    makeJob({ title: "海外销售", summary: "负责海外客户开发。" }),
+  );
+  assert.equal(overseasSales.semantic.jobRole, "international-sales");
+
+  const contentRole = buildJobUnderstanding(
+    makeJob({ title: "内容运营专员", summary: "负责内容创作。" }),
+  );
+  assert.equal(contentRole.semantic.jobRole, "content");
+
+  const operationsRole = buildJobUnderstanding(
+    makeJob({ title: "运营专员", summary: "负责运营管理。" }),
+  );
+  assert.equal(operationsRole.semantic.jobRole, "operations");
+
+  const unknownRole = buildJobUnderstanding(
+    makeJob({ title: "业务助理", summary: "负责日常事务。" }),
+  );
+  assert.equal(unknownRole.semantic.jobRole, "unknown");
+
   // English proficiency detection
   const cet4Plus = buildJobUnderstanding(makeJob({ summary: "英语四级及以上" }));
   assert.equal(cet4Plus.semantic.englishProficiency, "CET-4+");
