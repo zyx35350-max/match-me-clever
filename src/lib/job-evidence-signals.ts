@@ -1,4 +1,5 @@
 import type { Job } from "./types";
+import { conceptLabel, resolveConcept } from "./concepts";
 import type { JobRole, InternationalSignals } from "./job-understanding-types";
 
 export interface JobEvidenceSignals {
