@@ -31,24 +31,42 @@ function labeled(text: string, labels: string[]) {
 }
 
 function parseSalary(text: string): { min?: number; max?: number; note?: string } {
-  const match = text.match(/(\d+(?:\.\d+)?)\s*(千|万)\s*(?:-|~|至)\s*(\d+(?:\.\d+)?)\s*(千|万)/i);
-  if (!match) return {};
-  const toNumber = (value: string, unit: string) =>
-    Number(value) * (unit === "万" ? 10000 : 1000);
-  return {
-    min: toNumber(match[1]!, match[2]!),
-    max: toNumber(match[3]!, match[4]!),
-    note: match[0],
-  };
+  const range = text.match(
+    /(\\d+(?:\\.\\d+)?)\\s*(千|k|万)\\s*(?:-|–|—|~|～|至)\\s*(\\d+(?:\\.\\d+)?)\\s*(千|k|万)/i,
+  );
+  if (range) {
+    const toNumber = (value: string, unit: string) => {
+      const normalized = unit.toLowerCase();
+      return Number(value) * (normalized === "万" ? 10000 : 1000);
+    };
+    return {
+      min: toNumber(range[1]!, range[2]!),
+      max: toNumber(range[3]!, range[4]!),
+      note: range[0],
+    };
+  }
+
+  const plainRange = text.match(
+    /(\\d{3,6})\\s*(?:元|人民币|rmb)?\\s*(?:-|–|—|~|～|至)\\s*(\\d{3,6})\\s*(?:元|人民币|rmb)?/i,
+  );
+  if (plainRange) {
+    return {
+      min: Number(plainRange[1]),
+      max: Number(plainRange[2]),
+      note: plainRange[0],
+    };
+  }
+
+  return {};
 }
 
 function parseExperience(text: string): string | undefined {
-  const match = text.match(/(?:\d+(?:\.\d+)?年(?:及以上|以上)?|无需经验|经验不限)/);
+  const match = text.match(/(?:\\d+(?:\\.\\d+)?年(?:及以上|以上)?|无需经验|经验不限)/);
   return clean(match?.[0]);
 }
 
 function isExperienceLine(line: string) {
-  return /^(?:\d+(?:\.\d+)?年(?:及以上|以上)?|无需经验|经验不限)$/.test(line);
+  return /^(?:\\d+(?:\\.\\d+)?年(?:及以上|以上)?|无需经验|经验不限)$/.test(line);
 }
 
 function looksLikeLocation(line: string) {
@@ -56,7 +74,7 @@ function looksLikeLocation(line: string) {
     /^(?:.+[-－—].+|.+(?:区|县|市|省))$/.test(line) &&
     !parseSalary(line) &&
     !isExperienceLine(line) &&
-    !/^(?:中技|中专|高中|大专|本科|硕士|博士|英语|招\d+人|收藏|立即投递)$/.test(line)
+    !/^(?:中技|中专|高中|大专|本科|硕士|博士|英语|招\\d+人|收藏|立即投递)$/.test(line)
   );
 }
 
@@ -93,10 +111,11 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
     clean(input.companyName) ??
     parseCompany(text, lines);
 
-  const header = lines.slice(0, 10).join(" ");
-  const salary = parseSalary(header);
+  // Search the full pasted listing, not just the first few header lines.
+  // This handles recruitment-site layouts where salary appears after the
+  // company/location/requirement rows.
+  const salary = parseSalary(text);
   const experience =
-    parseExperience(header) ??
     parseExperience(text);
 
   const location =
