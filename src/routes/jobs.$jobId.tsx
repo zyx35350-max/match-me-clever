@@ -3,7 +3,8 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { BreakdownGrid, FitBadge, ScoreBar, WhyItFits } from "@/components/match-parts";
 import { ExplanationBlock } from "@/components/career-match-card";
-import { buildMatchContext, calculateJobMatch } from "@/lib/career-engine";
+import { buildMatchContext } from "@/lib/career-engine";
+import { matchRawJobWithUnderstanding } from "@/lib/job-understanding-matcher";
 import { formatSalary, labelMode } from "@/lib/matching";
 import { statusLabel, useWorkspace } from "@/lib/store";
 
@@ -50,7 +51,7 @@ function JobDetail() {
   }
 
   // Same authoritative engine as every list view — one score per job.
-  const match = calculateJobMatch(buildMatchContext(career, profile), job);
+  const match = matchRawJobWithUnderstanding(buildMatchContext(career, profile), job);
   const careerMatch = match;
   const status = statusFor(job.id);
 
