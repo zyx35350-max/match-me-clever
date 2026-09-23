@@ -32,7 +32,7 @@ function labeled(text: string, labels: string[]) {
 
 function parseSalary(text: string): { min?: number; max?: number; note?: string } {
   const range = text.match(
-    /(\d+(?:\.\d+)?)\s*(千|k|万)\s*(?:-|–|—|~|～|至)\s*(\d+(?:\.\d+)?)\s*(千|k|万)/i,
+    /(\d+(?:\.\d+)?)\s*(千|k|万)?\s*(?:-|–|—|~|～|至)\s*(\d+(?:\.\d+)?)\s*(千|k|万)/i,
   );
   if (range) {
     const toNumber = (value: string, unit: string) => {
