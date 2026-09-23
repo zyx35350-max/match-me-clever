@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AppShell, PageHeading } from "@/components/app-shell";
 import { parseUserJobText, type UserJobImportResult } from "@/lib/user-job-import";
 import { useWorkspace } from "@/lib/store";
+import { primaryCareerDirection } from "@/lib/job-role-direction-mapping";
 
 export const Route = createFileRoute("/import")({
   head: () => ({
@@ -90,7 +91,7 @@ function ImportJobPage() {
             </div>
             <div className="mt-4 text-sm">
               <div className="font-semibold">岗位方向</div>
-              <div className="mt-1 text-ink/65">{result.understanding.semantic.careerDirections.join(" · ") || "未识别"}</div>
+              <div className="mt-1 text-ink/65">{primaryCareerDirection(result.understanding.semantic.jobRole, result.understanding.semantic) ?? "未识别"}</div>
             </div>
           </div>
         ) : null}
