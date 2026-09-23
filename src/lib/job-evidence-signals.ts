@@ -94,8 +94,11 @@ export function extractJobEvidenceSignals(
     negativeTags.add("pure_sales");
     evidence.push("Sales/customer-development role signal");
   }
+  // Handling customer complaints/follow-up inside a sales role is not the same
+  // as being a customer-service role. Only an explicitly customer-service role
+  // gets this negative tag.
   if (
-    role === "customer-service" ||
+    role === "customer-service" &&
     /(?:客服|客户服务|customer service|customer support)/i.test(text)
   ) {
     negativeTags.add("customer_service");
