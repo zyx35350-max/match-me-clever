@@ -1,5 +1,5 @@
 import type { Job } from "./types";
-import type { JobSemanticExtraction, EnglishProficiency } from "./job-understanding-types";
+import type { JobSemanticExtraction, EnglishProficiency, JobRole } from "./job-understanding-types";
 
 /**
  * Deterministic semantic extraction for raw jobs.
@@ -39,6 +39,65 @@ const DIRECTION_RULES: Array<{ id: string; terms: string[] }> = [
   },
   { id: "ai-operations", terms: ["运营", "operations", "运营经理", "运营专员"] },
 ];
+
+const JOB_ROLE_RULES: Array<{ role: JobRole; titleTerms: string[]; bodyTerms: string[] }> = [
+  {
+    role: "international-sales",
+    titleTerms: ["外贸业务", "外贸销售", "外贸业务员", "国际销售", "海外销售", "international sales", "international account"],
+    bodyTerms: ["开发海外客户", "海外客户开发", "国际客户开发", "foreign customers", "overseas customers", "international customers"],
+  },
+  {
+    role: "marketing",
+    titleTerms: ["市场营销", "市场经理", "市场专员", "营销经理", "marketing manager", "marketing specialist", "marketer"],
+    bodyTerms: ["市场营销", "marketing strategy", "market research", "营销策划"],
+  },
+  {
+    role: "product",
+    titleTerms: ["产品经理", "产品负责人", "产品专员", "product manager", "product owner", "product specialist"],
+    bodyTerms: ["产品规划", "产品需求", "product roadmap", "product requirements"],
+  },
+  {
+    role: "content",
+    titleTerms: ["内容运营", "内容创作", "内容策划", "内容编辑", "content manager", "content creator", "content specialist", "copywriter"],
+    bodyTerms: ["内容创作", "内容策划", "content creation", "content strategy", "copywriting"],
+  },
+  {
+    role: "operations",
+    titleTerms: ["运营经理", "运营专员", "运营主管", "运营岗位", "operations manager", "operations specialist", "operations coordinator"],
+    bodyTerms: ["运营管理", "运营流程", "operations management", "operational processes"],
+  },
+  {
+    role: "design",
+    titleTerms: ["视觉设计", "平面设计", "设计师", "ui设计", "ux设计", "visual designer", "graphic designer", "ui designer", "ux designer"],
+    bodyTerms: ["视觉设计", "平面设计", "visual design", "graphic design", "user interface design", "user experience design"],
+  },
+  {
+    role: "software-engineering",
+    titleTerms: ["软件工程师", "开发工程师", "前端工程师", "后端工程师", "软件开发", "software engineer", "software developer", "frontend engineer", "backend engineer"],
+    bodyTerms: ["软件开发", "编程", "software development", "programming", "coding"],
+  },
+  {
+    role: "customer-service",
+    titleTerms: ["客服", "客户服务", "客服专员", "customer service", "customer support", "support specialist"],
+    bodyTerms: ["客户服务", "售后服务", "customer support", "customer service"],
+  },
+];
+
+function findJobRole(job: Job, text: string): { role: JobRole; evidence: string[] } {
+  const title = (job.titleOriginal ?? job.title ?? "").trim();
+  const titleMatches: Array<{ role: JobRole; evidence: string[] }> = [];
+  for (const rule of JOB_ROLE_RULES) {
+    const matched = rule.titleTerms.find((term) => title.toLowerCase().includes(term.toLowerCase()));
+    if (matched) titleMatches.push({ role: rule.role, evidence: [`标题含“${matched}”`] });
+  }
+  if (titleMatches.length) return titleMatches[0];
+
+  for (const rule of JOB_ROLE_RULES) {
+    const matched = rule.bodyTerms.find((term) => text.toLowerCase().includes(term.toLowerCase()));
+    if (matched) return { role: rule.role, evidence: [`正文含“${matched}”`] };
+  }
+  return { role: "unknown", evidence: [] };
+}
 
 const ENGLISH_REQUIRED_PATTERNS = [
   /(?:英语|英文|english)[^。；;\n]{0,32}(?:必须|required|must|mandatory|必需|流利|熟练|工作语言)/i,
@@ -236,6 +295,8 @@ export function extractJobSemantics(job: Job): JobSemanticExtraction {
     skills: [...job.skills],
     responsibilities: [...job.responsibilities],
     careerDirections: extractCareerDirections(text),
+    jobRole: findJobRole(job, text).role,
+    jobRoleEvidence: findJobRole(job, text).evidence,
     experienceRequirements: extractRequirements(text, EXPERIENCE_PATTERNS),
     educationRequirements: extractRequirements(text, EDUCATION_PATTERNS),
     workMode: job.workMode,
