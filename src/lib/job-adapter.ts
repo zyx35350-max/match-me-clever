@@ -75,6 +75,7 @@ export function adaptRawJobToJob(
     ...(semantic.careerDirections.length === 1
       ? { careerDirection: semantic.careerDirections[0] }
       : {}),
+    ...(semantic.jobRole !== "unknown" ? { jobRole: semantic.jobRole } : {}),
     ...(semantic.workMode ? { workMode: semantic.workMode } : {}),
     ...(semantic.employmentType ? { employmentType: semantic.employmentType } : {}),
     ...(understanding.language !== "en"
