@@ -3,6 +3,7 @@ import type { FetchResult, JobSource, JobSourceAdapter, RawJob } from "./job-sou
 export const USER_IMPORT_SOURCE: JobSource = {
   id: "user-import",
   name: "User Import",
+  group: "user_import",
   type: "user_import",
   accessPolicy: "manual_import",
   enabled: true,
@@ -66,25 +67,83 @@ function stableHash(value: string) {
 }
 
 export const defaultJobSources: JobSource[] = [
+  // User Import is the permanent manual fallback.
   USER_IMPORT_SOURCE,
+
+  // Domestic Apps
   createJobSource({
-    id: "company-site",
-    name: "Company Career Site",
-    type: "company_site",
-    accessPolicy: "unknown",
-    enabled: false,
-  }),
-  createJobSource({
-    id: "job-board",
-    name: "Job Board",
+    id: "boss",
+    name: "BOSS",
+    group: "domestic_apps",
     type: "job_board",
     accessPolicy: "unknown",
     enabled: false,
   }),
   createJobSource({
-    id: "aggregator",
-    name: "Job Aggregator",
+    id: "51job",
+    name: "51Job",
+    group: "domestic_apps",
+    type: "job_board",
+    accessPolicy: "unknown",
+    enabled: false,
+  }),
+  createJobSource({
+    id: "zhaopin",
+    name: "Zhaopin",
+    group: "domestic_apps",
+    type: "job_board",
+    accessPolicy: "unknown",
+    enabled: false,
+  }),
+  createJobSource({
+    id: "liepin",
+    name: "Liepin",
+    group: "domestic_apps",
+    type: "job_board",
+    accessPolicy: "unknown",
+    enabled: false,
+  }),
+  createJobSource({
+    id: "lagou",
+    name: "Lagou",
+    group: "domestic_apps",
+    type: "job_board",
+    accessPolicy: "unknown",
+    enabled: false,
+  }),
+
+  // Public Sources
+  createJobSource({
+    id: "public-jobs",
+    name: "Public Jobs",
+    group: "public_sources",
     type: "aggregator",
+    accessPolicy: "unknown",
+    enabled: false,
+  }),
+  createJobSource({
+    id: "gov-sources",
+    name: "Government Sources",
+    group: "public_sources",
+    type: "aggregator",
+    accessPolicy: "unknown",
+    enabled: false,
+  }),
+
+  // Company ATS
+  createJobSource({
+    id: "greenhouse",
+    name: "Greenhouse",
+    group: "company_ats",
+    type: "company_site",
+    accessPolicy: "unknown",
+    enabled: false,
+  }),
+  createJobSource({
+    id: "lever",
+    name: "Lever",
+    group: "company_ats",
+    type: "company_site",
     accessPolicy: "unknown",
     enabled: false,
   }),
