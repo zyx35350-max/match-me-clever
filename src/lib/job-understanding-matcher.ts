@@ -33,6 +33,7 @@ export function matchUnderstoodJob(
   const matchableJob: Job = {
     ...job,
     skills: canonicalSkills?.length ? canonicalSkills : job.skills,
+    negativeTags: evidence.negativeTags,
     ...(mappedDirection
       ? { careerDirection: mappedDirection }
       : canonicalDirections.length === 1
