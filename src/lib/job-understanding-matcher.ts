@@ -3,7 +3,8 @@ import type { Job } from "./types";
 import type { JobUnderstanding } from "./job-understanding-types";
 import { matchJob, type MatchContext } from "./career-engine";
 import { buildJobUnderstanding } from "./job-understanding";
-import { primaryCareerDirection } from "./job-role-direction-mapping";\nimport { extractJobEvidenceSignals } from "./job-evidence-signals";
+import { primaryCareerDirection } from "./job-role-direction-mapping";
+import { extractJobEvidenceSignals } from "./job-evidence-signals";
 
 /**
  * Match an understood job without changing the existing scoring formula.
@@ -17,7 +18,15 @@ export function matchUnderstoodJob(
   job: Job,
   understanding: JobUnderstanding,
 ): JobMatch {
-  const evidence = extractJobEvidenceSignals(\n    job,\n    understanding.semantic.jobRole,\n    understanding.semantic.internationalSignals,\n  );\n  const canonicalSkills = [\n    ...(understanding.normalized?.canonicalSkills ?? []),\n    ...evidence.canonicalSkills,\n  ];
+  const evidence = extractJobEvidenceSignals(
+    job,
+    understanding.semantic.jobRole,
+    understanding.semantic.internationalSignals,
+  );
+  const canonicalSkills = [
+    ...(understanding.normalized?.canonicalSkills ?? []),
+    ...evidence.canonicalSkills,
+  ];
   const mappedDirection = primaryCareerDirection(understanding.semantic.jobRole, understanding.semantic);
   const canonicalDirections = understanding.normalized?.canonicalCareerDirections ?? [];
 
