@@ -176,8 +176,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const importRawJob = useCallback(
     (raw: RawJob) => {
-      const result = ingestAndAdaptJobs({ records: state.importedJobRecords }, [raw]);
-      if (!result.records.length) return { added: false, warnings: ["This job was already imported."] };
+      const existing = state.importedJobRecords.find((record) => record.raw.id === raw.id);
+      const recordsWithoutCurrent = state.importedJobRecords.filter((record) => record.raw.id !== raw.id);
+      const result = ingestAndAdaptJobs({ records: recordsWithoutCurrent }, [raw]);
+      if (!result.records.length) return { added: false, warnings: ["The imported job could not be normalized."] };
       const latest = result.records.at(-1);
       if (!latest) return { added: false, warnings: ["The imported job could not be normalized."] };
       const normalized = normalizeJobConcepts(latest.job);
