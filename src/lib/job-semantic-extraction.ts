@@ -77,6 +77,11 @@ const JOB_ROLE_RULES: Array<{ role: JobRole; titleTerms: string[]; bodyTerms: st
     bodyTerms: ["软件开发", "编程", "software development", "programming", "coding"],
   },
   {
+    role: "project-assistant",
+    titleTerms: ["研发项目助理", "项目助理", "项目协调员", "project assistant", "project coordinator"],
+    bodyTerms: ["项目进度跟踪", "项目资料整理", "项目会议跟进", "project coordination", "project tracking"],
+  },
+  {
     role: "customer-service",
     titleTerms: ["客服", "客户服务", "客服专员", "customer service", "customer support", "support specialist"],
     bodyTerms: ["客户服务", "售后服务", "customer support", "customer service"],
