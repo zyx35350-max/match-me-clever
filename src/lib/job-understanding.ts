@@ -1,7 +1,8 @@
 import type { Job } from "./types";
 import { detectJobLanguage } from "./job-language";
 import { extractJobSemantics } from "./job-semantic-extraction";
-import { normalizeJobConcepts } from "./job-concept-normalization";\nimport { extractJobEvidenceSignals } from "./job-evidence-signals";
+import { normalizeJobConcepts } from "./job-concept-normalization";
+import { extractJobEvidenceSignals } from "./job-evidence-signals";
 import type { JobUnderstanding } from "./job-understanding-types";
 
 /**
@@ -15,7 +16,9 @@ export function buildJobUnderstanding(job: Job): JobUnderstanding {
     skills: job.skills,
   });
 
-  const semantic = extractJobSemantics(job);\n  const evidence = extractJobEvidenceSignals(job, semantic.jobRole, semantic.internationalSignals);\n  const enrichedSkills = [...new Set([...semantic.skills, ...evidence.skills])];
+  const semantic = extractJobSemantics(job);
+  const evidence = extractJobEvidenceSignals(job, semantic.jobRole, semantic.internationalSignals);
+  const enrichedSkills = [...new Set([...semantic.skills, ...evidence.skills])];
 
   return {
     language,
