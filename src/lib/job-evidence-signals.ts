@@ -70,6 +70,21 @@ export function extractJobEvidenceSignals(
     ["email marketing", "邮件营销"],
     "Explicit email-marketing wording",
   );
+  addSkill(
+    "Data Monitoring",
+    [
+      "项目进度跟踪",
+      "项目进度",
+      "台账更新",
+      "数据统计",
+      "报表整理",
+      "进度跟踪",
+      "data tracking",
+      "progress tracking",
+      "reporting",
+    ],
+    "Explicit project tracking/reporting requirement",
+  );
 
   let aiRelevance: number | undefined;
   if (/(ai|人工智能|generative ai|machine learning|自动化|automation)/i.test(text)) {
