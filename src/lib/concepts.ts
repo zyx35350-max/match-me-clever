@@ -81,6 +81,18 @@ export const concepts: ConceptDef[] = [
     related: ["data_analysis"],
   },
   {
+    id: "project_coordination",
+    en: ["Project Coordination", "Project Coordination Support"],
+    zh: ["项目协调", "项目跟进", "项目进度跟踪"],
+    related: ["data_monitoring", "project_management"],
+  },
+  {
+    id: "technical_documentation",
+    en: ["Technical Documentation", "Documentation"],
+    zh: ["技术文档", "文档整理", "资料归档"],
+    related: ["project_coordination", "data_monitoring"],
+  },
+  {
     id: "data_monitoring",
     en: ["Data Monitoring", "Performance Monitoring", "Reporting"],
     zh: ["数据监控", "数据看板", "数据报表"],
