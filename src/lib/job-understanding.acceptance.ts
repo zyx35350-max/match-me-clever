@@ -5,6 +5,7 @@ import type { Job } from "./types";
 import type { CareerProfile } from "./career-types";
 import { buildMatchContext } from "./career-engine";
 import type { Profile } from "./types";
+import { primaryCareerDirection } from "./job-role-direction-mapping";
 
 function makeJob(overrides: Partial<Job> = {}): Job {
   return {
@@ -275,8 +276,7 @@ function testJobRoleDirectionMapping() {
     true,
   );
 
-  const salesMapping = require("./job-role-direction-mapping") as typeof import("./job-role-direction-mapping");
-  assert.equal(salesMapping.primaryCareerDirection(sales.semantic.jobRole, sales.semantic), "explore");
+  assert.equal(primaryCareerDirection(sales.semantic.jobRole, sales.semantic), "explore");
 
   const ecommerceSales = buildJobUnderstanding(
     makeJob({
@@ -285,7 +285,7 @@ function testJobRoleDirectionMapping() {
     }),
   );
   assert.equal(
-    salesMapping.primaryCareerDirection(ecommerceSales.semantic.jobRole, ecommerceSales.semantic),
+    primaryCareerDirection(ecommerceSales.semantic.jobRole, ecommerceSales.semantic),
     "ai-ecommerce",
   );
 
@@ -293,7 +293,7 @@ function testJobRoleDirectionMapping() {
     makeJob({ title: "运营专员", summary: "负责运营管理和数据监控。" }),
   );
   assert.equal(
-    salesMapping.primaryCareerDirection(operations.semantic.jobRole, operations.semantic),
+    primaryCareerDirection(operations.semantic.jobRole, operations.semantic),
     "ai-operations",
   );
 }
