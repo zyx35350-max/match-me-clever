@@ -32,6 +32,17 @@ export type EnglishProficiency =
   | "working_proficiency"
   | "unknown";
 
+export type JobRole =
+  | "international-sales"
+  | "marketing"
+  | "product"
+  | "content"
+  | "operations"
+  | "design"
+  | "software-engineering"
+  | "customer-service"
+  | "unknown";
+
 export type EvidenceLevel = "explicit" | "strong" | "inferred" | "unknown";
 
 export type CompanyType =
@@ -56,6 +67,8 @@ export interface JobSemanticExtraction {
   skills: string[];
   responsibilities: string[];
   careerDirections: string[];
+  jobRole: JobRole;
+  jobRoleEvidence?: string[];
   experienceRequirements?: string[];
   educationRequirements?: string[];
   workMode?: WorkMode;
