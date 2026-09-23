@@ -131,6 +131,14 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
     ...(clean(input.sourceUrl) ? { sourceUrl: clean(input.sourceUrl)! } : {}),
     ...(company ? { companyName: company } : {}),
     ...(location ? { locationText: location } : {}),
+    ...(salary.min !== undefined || salary.max !== undefined
+      ? {
+          metadata: {
+            ...(salary.min !== undefined ? { salaryMin: salary.min } : {}),
+            ...(salary.max !== undefined ? { salaryMax: salary.max } : {}),
+          },
+        }
+      : {}),
   });
 
   const adapted = adaptRawJobToJob(raw, {
