@@ -35,8 +35,8 @@ function parseSalary(text: string): { min?: number; max?: number; note?: string 
     /(\d+(?:\.\d+)?)\s*(千|k|万)?\s*(?:-|–|—|~|～|至)\s*(\d+(?:\.\d+)?)\s*(千|k|万)/i,
   );
   if (range) {
-    const toNumber = (value: string, unit: string) => {
-      const normalized = unit.toLowerCase();
+    const toNumber = (value: string, unit?: string) => {
+      const normalized = (unit ?? "千").toLowerCase();
       return Number(value) * (normalized === "万" ? 10000 : normalized === "k" ? 1000 : 1000);
     };
     return {
