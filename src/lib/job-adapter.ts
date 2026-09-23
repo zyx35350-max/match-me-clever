@@ -2,6 +2,7 @@ import type { Job, EmploymentType, Seniority, WorkMode } from "./types";
 import type { RawJob } from "./job-source-types";
 import type { JobLifecycle } from "./job-lifecycle";
 import { buildJobUnderstanding } from "./job-understanding";
+import { primaryCareerDirection } from "./job-role-direction-mapping";
 
 export interface RawJobAdapterDefaults {
   workMode?: WorkMode;
@@ -72,9 +73,7 @@ export function adaptRawJobToJob(
     ...shell,
     ...(semantic.skills.length ? { skills: semantic.skills } : {}),
     ...(semantic.responsibilities.length ? { responsibilities: semantic.responsibilities } : {}),
-    ...(semantic.careerDirections.length === 1
-      ? { careerDirection: semantic.careerDirections[0] }
-      : {}),
+    ...(primaryCareerDirection(semantic.jobRole, semantic) ? { careerDirection: primaryCareerDirection(semantic.jobRole, semantic) } : {}),
     ...(semantic.jobRole !== "unknown" ? { jobRole: semantic.jobRole } : {}),
     ...(semantic.workMode ? { workMode: semantic.workMode } : {}),
     ...(semantic.employmentType ? { employmentType: semantic.employmentType } : {}),
