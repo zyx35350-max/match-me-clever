@@ -7,7 +7,12 @@
  */
 
 export function formatSalary(value: number) {
-  return `$${Math.round(value / 1000)}k`;
+  if (!Number.isFinite(value) || value <= 0) return "$0";
+  const thousands = value / 1000;
+  const formatted = Number.isInteger(thousands)
+    ? String(thousands)
+    : thousands.toFixed(1).replace(/\\.0$/, "");
+  return `${formatted}k`;
 }
 
 export function labelMode(mode: string) {
