@@ -71,6 +71,35 @@ export function extractJobEvidenceSignals(
     "Explicit email-marketing wording",
   );
   addSkill(
+    "Project Coordination",
+    [
+      "项目进度跟踪",
+      "项目进度",
+      "进度跟踪",
+      "跟进落实",
+      "项目跟进",
+      "项目协调",
+      "project coordination",
+      "project tracking",
+    ],
+    "Explicit project coordination/tracking requirement",
+  );
+  addSkill(
+    "Technical Documentation",
+    [
+      "技术文档",
+      "资料归档",
+      "文档整理",
+      "项目资料",
+      "图纸",
+      "试验报告",
+      "technical documentation",
+      "documentation",
+    ],
+    "Explicit technical-documentation requirement",
+  );
+
+  addSkill(
     "Data Monitoring",
     [
       "项目进度跟踪",
