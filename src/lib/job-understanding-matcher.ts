@@ -32,8 +32,14 @@ export function matchUnderstoodJob(
 
   const matchableJob: Job = {
     ...job,
-    skills: canonicalSkills?.length ? canonicalSkills : job.skills,
-    negativeTags: evidence.negativeTags,
+    skills: canonicalSkills.length ? [...new Set(canonicalSkills)] : job.skills,
+    // Evidence is authoritative for derived negative tags on a fresh match.
+    // Explicitly clearing the field prevents stale tags from older imports
+    // (for example, "客户投诉" being previously treated as customer service)
+    // from surviving into the current score.
+    ...(evidence.negativeTags?.length
+      ? { negativeTags: evidence.negativeTags }
+      : { negativeTags: undefined }),
     ...(mappedDirection
       ? { careerDirection: mappedDirection }
       : canonicalDirections.length === 1
