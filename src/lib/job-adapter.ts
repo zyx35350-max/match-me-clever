@@ -37,7 +37,13 @@ export function adaptRawJobToJob(
     defaults?: RawJobAdapterDefaults;
   } = {},
 ): AdaptedJobRecord {
-  const defaults = options.defaults ?? {};
+  const metadataSalaryMin = typeof raw.metadata?.salaryMin === "number" ? raw.metadata.salaryMin : undefined;
+  const metadataSalaryMax = typeof raw.metadata?.salaryMax === "number" ? raw.metadata.salaryMax : undefined;
+  const defaults = {
+    ...options.defaults,
+    ...(options.defaults?.salaryMin === undefined && metadataSalaryMin !== undefined ? { salaryMin: metadataSalaryMin } : {}),
+    ...(options.defaults?.salaryMax === undefined && metadataSalaryMax !== undefined ? { salaryMax: metadataSalaryMax } : {}),
+  };
   const warnings: string[] = [];
 
   const shell: Job = {
