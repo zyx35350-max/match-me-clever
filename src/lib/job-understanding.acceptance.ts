@@ -263,6 +263,30 @@ function testUnderstanding() {
   assert.ok(understood.normalized);
 }
 
+function testEvidenceSignals() {
+  const sales = buildJobUnderstanding(
+    makeJob({
+      title: "外贸业务销售",
+      summary:
+        "负责开发海外客户、市场分析、Google/Facebook/LinkedIn/Instagram客户开发、询盘订单和售后。",
+    }),
+  );
+  const { extractJobEvidenceSignals } = require("./job-evidence-signals") as typeof import("./job-evidence-signals");
+  const signals = extractJobEvidenceSignals(
+    makeJob({
+      title: "外贸业务销售",
+      summary:
+        "负责开发海外客户、市场分析、Google/Facebook/LinkedIn/Instagram客户开发、询盘订单和售后。",
+    }),
+    sales.semantic.jobRole,
+    sales.semantic.internationalSignals,
+  );
+  assert.equal(signals.skills.includes("Overseas Market Research"), true);
+  assert.equal(signals.skills.includes("Social Media"), true);
+  assert.equal(signals.negativeTags?.includes("pure_sales"), true);
+  assert.equal(signals.aiRelevance, undefined);
+}
+
 function testJobRoleDirectionMapping() {
   const sales = buildJobUnderstanding(
     makeJob({
@@ -312,5 +336,6 @@ function testMatcherAdapter() {
 
 testUnderstanding();
 testJobRoleDirectionMapping();
+testEvidenceSignals();
 testMatcherAdapter();
 console.log("V1.1.5 acceptance tests passed.");
