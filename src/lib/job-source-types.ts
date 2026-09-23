@@ -5,6 +5,12 @@
  * It does not scrape, call external APIs, or make claims about platform access.
  */
 
+export type JobSourceGroup =
+  | "domestic_apps"
+  | "public_sources"
+  | "company_ats"
+  | "user_import";
+
 export type JobSourceType =
   "user_import" | "company_site" | "job_board" | "aggregator" | "api" | "licensed_feed" | "other";
 
@@ -24,6 +30,7 @@ export type FetchStatus =
 export interface JobSource {
   id: string;
   name: string;
+  group: JobSourceGroup;
   type: JobSourceType;
   accessPolicy: AccessPolicy;
   enabled: boolean;
