@@ -23,7 +23,7 @@ function clean(value: string | undefined) {
 
 function labeled(text: string, labels: string[]) {
   for (const label of labels) {
-    const re = new RegExp("^\\s*" + label + "\\s*[:：-]\\s*(.+)\\s*$", "im");
+    const re = new RegExp("^\s*" + label + "\s*[:：-]\s*(.+)\s*$", "im");
     const match = text.match(re);
     if (match?.[1]) return clean(match[1]);
   }
@@ -32,7 +32,7 @@ function labeled(text: string, labels: string[]) {
 
 function parseSalary(text: string): { min?: number; max?: number; note?: string } {
   const range = text.match(
-    /(\\d+(?:\\.\\d+)?)\\s*(千|k|万)\\s*(?:-|–|—|~|～|至)\\s*(\\d+(?:\\.\\d+)?)\\s*(千|k|万)/i,
+    /(\d+(?:\.\d+)?)\s*(千|k|万)\s*(?:-|–|—|~|～|至)\s*(\d+(?:\.\d+)?)\s*(千|k|万)/i,
   );
   if (range) {
     const toNumber = (value: string, unit: string) => {
@@ -47,7 +47,7 @@ function parseSalary(text: string): { min?: number; max?: number; note?: string 
   }
 
   const plainRange = text.match(
-    /(\\d{3,6})\\s*(?:元|人民币|rmb)?\\s*(?:-|–|—|~|～|至)\\s*(\\d{3,6})\\s*(?:元|人民币|rmb)?/i,
+    /(\d{3,6})\s*(?:元|人民币|rmb)?\s*(?:-|–|—|~|～|至)\s*(\d{3,6})\s*(?:元|人民币|rmb)?/i,
   );
   if (plainRange) {
     return {
@@ -61,12 +61,12 @@ function parseSalary(text: string): { min?: number; max?: number; note?: string 
 }
 
 function parseExperience(text: string): string | undefined {
-  const match = text.match(/(?:\\d+(?:\\.\\d+)?年(?:及以上|以上)?|无需经验|经验不限)/);
+  const match = text.match(/(?:\d+(?:\.\d+)?年(?:及以上|以上)?|无需经验|经验不限)/);
   return clean(match?.[0]);
 }
 
 function isExperienceLine(line: string) {
-  return /^(?:\\d+(?:\\.\\d+)?年(?:及以上|以上)?|无需经验|经验不限)$/.test(line);
+  return /^(?:\d+(?:\.\d+)?年(?:及以上|以上)?|无需经验|经验不限)$/.test(line);
 }
 
 function looksLikeLocation(line: string) {
@@ -74,7 +74,7 @@ function looksLikeLocation(line: string) {
     /^(?:.+[-－—].+|.+(?:区|县|市|省))$/.test(line) &&
     !parseSalary(line) &&
     !isExperienceLine(line) &&
-    !/^(?:中技|中专|高中|大专|本科|硕士|博士|英语|招\\d+人|收藏|立即投递)$/.test(line)
+    !/^(?:中技|中专|高中|大专|本科|硕士|博士|英语|招\d+人|收藏|立即投递)$/.test(line)
   );
 }
 
