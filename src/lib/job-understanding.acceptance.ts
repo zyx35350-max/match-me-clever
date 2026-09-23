@@ -6,6 +6,7 @@ import type { CareerProfile } from "./career-types";
 import { buildMatchContext } from "./career-engine";
 import type { Profile } from "./types";
 import { primaryCareerDirection } from "./job-role-direction-mapping";
+import { extractJobEvidenceSignals } from "./job-evidence-signals";
 
 function makeJob(overrides: Partial<Job> = {}): Job {
   return {
@@ -271,7 +272,6 @@ function testEvidenceSignals() {
         "负责开发海外客户、市场分析、Google/Facebook/LinkedIn/Instagram客户开发、询盘订单和售后。",
     }),
   );
-  const { extractJobEvidenceSignals } = require("./job-evidence-signals") as typeof import("./job-evidence-signals");
   const signals = extractJobEvidenceSignals(
     makeJob({
       title: "外贸业务销售",
