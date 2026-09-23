@@ -46,6 +46,8 @@ export interface Job {
   summaryOriginal?: string;
   responsibilities: string[];
   industry?: string;
+  /** Detected role of the listing itself, independent from career-direction matching. */
+  jobRole?: import("./job-understanding-types").JobRole;
   /** Career direction id this listing belongs to. */
   careerDirection?: string;
   aiRelevance?: number;
