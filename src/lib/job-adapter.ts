@@ -3,6 +3,7 @@ import type { RawJob } from "./job-source-types";
 import type { JobLifecycle } from "./job-lifecycle";
 import { buildJobUnderstanding } from "./job-understanding";
 import { primaryCareerDirection } from "./job-role-direction-mapping";
+import { extractJobEvidenceSignals } from "./job-evidence-signals";
 
 export interface RawJobAdapterDefaults {
   workMode?: WorkMode;
@@ -68,13 +69,19 @@ export function adaptRawJobToJob(
 
   const understanding = buildJobUnderstanding(shell);
   const semantic = understanding.semantic;
+  const evidenceSignals = extractJobEvidenceSignals(shell, semantic.jobRole, semantic.internationalSignals);
 
   const job: Job = {
     ...shell,
-    ...(semantic.skills.length ? { skills: semantic.skills } : {}),
+    ...(semantic.skills.length || evidenceSignals.skills.length
+      ? { skills: [...new Set([...semantic.skills, ...evidenceSignals.skills])] }
+      : {}),
     ...(semantic.responsibilities.length ? { responsibilities: semantic.responsibilities } : {}),
     ...(primaryCareerDirection(semantic.jobRole, semantic) ? { careerDirection: primaryCareerDirection(semantic.jobRole, semantic) } : {}),
     ...(semantic.jobRole !== "unknown" ? { jobRole: semantic.jobRole } : {}),
+    ...(evidenceSignals.aiRelevance !== undefined ? { aiRelevance: evidenceSignals.aiRelevance } : {}),
+    ...(evidenceSignals.growthPotential !== undefined ? { growthPotential: evidenceSignals.growthPotential } : {}),
+    ...(evidenceSignals.negativeTags?.length ? { negativeTags: evidenceSignals.negativeTags } : {}),
     ...(semantic.workMode ? { workMode: semantic.workMode } : {}),
     ...(semantic.employmentType ? { employmentType: semantic.employmentType } : {}),
     ...(understanding.language !== "en"
