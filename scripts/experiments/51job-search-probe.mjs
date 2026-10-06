@@ -19,7 +19,7 @@ const SEARCH_URL =
   "https://we.51job.com/pc/search?keyword=AI%E4%BA%A7%E5%93%81%E5%8A%A9%E7%90%86";
 
 function cleanText(value) {
-  return (value ?? "").replace(/\\s+/g, " ").trim();
+  return (value ?? "").replace(/\s+/g, " ").trim();
 }
 
 function absoluteUrl(href, baseUrl) {
@@ -35,7 +35,7 @@ function extractJobId(url) {
   if (!url) return null;
 
   // Common 51Job detail pattern: /<city>/<numeric-job-id>.html
-  const match = url.match(/\\/(\\d{5,})\\.html(?:[?#]|$)/i);
+  const match = url.match(/\/(\d{5,})\.html(?:[?#]|$)/i);
   return match?.[1] ?? null;
 }
 
@@ -44,8 +44,8 @@ function looksLikeJobUrl(url) {
   try {
     const parsed = new URL(url);
     return (
-      /(^|\\.)51job\\.com$/i.test(parsed.hostname) &&
-      /\\/\\d{5,}\\.html(?:$|[?#])/i.test(parsed.pathname)
+      /(^|\.)51job\.com$/i.test(parsed.hostname) &&
+      /\/\d{5,}\.html(?:$|[?#])/i.test(parsed.pathname)
     );
   } catch {
     return false;
@@ -53,7 +53,7 @@ function looksLikeJobUrl(url) {
 }
 
 function looksLikeSalary(text) {
-  return /(?:\\d+(?:\\.\\d+)?(?:-|~|—|至)\\d+(?:\\.\\d+)?)\\s*(?:千|k|K|万)(?:\\b|$)|面议|\\d+薪/i.test(
+  return /(?:\d+(?:\.\d+)?(?:-|~|—|至)\d+(?:\.\d+)?)\s*(?:千|k|K|万)(?:\b|$)|面议|\d+薪/i.test(
     text,
   );
 }
@@ -66,12 +66,12 @@ function looksLikeLocation(text) {
 
 function extractCompanyFromText(text, title) {
   const lines = text
-    .split(/\\n|\\r/)
+    .split(/\n|\r/)
     .map((line) => cleanText(line))
     .filter(Boolean)
     .filter((line) => line !== title);
 
-  const blocked = /^(五险一金|周末双休|双休|做五休二|\\d+年经验|经验不限|\\d+人|大专|本科|硕士|职位描述|职位信息|上海|北京|广州|深圳)$/i;
+  const blocked = /^(五险一金|周末双休|双休|做五休二|\d+年经验|经验不限|\d+人|大专|本科|硕士|职位描述|职位信息|上海|北京|广州|深圳)$/i;
 
   // Prefer lines that look like company names and are not obvious tags/metadata.
   const candidate = lines.find(
@@ -81,7 +81,7 @@ function extractCompanyFromText(text, title) {
       !blocked.test(line) &&
       !looksLikeSalary(line) &&
       !looksLikeLocation(line) &&
-      !/^https?:\\/\\//i.test(line),
+      !/^https?:\/\//i.test(line),
   );
 
   return candidate ?? null;
@@ -90,10 +90,10 @@ function extractCompanyFromText(text, title) {
 async function inspectCard(card, baseUrl) {
   return card.evaluate(
     (node, context) => {
-      const text = (node.innerText ?? "").replace(/\\s+/g, " ").trim();
+      const text = (node.innerText ?? "").replace(/\s+/g, " ").trim();
       const links = [...node.querySelectorAll("a[href]")].map((a) => ({
         href: a.getAttribute("href"),
-        text: (a.textContent ?? "").replace(/\\s+/g, " ").trim(),
+        text: (a.textContent ?? "").replace(/\s+/g, " ").trim(),
       }));
 
       const heading =
@@ -104,7 +104,7 @@ async function inspectCard(card, baseUrl) {
       return {
         text,
         links,
-        heading: heading.replace(/\\s+/g, " ").trim(),
+        heading: heading.replace(/\s+/g, " ").trim(),
         tagName: node.tagName,
         className: typeof node.className === "string" ? node.className : "",
         ...context,
@@ -120,7 +120,7 @@ async function findCards(page) {
   const linkData = await page.locator("a[href]").evaluateAll((anchors) =>
     anchors.map((a) => ({
       href: a.href,
-      text: (a.textContent ?? "").replace(/\\s+/g, " ").trim(),
+      text: (a.textContent ?? "").replace(/\s+/g, " ").trim(),
     })),
   );
 
@@ -130,7 +130,7 @@ async function findCards(page) {
   const cards = [];
 
   for (const item of jobLinks) {
-    const locator = page.locator('a[href="' + item.href.replace(/"/g, '\\\"') + '"]').first();
+    const locator = page.locator('a[href="' + item.href.replace(/"/g, '\\"') + '"]').first();
     let card = locator;
 
     // Walk upward and choose the smallest ancestor that contains enough
@@ -221,7 +221,7 @@ export async function probeSearch(url = SEARCH_URL) {
     result.textPreview = bodyText.slice(0, 2500);
 
     const haystack =
-      result.title + "\\n" + bodyText.slice(0, 8000) + "\\n" + result.finalUrl;
+      result.title + "\n" + bodyText.slice(0, 8000) + "\n" + result.finalUrl;
 
     if (VERIFY_PATTERNS.some((pattern) => pattern.test(haystack))) {
       result.status = "verification_required";
@@ -251,7 +251,7 @@ export async function probeSearch(url = SEARCH_URL) {
     const linkData = await page.locator("a[href]").evaluateAll((anchors) =>
       anchors.map((a) => ({
         href: a.href,
-        text: (a.textContent ?? "").replace(/\\s+/g, " ").trim(),
+        text: (a.textContent ?? "").replace(/\s+/g, " ").trim(),
       })),
     );
 
@@ -271,9 +271,9 @@ export async function probeSearch(url = SEARCH_URL) {
         html: node.outerHTML.slice(0, 12000),
       }));
 
-      const cardText = raw.text.replace(/\\r/g, "").trim();
+      const cardText = raw.text.replace(/\r/g, "").trim();
       const lines = cardText
-        .split(/\\n/)
+        .split(/\n/)
         .map((line) => cleanText(line))
         .filter(Boolean);
 
