@@ -95,7 +95,7 @@ function findJobRole(job: Job, text: string): { role: JobRole; evidence: string[
     const matched = rule.titleTerms.find((term) => title.toLowerCase().includes(term.toLowerCase()));
     if (matched) titleMatches.push({ role: rule.role, evidence: [`标题含“${matched}”`] });
   }
-  if (titleMatches.length) return titleMatches[0];
+  if (titleMatches.length) return titleMatches[0]!;
 
   for (const rule of JOB_ROLE_RULES) {
     const matched = rule.bodyTerms.find((term) => text.toLowerCase().includes(term.toLowerCase()));

@@ -130,7 +130,7 @@ export function extractJobEvidenceSignals(
     evidence.push("Explicit growth/learning signal");
   }
 
-  const negativeTags = new Set<Job["negativeTags"][number]>();
+  const negativeTags = new Set<NonNullable<Job["negativeTags"]>[number]>();
   if (
     role === "international-sales" ||
     /(销售|sales|business development|客户开发|开发客户)/i.test(text)

@@ -49,13 +49,13 @@ export interface Job {
   /** Detected role of the listing itself, independent from career-direction matching. */
   jobRole?: import("./job-understanding-types").JobRole;
   /** Career direction id this listing belongs to. */
-  careerDirection?: string;
+  careerDirection?: string | undefined;
   aiRelevance?: number;
   growthPotential?: number;
   portfolioValue?: number;
   repetitiveWorkRisk?: number;
   overtimeRisk?: number;
-  negativeTags?: NegativeTag[];
+  negativeTags?: NegativeTag[] | undefined;
   source?: string;
   sourceUrl?: string;
   language?: "en" | "zh";
