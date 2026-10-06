@@ -37,8 +37,8 @@ export function adaptRawJobToJob(
     defaults?: RawJobAdapterDefaults;
   } = {},
 ): AdaptedJobRecord {
-  const metadataSalaryMin = typeof raw.metadata?.salaryMin === "number" ? raw.metadata.salaryMin : undefined;
-  const metadataSalaryMax = typeof raw.metadata?.salaryMax === "number" ? raw.metadata.salaryMax : undefined;
+  const metadataSalaryMin = typeof raw.metadata?.['salaryMin'] === "number" ? raw.metadata['salaryMin'] : undefined;
+  const metadataSalaryMax = typeof raw.metadata?.['salaryMax'] === "number" ? raw.metadata['salaryMax'] : undefined;
   const defaults = {
     ...options.defaults,
     ...(options.defaults?.salaryMin === undefined && metadataSalaryMin !== undefined ? { salaryMin: metadataSalaryMin } : {}),
@@ -77,7 +77,7 @@ export function adaptRawJobToJob(
   const semantic = understanding.semantic;
   const evidenceSignals = extractJobEvidenceSignals(shell, semantic.jobRole, semantic.internationalSignals);
 
-  const job: Job = {
+  const job = {
     ...shell,
     ...(semantic.skills.length || evidenceSignals.skills.length
       ? { skills: [...new Set([...semantic.skills, ...evidenceSignals.skills])] }

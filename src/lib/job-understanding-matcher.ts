@@ -30,7 +30,7 @@ export function matchUnderstoodJob(
   const mappedDirection = primaryCareerDirection(understanding.semantic.jobRole, understanding.semantic);
   const canonicalDirections = understanding.normalized?.canonicalCareerDirections ?? [];
 
-  const matchableJob: Job = {
+  const matchableJob = {
     ...job,
     skills: canonicalSkills.length ? [...new Set(canonicalSkills)] : job.skills,
     // Evidence is authoritative for derived negative tags on a fresh match.
