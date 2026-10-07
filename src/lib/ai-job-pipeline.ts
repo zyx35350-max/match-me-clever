@@ -84,7 +84,7 @@ function applyAIToRaw(base: UserJobImportResult, ai: AIJobUnderstanding) {
         educationRequirements:
           ai.education.requirements.length
             ? ai.education.requirements
-            : adapted.understanding.semantic.educationRequirements,
+            : (adapted.understanding.semantic.educationRequirements ?? []),
         englishRequirement: ai.english.requirement,
         englishProficiency: ai.english.proficiency,
         internationalSignals: {
