@@ -23,13 +23,13 @@ function clean(value: string | undefined) {
 
 function labeled(text: string, labels: string[]) {
   for (const label of labels) {
-    const re = new RegExp("^\\s*" + label + "\\s*[:：-]\\s*(.+)\\s*$", "im");
+    const escaped = label.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&");
+    const re = new RegExp("^\\s*" + escaped + "\\s*[:：-]\\s*(.+)\\s*$", "im");
     const match = text.match(re);
     if (match?.[1]) return clean(match[1]);
   }
   return undefined;
 }
-
 function parseSalary(text: string): { min?: number; max?: number; note?: string } {
   const range = text.match(
     /(\d+(?:\.\d+)?)\s*(千|k|万)?\s*(?:-|–|—|~|～|至)\s*(\d+(?:\.\d+)?)\s*(千|k|万)/i,
@@ -61,14 +61,15 @@ function parseSalary(text: string): { min?: number; max?: number; note?: string 
 }
 
 function parseExperience(text: string): string | undefined {
-  const match = text.match(/(?:\d+(?:\.\d+)?年(?:及以上|以上)?|无需经验|经验不限)/);
-  return clean(match?.[0]);
-}
+  const range = text.match(/\d+(?:\.\d+)?\\s*[-–—~～至]\\s*\d+(?:\.\d+)?\\s*年(?:经验)?/);
+  if (range?.[0]) return clean(range[0]);
 
+  const single = text.match(/\d+(?:\.\d+)?年(?:及以上|以上)?(?:经验)?|无需经验|经验不限/);
+  return clean(single?.[0]);
+}
 function isExperienceLine(line: string) {
-  return /^(?:\d+(?:\.\d+)?年(?:及以上|以上)?|无需经验|经验不限)$/.test(line);
+  return /^(?:\d+(?:\.\d+)?\\s*[-–—~～至]\\s*\d+(?:\.\d+)?\\s*年(?:经验)?|\d+(?:\.\d+)?年(?:及以上|以上)?(?:经验)?|无需经验|经验不限)$/.test(line);
 }
-
 function looksLikeLocation(line: string) {
   return (
     /^(?:.+[-－—].+|.+(?:区|县|市|省))$/.test(line) &&
@@ -89,19 +90,47 @@ function isSectionHeader(line: string) {
   return /^(?:responsibilities|requirements|qualifications|职责|要求|任职要求|岗位要求|工作内容|description)[:：]?$/i.test(line);
 }
 
+function extractCompanyFromLine(line: string): string | undefined {
+  const segments = line.split(/[·|｜]/).map(clean).filter(Boolean) as string[];
+
+  for (const segment of segments) {
+    if (parseSalary(segment)) continue;
+    const match = segment.match(
+      /(?:[\p{Script=Han}A-Za-z0-9（）()&.·_-]{2,})(?:有限责任公司|股份有限公司|科技有限公司|集团有限公司|有限公司|公司)/u,
+    );
+    if (match?.[0]) {
+      const candidate = clean(match[0]);
+      if (candidate) return candidate;
+    }
+  }
+
+  const suffix = /(?:有限责任公司|股份有限公司|科技有限公司|集团有限公司|有限公司|公司)/;
+  const match = line.match(suffix);
+  if (!match) return undefined;
+
+  const end = match.index! + match[0].length;
+  const before = line.slice(0, end);
+  const separator = Math.max(
+    before.lastIndexOf("·"),
+    before.lastIndexOf("|"),
+    before.lastIndexOf("｜"),
+    before.lastIndexOf(" "),
+  );
+  const candidate = clean(before.slice(separator + 1));
+  return candidate && suffix.test(candidate) ? candidate : undefined;
+}
+
 function parseCompany(text: string, lines: string[]): string | undefined {
   const labeledCompany = labeled(text, ["company", "company name", "公司", "公司名称"]);
   if (labeledCompany) return labeledCompany;
 
-  const companyLine = lines.find((line) =>
-    /(?:有限公司|有限责任公司|股份有限公司|科技有限公司|集团有限公司|公司)(?:（[^）]*）)?(?:\s+.+)?$/.test(line),
-  );
-  if (!companyLine) return undefined;
+  for (const line of lines) {
+    const candidate = extractCompanyFromLine(line);
+    if (candidate) return candidate;
+  }
 
-  const legalName = companyLine.match(/.*?(?:有限公司|有限责任公司|股份有限公司|科技有限公司|集团有限公司|公司)/)?.[0];
-  return clean(legalName ?? companyLine);
+  return undefined;
 }
-
 /**
  * Deterministic parser for common Chinese recruitment-site pasted listings.
  * It preserves the complete original text and only extracts metadata supported
@@ -116,9 +145,13 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
     labeled(text, ["title", "job title", "职位", "职位名称"]) ??
     lines[0] ??
     "Imported Job";
+  const unwrappedTitle = rawTitle.replace(/^[（(]\s*([\s\S]*?)\s*[）)]$/, "$1");
   const title = clean(
-    rawTitle.replace(/\s+\d+(?:\.\d+)?\s*(?:千|k|万)(?:\s*[-–—~～至]\s*\d+(?:\.\d+)?\s*(?:千|k|万))?(?:·.*)?$/i, ""),
-  ) ?? rawTitle;
+    unwrappedTitle.replace(
+      /\s+\d+(?:\.\d+)?\s*(?:千|k|万)(?:\s*[-–—~～至]\s*\d+(?:\.\d+)?\s*(?:千|k|万))?(?:·.*)?$/i,
+      "",
+    ),
+  ) ?? unwrappedTitle;
 
   const company =
     clean(input.companyName) ??
@@ -134,10 +167,8 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
   const location =
     clean(input.locationText) ??
     labeled(text, ["location", "地点", "工作地点", "location / remote"]) ??
-    lines.slice(1, 7).map(parseCompactLocation).find(Boolean) ??
-    lines.slice(1, 7).find((line) => looksLikeLocation(line)) ??
-    (lines[1] && !isSectionHeader(lines[1]) ? lines[1] : undefined);
-
+    lines.slice(1, 8).map(parseCompactLocation).find(Boolean) ??
+    lines.slice(1, 8).find((line) => looksLikeLocation(line));
   const raw = createRawJob({
     source: USER_IMPORT_SOURCE,
     rawTitle: title,
