@@ -1,3 +1,22 @@
+## Current AI Understanding Layer
+
+Implemented:
+- Gemini structured-output provider in `src/lib/ai-job-understanding.ts`.
+- Server-side `/api/analyze-job` endpoint.
+- AI-aware import pipeline in `src/lib/ai-job-pipeline.ts`.
+- Paste import now tries Gemini first and falls back to the deterministic parser.
+- AI output preserves evidence/confidence and explicitly supports unknown fields.
+- The AI layer does not calculate the final match score; Career Engine remains the scoring authority.
+- `.env.example` documents `GEMINI_API_KEY` and optional `GEMINI_MODEL`.
+
+### 51Job placement
+
+The 51Job crawler/search adapter belongs **before** AI Job Understanding:
+
+`51Job Search → RawJob → AI Job Understanding → Validation → Career Engine → Matching`
+
+The existing `scripts/experiments/51job-search-probe.mjs` is therefore the correct current experiment. Once its JSON is validated, it should evolve into a 51Job source adapter that produces `RawJob` records. The crawler should not contain semantic scoring logic.
+
 # Match Me Clever — Project Status
 
 > Last updated: 2026-09-22
