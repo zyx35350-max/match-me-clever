@@ -51,6 +51,8 @@ export function adaptRawJobToJob(
     title: raw.rawTitle,
     company: raw.companyName ?? "Unknown company",
     location: raw.locationText ?? "Unknown location",
+    // Legacy Job requires these fields, so unknown source facts use neutral
+    // technical values. Warnings below make the uncertainty explicit.
     workMode: defaults.workMode ?? "onsite",
     ...(defaults.employmentType ? { employmentType: defaults.employmentType } : {}),
     salaryMin: defaults.salaryMin ?? 0,
