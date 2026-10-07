@@ -11,7 +11,7 @@ export function formatSalary(value: number) {
   const thousands = value / 1000;
   const formatted = Number.isInteger(thousands)
     ? String(thousands)
-    : thousands.toFixed(1).replace(/\\.0$/, "");
+    : thousands.toFixed(1).replace(/\.0$/, "");
   return `${formatted}k`;
 }
 

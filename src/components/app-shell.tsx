@@ -37,9 +37,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           <nav className="hidden items-center gap-1 text-sm font-medium md:flex">
             {navItems.map((item) =>
               item.to === "/import" ? (
-                <a key={item.to} href="/import" className="rounded-full px-3 py-2 transition-colors hover:bg-sand">
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="rounded-full px-3 py-2 transition-colors hover:bg-sand"
+                >
                   {item.label}
-                </a>
+                </Link>
               ) : (
                 <Link
                   key={item.to}
@@ -71,9 +75,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         <nav className="flex items-center gap-1 overflow-x-auto border-t border-ink/10 px-4 py-2 text-sm font-medium md:hidden">
           {navItems.map((item) =>
             item.to === "/import" ? (
-              <a key={item.to} href="/import" className="rounded-full px-3 py-1.5 whitespace-nowrap">
+              <Link
+                key={item.to}
+                to={item.to}
+                className="rounded-full px-3 py-1.5 whitespace-nowrap"
+              >
                 {item.label}
-              </a>
+              </Link>
             ) : (
               <Link
                 key={item.to}

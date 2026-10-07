@@ -23,7 +23,7 @@ function clean(value: string | undefined) {
 
 function labeled(text: string, labels: string[]) {
   for (const label of labels) {
-    const re = new RegExp("^\s*" + label + "\s*[:：-]\s*(.+)\s*$", "im");
+    const re = new RegExp("^\\s*" + label.replace(/[.*+?^${}()|[\\]\\]/g, "\\const re = new RegExp("^\s*" + label + "\s*[:：-]\s*(.+)\s*$", "im");") + "\\s*[:：-]\\s*(.+)\\s*$", "im");
     const match = text.match(re);
     if (match?.[1]) return clean(match[1]);
   }
@@ -78,6 +78,13 @@ function looksLikeLocation(line: string) {
   );
 }
 
+function parseCompactLocation(line: string) {
+  const match = line.match(/^(.+?)(?=\d+(?:\.\d+)?年(?:及以上|以上)?)/);
+  const candidate = clean(match?.[1]);
+  if (!candidate) return undefined;
+  return /[-－—]|(?:区|县|市|省)$/.test(candidate) ? candidate : undefined;
+}
+
 function isSectionHeader(line: string) {
   return /^(?:responsibilities|requirements|qualifications|职责|要求|任职要求|岗位要求|工作内容|description)[:：]?$/i.test(line);
 }
@@ -87,7 +94,7 @@ function parseCompany(text: string, lines: string[]): string | undefined {
   if (labeledCompany) return labeledCompany;
 
   const companyLine = lines.find((line) =>
-    /(?:有限公司|有限责任公司|股份有限公司|科技有限公司|集团有限公司|公司)(?:（[^）]*）)?(?:\\s+.+)?$/.test(line),
+    /(?:有限公司|有限责任公司|股份有限公司|科技有限公司|集团有限公司|公司)(?:（[^）]*）)?(?:\s+.+)?$/.test(line),
   );
   if (!companyLine) return undefined;
 
@@ -110,7 +117,7 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
     lines[0] ??
     "Imported Job";
   const title = clean(
-    rawTitle.replace(/\\s+\\d+(?:\\.\\d+)?\\s*(?:千|k|万)(?:\\s*[-–—~～至]\\s*\\d+(?:\\.\\d+)?\\s*(?:千|k|万))?(?:·.*)?$/i, ""),
+    rawTitle.replace(/\s+\d+(?:\.\d+)?\s*(?:千|k|万)(?:\s*[-–—~～至]\s*\d+(?:\.\d+)?\s*(?:千|k|万))?(?:·.*)?$/i, ""),
   ) ?? rawTitle;
 
   const company =
@@ -127,6 +134,7 @@ export function parseUserJobText(input: UserJobImportInput): UserJobImportResult
   const location =
     clean(input.locationText) ??
     labeled(text, ["location", "地点", "工作地点", "location / remote"]) ??
+    lines.slice(1, 7).map(parseCompactLocation).find(Boolean) ??
     lines.slice(1, 7).find((line) => looksLikeLocation(line)) ??
     (lines[1] && !isSectionHeader(lines[1]) ? lines[1] : undefined);
 
