@@ -1,4 +1,4 @@
-import { adaptRawJobToJob } from "./job-adapter";
+import { adaptRawJobToJob, type RawJobAdapterDefaults } from "./job-adapter";
 import { understandJobWithGemini, type AIJobUnderstanding } from "./ai-job-understanding";
 import { parseUserJobText, type UserJobImportInput, type UserJobImportResult } from "./user-job-import";
 
@@ -37,18 +37,16 @@ function applyAIToRaw(base: UserJobImportResult, ai: AIJobUnderstanding) {
       ...(ai.salary.min !== null ? { salaryMin } : {}),
       ...(ai.salary.max !== null ? { salaryMax } : {}),
       aiUnderstanding: ai,
-    },
+    } as unknown as NonNullable<typeof base.raw.metadata>,
   };
 
-  const adapted = adaptRawJobToJob(raw, {
-    defaults: {
-      salaryMin,
-      salaryMax,
-      ...(mapSeniority(ai.seniority) ? { seniority: mapSeniority(ai.seniority) } : {}),
-      ...(ai.workMode !== "unknown" ? { workMode: ai.workMode } : {}),
-      ...(ai.employmentType !== "unknown" ? { employmentType: ai.employmentType } : {}),
-    },
-  });
+  const defaults: RawJobAdapterDefaults = { salaryMin, salaryMax };
+  const seniority = mapSeniority(ai.seniority);
+  if (seniority) defaults.seniority = seniority;
+  if (ai.workMode !== "unknown") defaults.workMode = ai.workMode;
+  if (ai.employmentType !== "unknown") defaults.employmentType = ai.employmentType;
+
+  const adapted = adaptRawJobToJob(raw, { defaults });
 
   const job = {
     ...adapted.job,
@@ -81,12 +79,12 @@ function applyAIToRaw(base: UserJobImportResult, ai: AIJobUnderstanding) {
         ...adapted.understanding.semantic,
         experienceRequirements:
           ai.experience.relation === "unknown"
-            ? adapted.understanding.semantic.experienceRequirements
+            ? (adapted.understanding.semantic.experienceRequirements ?? [])
             : [ai.experience.evidence ?? "AI-extracted experience requirement"],
         educationRequirements:
           ai.education.requirements.length
             ? ai.education.requirements
-            : adapted.understanding.semantic.educationRequirements,
+            : (adapted.understanding.semantic.educationRequirements ?? []),
         englishRequirement: ai.english.requirement,
         englishProficiency: ai.english.proficiency,
         internationalSignals: {
