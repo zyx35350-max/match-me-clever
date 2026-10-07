@@ -23,7 +23,7 @@ function clean(value: string | undefined) {
 
 function labeled(text: string, labels: string[]) {
   for (const label of labels) {
-    const re = new RegExp("^\\s*" + label.replace(/[.*+?^${}()|[\\]\\]/g, "\\const re = new RegExp("^\s*" + label + "\s*[:：-]\s*(.+)\s*$", "im");") + "\\s*[:：-]\\s*(.+)\\s*$", "im");
+    const re = new RegExp("^\\s*" + label + "\\s*[:：-]\\s*(.+)\\s*$", "im");
     const match = text.match(re);
     if (match?.[1]) return clean(match[1]);
   }
