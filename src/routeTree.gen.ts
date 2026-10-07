@@ -17,6 +17,7 @@ import { Route as MatchingRouteImport } from './routes/matching'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as TodayRouteImport } from './routes/today'
+import { Route as ApiAnalyzeJobRouteImport } from './routes/api.analyze-job'
 import { Route as ApiImportJobUrlRouteImport } from './routes/api.import-job-url'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
 
@@ -60,6 +61,11 @@ const TodayRoute = TodayRouteImport.update({
   path: '/today',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAnalyzeJobRoute = ApiAnalyzeJobRouteImport.update({
+  id: '/api/analyze-job',
+  path: '/api/analyze-job',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiImportJobUrlRoute = ApiImportJobUrlRouteImport.update({
   id: '/api/import-job-url',
   path: '/api/import-job-url',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/saved': typeof SavedRoute
   '/today': typeof TodayRoute
+  '/api/analyze-job': typeof ApiAnalyzeJobRoute
   '/api/import-job-url': typeof ApiImportJobUrlRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/saved': typeof SavedRoute
   '/today': typeof TodayRoute
+  '/api/analyze-job': typeof ApiAnalyzeJobRoute
   '/api/import-job-url': typeof ApiImportJobUrlRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/saved': typeof SavedRoute
   '/today': typeof TodayRoute
+  '/api/analyze-job': typeof ApiAnalyzeJobRoute
   '/api/import-job-url': typeof ApiImportJobUrlRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/saved'
     | '/today'
+    | '/api/analyze-job'
     | '/api/import-job-url'
     | '/jobs/$jobId'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/saved'
     | '/today'
+    | '/api/analyze-job'
     | '/api/import-job-url'
     | '/jobs/$jobId'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/saved'
     | '/today'
+    | '/api/analyze-job'
     | '/api/import-job-url'
     | '/jobs/$jobId'
   fileRoutesById: FileRoutesById
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   SavedRoute: typeof SavedRoute
   TodayRoute: typeof TodayRoute
+  ApiAnalyzeJobRoute: typeof ApiAnalyzeJobRoute
   ApiImportJobUrlRoute: typeof ApiImportJobUrlRoute
   JobsJobIdRoute: typeof JobsJobIdRoute
 }
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TodayRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/analyze-job': {
+      id: '/api/analyze-job'
+      path: '/api/analyze-job'
+      fullPath: '/api/analyze-job'
+      preLoaderRoute: typeof ApiAnalyzeJobRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/import-job-url': {
       id: '/api/import-job-url'
       path: '/api/import-job-url'
@@ -244,6 +264,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   SavedRoute: SavedRoute,
   TodayRoute: TodayRoute,
+  ApiAnalyzeJobRoute: ApiAnalyzeJobRoute,
   ApiImportJobUrlRoute: ApiImportJobUrlRoute,
   JobsJobIdRoute: JobsJobIdRoute,
 }
