@@ -295,7 +295,7 @@ export async function probeSearch(url = SEARCH_URL) {
         title: c.title,
         company: c.company,
         location: c.location,
-        salary: c.salary && looksLikeSalary(c.salary) ? c.salary : c.salary ? null : null,
+        salary: c.salary, // from the card's dedicated .sal element only
         jobId,
         url,
         rawText: c.rawText.slice(0, 1500),
