@@ -24,6 +24,8 @@ function ImportJobPage() {
   const [status, setStatus] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [result, setResult] = useState<UserJobImportResult | null>(null);
+  const [analysisSource, setAnalysisSource] = useState<"gemini" | "deterministic" | null>(null);
+  const [analysisWarning, setAnalysisWarning] = useState<string | null>(null);
 
   function submit() {
     setStatus(null);
@@ -52,7 +54,7 @@ function ImportJobPage() {
         title="Import a real job"
         description="Paste a job URL when possible. Solstice will try to read the page automatically; if the site blocks automated access, switch to paste mode."
       />
-      <div className="max-w-3xl space-y-5">
+      <div className="max-w-3xl space-y-5">\n        {analysisSource ? (\n          <div className="rounded-xl border border-ink/10 bg-card p-4 text-sm">\n            <span className="font-semibold">理解引擎：</span>\n            {analysisSource === "gemini" ? "Gemini AI 结构化理解" : "规则解析回退"}\n            {analysisWarning ? <div className="mt-2 text-xs text-ochre">{analysisWarning}</div> : null}\n          </div>\n        ) : null}
         <div className="rounded-2xl border border-ink/10 bg-card p-5">
           <div className="flex gap-2">
             <button
