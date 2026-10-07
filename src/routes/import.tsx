@@ -27,7 +27,7 @@ function ImportJobPage() {
   const [analysisSource, setAnalysisSource] = useState<"gemini" | "deterministic" | null>(null);
   const [analysisWarning, setAnalysisWarning] = useState<string | null>(null);
 
-  function submit() {
+  async function submit() {
     setStatus(null);
     setWarnings([]);
     setResult(null);
