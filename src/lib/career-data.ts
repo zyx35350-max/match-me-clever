@@ -15,7 +15,7 @@ export const defaultCareerProfile: CareerProfile = {
   basics: {
     education: "Associate degree",
     yearsExperience: 1,
-    careerStage: "Early-mid career, changing direction",
+    careerStage: "Early-career, changing direction",
     preferredLocations: ["Shenzhen", "Huiyang", "Zhuhai"],
     relocation: "Open to relocation for the right direction",
     workMode: "any",
@@ -28,7 +28,7 @@ export const defaultCareerProfile: CareerProfile = {
       nameOriginal: "跨境电商运营",
       level: "advanced",
       evidence: "Ran a TEMU store end to end, 300+ SKUs",
-      years: 4,
+      years: 1,
       confidence: 5,
     },
     {
@@ -37,7 +37,7 @@ export const defaultCareerProfile: CareerProfile = {
       nameOriginal: "海外市场研究",
       level: "proficient",
       evidence: "Category and demand research for US/EU buyers",
-      years: 3,
+      years: 1,
       confidence: 4,
     },
     {
@@ -46,7 +46,7 @@ export const defaultCareerProfile: CareerProfile = {
       nameOriginal: "选品",
       level: "advanced",
       evidence: "Selected and launched winning SKUs each season",
-      years: 4,
+      years: 1,
       confidence: 5,
     },
     {
@@ -55,7 +55,7 @@ export const defaultCareerProfile: CareerProfile = {
       nameOriginal: "产品开发",
       level: "proficient",
       evidence: "Worked with factories on samples and revisions",
-      years: 3,
+      years: 1,
       confidence: 4,
     },
     {
@@ -64,7 +64,7 @@ export const defaultCareerProfile: CareerProfile = {
       nameOriginal: "竞品分析",
       level: "proficient",
       evidence: "Priced and positioned against category leaders",
-      years: 3,
+      years: 1,
       confidence: 4,
     },
     {
@@ -73,7 +73,7 @@ export const defaultCareerProfile: CareerProfile = {
       nameOriginal: "Listing优化",
       level: "advanced",
       evidence: "Rewrote titles/images, lifted conversion on core SKUs",
-      years: 3,
+      years: 1,
       confidence: 4,
     },
     {
@@ -82,7 +82,7 @@ export const defaultCareerProfile: CareerProfile = {
       nameOriginal: "电商运营",
       level: "advanced",
       evidence: "Daily average 800+ orders on TEMU",
-      years: 4,
+      years: 1,
       confidence: 5,
     },
     {
@@ -91,7 +91,7 @@ export const defaultCareerProfile: CareerProfile = {
       nameOriginal: "广告投放",
       level: "working",
       evidence: "Improved CTR on some campaigns by 10%",
-      years: 2,
+      years: 0.5,
       confidence: 3,
     },
     {
@@ -100,7 +100,7 @@ export const defaultCareerProfile: CareerProfile = {
       nameOriginal: "数据监控",
       level: "proficient",
       evidence: "Daily sales, ad and rating dashboards",
-      years: 3,
+      years: 1,
       confidence: 4,
     },
     {
@@ -109,7 +109,7 @@ export const defaultCareerProfile: CareerProfile = {
       nameOriginal: "库存与供应链协调",
       level: "proficient",
       evidence: "Cleared 20+ slow-moving products",
-      years: 3,
+      years: 1,
       confidence: 4,
     },
     {
@@ -126,7 +126,7 @@ export const defaultCareerProfile: CareerProfile = {
       name: "Photoshop",
       level: "working",
       evidence: "Retouched and composed listing images",
-      years: 3,
+      years: 1,
       confidence: 3,
     },
     {
@@ -135,7 +135,7 @@ export const defaultCareerProfile: CareerProfile = {
       nameOriginal: "短视频剪辑",
       level: "working",
       evidence: "Produced product videos for listings and ads",
-      years: 2,
+      years: 1,
       confidence: 3,
     },
     {
