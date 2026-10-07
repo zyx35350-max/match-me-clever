@@ -37,7 +37,7 @@ function applyAIToRaw(base: UserJobImportResult, ai: AIJobUnderstanding) {
       ...(ai.salary.min !== null ? { salaryMin } : {}),
       ...(ai.salary.max !== null ? { salaryMax } : {}),
       aiUnderstanding: ai,
-    },
+    } as unknown as NonNullable<typeof base.raw.metadata>,
   };
 
   const adapted = adaptRawJobToJob(raw, {

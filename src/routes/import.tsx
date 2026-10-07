@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
-import type { UserJobImportResult } from "@/lib/user-job-import";
+import { parseUserJobText, type UserJobImportResult } from "@/lib/user-job-import";
 import { useWorkspace } from "@/lib/store";
 import { primaryCareerDirection } from "@/lib/job-role-direction-mapping";
 

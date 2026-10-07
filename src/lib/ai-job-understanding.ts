@@ -303,14 +303,14 @@ function extractResponseText(payload: unknown): string {
 }
 
 export function isGeminiConfigured() {
-  return Boolean(process.env.GEMINI_API_KEY);
+  return Boolean(process.env["GEMINI_API_KEY"]);
 }
 
 export async function understandJobWithGemini(text: string): Promise<AIJobUnderstanding> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env["GEMINI_API_KEY"];
   if (!apiKey) throw new AIProviderUnavailableError("GEMINI_API_KEY is not configured.");
 
-  const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.8-flash";
+  const model = process.env["GEMINI_MODEL"]?.trim() || "gemini-3.8-flash";
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20_000);
 
