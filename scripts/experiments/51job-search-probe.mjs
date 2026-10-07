@@ -260,50 +260,47 @@ export async function probeSearch(url = SEARCH_URL) {
 
     const uniqueUrls = [...new Set(jobLinks.map((item) => item.href))];
 
-    const cards = await findCards(page);
-    result.totalCardsDetected = cards.length;
-
-    const jobs = [];
-
-    for (const { handle, href } of cards.slice(0, 100)) {
-      const raw = await handle.evaluate((node) => ({
-        text: node.innerText ?? "",
-        html: node.outerHTML.slice(0, 12000),
-      }));
-
-      const cardText = raw.text.replace(/\r/g, "").trim();
-      const lines = cardText
-        .split(/\n/)
-        .map((line) => cleanText(line))
-        .filter(Boolean);
-
-      const titleFromLink =
-        jobLinks.find((item) => item.href === href)?.text ?? "";
-      const title =
-        cleanText(titleFromLink) ||
-        lines.find(
-          (line) =>
-            line.length >= 2 &&
-            line.length <= 100 &&
-            !looksLikeSalary(line) &&
-            !looksLikeLocation(line),
-        ) ||
-        null;
-
-      const salary = lines.find(looksLikeSalary) ?? null;
-      const location = lines.find(looksLikeLocation) ?? null;
-      const company = extractCompanyFromText(cardText, title ?? "");
-
-      jobs.push({
-        title,
-        company,
-        location,
-        salary,
-        url: href,
-        jobId: extractJobId(href),
-        rawText: cardText.slice(0, 3000),
+    // Main search-result list only: `.joblist .joblist-item` cards whose
+    // sensorsdata pageCode is the search list ("sou|sou|soulb"). Recommendation
+    // modules live outside `.joblist` and are ignored.
+    const mainCards = await page.evaluate(() => {
+      const t = (el) => (el?.textContent ?? "").replace(/\s+/g, " ").trim() || null;
+      return [...document.querySelectorAll(".joblist .joblist-item")].map((item) => {
+        const job = item.querySelector(".joblist-item-job[sensorsdata]");
+        let meta = {};
+        try { meta = JSON.parse(job?.getAttribute("sensorsdata") ?? "{}"); } catch {}
+        const anchors = [...item.querySelectorAll("a[href]")].map((a) => a.href);
+        return {
+          pageCode: meta.pageCode ?? null,
+          jobId: meta.jobId ?? null,
+          title: item.querySelector(".jname")?.getAttribute("title")?.trim() || t(item.querySelector(".jname")),
+          company: item.querySelector(".cname")?.getAttribute("title")?.trim() || t(item.querySelector(".cname")),
+          salary: t(item.querySelector(".sal")),
+          location: t(item.querySelector(".area .shrink-0")) ?? t(item.querySelector(".area")),
+          anchors,
+          rawText: (item.innerText ?? "").trim(),
+        };
       });
-    }
+    });
+
+    const searchCards = mainCards.filter((c) => !c.pageCode || c.pageCode.endsWith("soulb"));
+    result.totalCardsDetected = searchCards.length;
+
+    const jobs = searchCards.map((c) => {
+      const jobId = c.jobId && /^\d+$/.test(c.jobId) ? c.jobId : null;
+      // URL only from a real link in this card that carries this card's jobId.
+      const url =
+        (jobId && c.anchors.find((h) => looksLikeJobUrl(h) && extractJobId(h) === jobId)) || null;
+      return {
+        title: c.title,
+        company: c.company,
+        location: c.location,
+        salary: c.salary && looksLikeSalary(c.salary) ? c.salary : c.salary ? null : null,
+        jobId,
+        url,
+        rawText: c.rawText.slice(0, 1500),
+      };
+    });
 
     // Deduplicate by URL first, then by jobId when available.
     const deduped = [];
