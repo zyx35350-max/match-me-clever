@@ -55,7 +55,7 @@
   --cream: oklch(0.975 0.012 88);
   --sage: oklch(0.62 0.08 150);
   --surface: oklch(1 0 0);
-  --background: var(--cream);
+  --background: oklch(1 0 0);
   --foreground: var(--ink);
   --card: var(--surface);
   --card-foreground: var(--ink);
@@ -79,10 +79,8 @@
 @layer base {
   * { border-color: var(--color-border); }
   body {
-    background:
-      radial-gradient(circle at 85% 4%, oklch(0.92 0.07 90 / 45%), transparent 26rem),
-      radial-gradient(circle at 8% 75%, oklch(0.93 0.03 245 / 30%), transparent 24rem),
-      var(--color-background);
+    background: #fff;
+
     color: var(--color-foreground);
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
@@ -108,4 +106,13 @@
     radial-gradient(oklch(1 0 0 / 35%) .6px, transparent .6px);
   background-position: 0 0, 3px 3px;
   background-size: 6px 6px;
+}
+
+
+@utility yellow-grain {
+  background-image:
+    radial-gradient(circle at 88% 8%, oklch(0.84 0.16 88 / 24%), transparent 20rem),
+    radial-gradient(oklch(0.78 0.15 88 / 8%) .7px, transparent .7px);
+  background-size: auto, 7px 7px;
+  background-position: center, 0 0;
 }
