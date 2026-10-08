@@ -116,7 +116,7 @@ interface Store extends Persisted {
   updateSearchCity: (city: JobSearchCity) => void;
   hideJob: (jobId: string) => void;
   unhideJob: (jobId: string) => void;
-  isJobHidden: (jobId: string) => boolean;;
+  isJobHidden: (jobId: string) => boolean;
 }
 
 const StoreContext = createContext<Store | null>(null);
