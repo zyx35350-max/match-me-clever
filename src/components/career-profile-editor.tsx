@@ -76,7 +76,7 @@ function RatingRow({
         max={5}
         value={value}
         onChange={(e) => onChange(Number(e.target.value) as Rating)}
-        className="min-w-0 h-1.5 w-full accent-ochre"
+        className="profile-range" style={{ "--range-progress": `${((value - 1) / 4) * 100}%` } as React.CSSProperties}
       />
       <span className="grid size-5 place-items-center rounded-md bg-ochre/20 text-[9px] font-extrabold">
         {value}
