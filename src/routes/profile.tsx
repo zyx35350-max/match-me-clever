@@ -32,6 +32,7 @@ const modeLabel: Record<WorkMode | "any", string> = {
 function ProfilePage() {
   const {
     profile,
+    career,
     searchCities,
     addSearchCity,
     removeSearchCity,
@@ -58,7 +59,7 @@ function ProfilePage() {
     updateProfile(draft);
     const result = await saveProfile({
       identity: { name: draft.name, headline: draft.headline, minSalary: draft.minSalary },
-      career: profileToCareer(draft, useWorkspace().career),
+      career: profileToCareer(draft, career),
       searchCities,
       onboardingComplete: true,
     });
