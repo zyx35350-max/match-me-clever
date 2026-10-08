@@ -19,6 +19,10 @@ async function main() {
 
   assert.notEqual(result.status, "failed", result.message);
   assert.ok(result.jobs.length >= 1, result.message);
+  assert.ok(
+    result.message.includes("AI产品助理/040000 page 2:"),
+    `Pagination acceptance failed: Shenzhen AI产品助理 did not reach page 2.\n${result.message}`,
+  );
 
   const sourceIds = new Set(result.jobs.map((job) => job.sourceId));
   assert.deepEqual([...sourceIds], ["51job"]);
@@ -57,6 +61,8 @@ async function main() {
         status: result.status,
         uniqueRawJobs: result.jobs.length,
         shenzhenJobs: shenzhenJobs.length,
+        paginationVerified: result.message.includes("AI产品助理/040000 page 2:"),
+        duplicatesRemoved: result.message.match(/(\d+) duplicate\(s\) removed/)?.[1] ?? "0",
         shanghaiJobs: shanghaiJobs.length,
         message: result.message,
       },
