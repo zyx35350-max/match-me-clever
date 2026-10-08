@@ -32,7 +32,7 @@ import type {
   Profile,
 } from "./types";
 
-const KEY = "solstice-workspace-v1";
+const KEY = "match-me-clever-workspace-v2";
 
 interface Persisted {
   /**
@@ -61,35 +61,8 @@ export interface DiscoverySyncState {
   lastUpdatedJobIds: string[];
 }
 
-const seedActivity: ActivityEntry[] = [
-  {
-    id: "seed-3",
-    jobId: "shiro-ai-ecommerce-operations",
-    jobTitle: "AI E-commerce Operations Specialist",
-    company: "Shiro Global",
-    kind: "applied",
-    label: "Applied to AI E-commerce Operations Specialist",
-    at: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
-  },
-  {
-    id: "seed-2",
-    jobId: "beacon-ai-product-research",
-    jobTitle: "AI Product Research Associate",
-    company: "Beacon Labs",
-    kind: "status",
-    label: "Status moved to In review — Beacon Labs",
-    at: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
-  },
-  {
-    id: "seed-1",
-    jobId: "yuanli-ai-visual-designer",
-    jobTitle: "AI Visual Creation Specialist",
-    company: "Yuanli Studio",
-    kind: "saved",
-    label: "Saved AI Visual Creation Specialist",
-    at: new Date(Date.now() - 1000 * 60 * 60 * 52).toISOString(),
-  },
-];
+const seedActivity: ActivityEntry[] = [];
+
 
 const initial: Persisted = {
   identity: defaultIdentity,
@@ -104,19 +77,8 @@ const initial: Persisted = {
     lastAddedJobIds: [],
     lastUpdatedJobIds: [],
   },
-  saved: ["pivot-ai-prompt-project", "yuanli-ai-visual-designer"],
-  applications: [
-    {
-      jobId: "shiro-ai-ecommerce-operations",
-      status: "applied",
-      appliedAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
-    },
-    {
-      jobId: "beacon-ai-product-research",
-      status: "in_review",
-      appliedAt: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
-    },
-  ],
+  saved: [],
+  applications: [],
   activity: seedActivity,
 };
 
