@@ -53,7 +53,7 @@ export function CareerMatchCard({ match, compact = false }: { match: JobMatch; c
   const applied = Boolean(statusFor(job.id));
 
   return (
-    <div className={\`rounded-xl border bg-card px-4 py-3.5 \${match.notRecommended ? "border-ochre/35" : "border-ink/10"}\`}>
+    <div className={`${"rounded-xl border bg-card px-4 py-3.5 " + (match.notRecommended ? "border-ochre/35" : "border-ink/10")}`}>
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
