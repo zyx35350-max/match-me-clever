@@ -5,18 +5,18 @@ import avatar from "@/assets/avatar.jpg";
 import { useWorkspace } from "@/lib/store";
 
 const primaryNav = [
-  { to: "/", label: "Dashboard" },
-  { to: "/matching", label: "Matching" },
-  { to: "/today", label: "Today" },
-  { to: "/saved", label: "Saved" },
-  { to: "/activity", label: "Activity" },
+  { to: "/", label: "首页" },
+  { to: "/matching", label: "岗位匹配" },
+  { to: "/today", label: "今日推荐" },
+  { to: "/saved", label: "已收藏" },
+  { to: "/activity", label: "求职记录" },
 ] as const;
 
 const secondaryNav = [
-  { to: "/profile", label: "Profile" },
-  { to: "/directions", label: "Directions" },
-  { to: "/hidden", label: "Hidden" },
-  { to: "/import", label: "Import Job" },
+  { to: "/profile", label: "我的资料" },
+  { to: "/directions", label: "职业方向" },
+  { to: "/hidden", label: "已隐藏" },
+  { to: "/import", label: "导入岗位" },
 ] as const;
 
 function navClass(active = false) {
