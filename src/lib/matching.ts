@@ -7,7 +7,7 @@
  */
 
 export function formatSalary(value: number) {
-  if (!Number.isFinite(value) || value <= 0) return "$0";
+  if (!Number.isFinite(value) || value <= 0) return "¥0";
   const thousands = value / 1000;
   const formatted = Number.isInteger(thousands)
     ? String(thousands)
@@ -16,15 +16,15 @@ export function formatSalary(value: number) {
 }
 
 export function labelMode(mode: string) {
-  if (mode === "remote") return "Remote";
-  if (mode === "hybrid") return "Hybrid";
-  if (mode === "onsite") return "On-site";
-  return "Flexible";
+  if (mode === "remote") return "远程";
+  if (mode === "hybrid") return "混合办公";
+  if (mode === "onsite") return "现场办公";
+  return "不限";
 }
 
 export function fitLabel(score: number) {
-  if (score >= 85) return "High fit";
-  if (score >= 70) return "Solid fit";
-  if (score >= 55) return "Partial fit";
-  return "Low fit";
+  if (score >= 85) return "高度匹配";
+  if (score >= 70) return "较高匹配";
+  if (score >= 55) return "部分匹配";
+  return "低匹配";
 }
