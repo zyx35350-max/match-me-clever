@@ -74,10 +74,9 @@ function JobDetail() {
               {job.company} · {job.location} · {labelMode(job.workMode)} ·{" "}
               {formatSalary(job.salaryMin)}–{formatSalary(job.salaryMax)}
             </div>
-            <p className="mt-4 max-w-2xl text-ink/75">{job.summaryOriginal ?? job.summary}</p>
-            {job.summaryOriginal ? (
-              <p className="mt-2 max-w-2xl text-sm text-ink/55">{job.summary}</p>
-            ) : null}
+            <p className="mt-4 max-w-2xl whitespace-pre-line text-ink/75">
+              {job.summaryOriginal ?? job.summary}
+            </p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <button
                 onClick={() => apply(job)}
