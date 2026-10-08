@@ -994,6 +994,7 @@ export class FiftyOneJobSourceAdapter {
       await browser?.close();
     }
   }
+}
 
 export function createFiftyOneJobSourceAdapter() {
   return new FiftyOneJobSourceAdapter();
