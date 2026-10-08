@@ -40,6 +40,11 @@ export function useCareer(track?: EmploymentType) {
     [ctx, activeJobs, track],
   );
 
+  const hiddenJobs = useMemo(
+    () => jobs.filter((job) => hiddenJobIds.includes(job.id)),
+    [jobs, hiddenJobIds],
+  );
+
   const aiProfile = useMemo(
     () => buildAICareerProfile(career),
     // refreshedAt lets the user regenerate the hypothesis on demand
@@ -52,6 +57,7 @@ export function useCareer(track?: EmploymentType) {
     topDirection: directions[0],
     ctx,
     matches,
+    hiddenJobs,
     aiProfile,
     refreshAiProfile: () => setRefreshedAt(Date.now()),
   };
