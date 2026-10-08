@@ -48,6 +48,15 @@ interface Persisted {
   feedback: UserFeedback[];
   dismissedSuggestions: string[];
   importedJobRecords: JobRecord[];
+  discovery: DiscoverySyncState;
+}
+
+export interface DiscoverySyncState {
+  lastSyncedAt?: string;
+  lastSource?: string;
+  lastFetchedCount: number;
+  lastAddedCount: number;
+  lastDuplicateCount: number;
 }
 
 const seedActivity: ActivityEntry[] = [
@@ -86,6 +95,11 @@ const initial: Persisted = {
   feedback: [],
   dismissedSuggestions: [],
   importedJobRecords: [],
+  discovery: {
+    lastFetchedCount: 0,
+    lastAddedCount: 0,
+    lastDuplicateCount: 0,
+  },
   saved: ["pivot-ai-prompt-project", "yuanli-ai-visual-designer"],
   applications: [
     {
@@ -120,6 +134,11 @@ interface Store extends Persisted {
   setStatus: (job: Job, status: ApplicationStatus) => void;
   statusFor: (jobId: string) => ApplicationStatus | undefined;
   importRawJob: (raw: RawJob) => { added: boolean; warnings: string[] };
+  importDiscoveredJobs: (rawJobs: RawJob[], sourceName?: string) => {
+    fetched: number;
+    added: number;
+    duplicates: number;
+  };
 }
 
 const StoreContext = createContext<Store | null>(null);
@@ -202,6 +221,59 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     },
     [log, state.importedJobRecords],
   );
+
+  const importDiscoveredJobs = useCallback((rawJobs: RawJob[], sourceName = "51Job") => {
+    if (!rawJobs.length) {
+      return { fetched: 0, added: 0, duplicates: 0 };
+    }
+
+    let summary = { fetched: rawJobs.length, added: 0, duplicates: 0 };
+
+    setState((prev) => {
+      const beforeIds = new Set(prev.importedJobRecords.map((record) => record.raw.id));
+      const pipeline = ingestAndAdaptJobs({ records: prev.importedJobRecords }, rawJobs);
+      const added = pipeline.records.reduce(
+        (count, record) => count + (beforeIds.has(record.raw.id) ? 0 : 1),
+        0,
+      );
+      const fetchedAt = new Date().toISOString();
+      summary = {
+        fetched: rawJobs.length,
+        added,
+        duplicates: pipeline.duplicates.length,
+      };
+
+      const latest = pipeline.records.at(-1);
+      return {
+        ...prev,
+        importedJobRecords: pipeline.records.map((record) => ({
+          raw: record.raw,
+          lifecycle: record.lifecycle,
+        })),
+        discovery: {
+          lastSyncedAt: fetchedAt,
+          lastSource: sourceName,
+          lastFetchedCount: rawJobs.length,
+          lastAddedCount: added,
+          lastDuplicateCount: pipeline.duplicates.length,
+        },
+        activity: [
+          {
+            id: newId(),
+            jobId: latest?.job.id ?? "",
+            jobTitle: latest?.job.title ?? "",
+            company: latest?.job.company ?? sourceName,
+            kind: "status",
+            label: "Synced " + rawJobs.length + " " + sourceName + " jobs — " + added + " new",
+            at: fetchedAt,
+          },
+          ...prev.activity,
+        ].slice(0, 60),
+      };
+    });
+
+    return summary;
+  }, []);
 
   const recordFeedback = useCallback(
     (job: Job, action: FeedbackAction) => {
@@ -422,6 +494,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setStatus,
       statusFor: (id) => state.applications.find((a) => a.jobId === id)?.status,
       importRawJob,
+      importDiscoveredJobs,
     }),
     [
       state,
@@ -437,6 +510,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       apply,
       setStatus,
       importRawJob,
+      importDiscoveredJobs,
       jobs,
     ],
   );
