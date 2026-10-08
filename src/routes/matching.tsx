@@ -51,7 +51,7 @@ function MatchingPage() {
   const [discoveryMessage, setDiscoveryMessage] = useState<string | null>(null);
   const [keywordInput, setKeywordInput] = useState("AI产品经理, AI产品助理");
   const [selectedCities, setSelectedCities] = useState<string[]>(["040000", "020000"]);
-  const [targetCount, setTargetCount] = useState(100);
+  const [targetCountInput, setTargetCountInput] = useState("10");
 
   const cities = [
     { code: "040000", label: "Shenzhen" },
@@ -71,6 +71,12 @@ function MatchingPage() {
     }
     if (!selectedCities.length) {
       setDiscoveryMessage("Select at least one city.");
+      return;
+    }
+
+    const targetCount = Number.parseInt(targetCountInput, 10);
+    if (!Number.isInteger(targetCount) || targetCount < 1 || targetCount > 500) {
+      setDiscoveryMessage("Jobs to collect must be a whole number from 1 to 500.");
       return;
     }
 
@@ -219,18 +225,19 @@ function MatchingPage() {
 
           <label className="block">
             <span className="mb-1.5 block text-xs font-semibold text-ink/60">Jobs to collect</span>
-            <select
-              value={targetCount}
-              onChange={(e) => setTargetCount(Number(e.target.value))}
-              className="rounded-xl border border-ink/15 bg-card px-3.5 py-2.5 text-sm text-ink outline-none focus:border-azure"
-            >
-              {[50, 100, 200, 300, 500].map((count) => (
-                <option key={count} value={count}>
-                  {count}
-                </option>
-              ))}
-            </select>
-            <span className="mt-1.5 block text-[11px] text-ink/45">The crawler keeps turning pages until it reaches this target or the source has no more usable jobs.</span>
+            <input
+              type="number"
+              min={1}
+              max={500}
+              step={1}
+              value={targetCountInput}
+              onChange={(e) => setTargetCountInput(e.target.value)}
+              placeholder="e.g. 10"
+              className="w-28 rounded-xl border border-ink/15 bg-card px-3.5 py-2.5 text-sm text-ink outline-none focus:border-azure"
+            />
+            <span className="mt-1.5 block text-[11px] text-ink/45">
+              Enter any whole number from 1 to 500. During testing, 5–20 is usually enough.
+            </span>
           </label>
         </div>
 
