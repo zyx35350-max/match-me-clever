@@ -32,7 +32,7 @@ function lifecycleLabel(status: ReturnType<typeof effectiveJobLifecycle>) {
 }
 
 function Hidden职位sPage() {
-  const { hidden职位Ids, jobs, imported职位Records, unhide职位 } = useWorkspace();
+  const { hiddenJobIds, jobs, importedJobRecords, unhideJob } = useWorkspace();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<HiddenFilter>("all");
   const [page, setPage] = useState(1);
@@ -40,13 +40,13 @@ function Hidden职位sPage() {
   const hidden职位s = useMemo(
     () =>
       jobs
-        .filter((job) => (hidden职位Ids ?? []).includes(job.id))
+        .filter((job) => (hiddenJobIds ?? []).includes(job.id))
         .map((job) => {
-          const record = imported职位Records.find((item) => item.raw.id === job.id);
+          const record = importedJobRecords.find((item) => item.raw.id === job.id);
           const lifecycle = effectiveJobLifecycle(record?.lifecycle, record?.raw);
           return { job, lifecycle };
         }),
-    [jobs, hidden职位Ids, imported职位Records],
+    [jobs, hiddenJobIds, importedJobRecords],
   );
 
   const filtered职位s = useMemo(() => {
@@ -236,7 +236,7 @@ function Hidden职位sPage() {
                       ) : null}
                       <button
                         type="button"
-                        onClick={() => unhide职位(job.id)}
+                        onClick={() => unhideJob(job.id)}
                         className="rounded-lg bg-ink px-2.5 py-1.5 text-xs font-semibold text-cream hover:bg-azure-deep"
                       >
                         恢复
