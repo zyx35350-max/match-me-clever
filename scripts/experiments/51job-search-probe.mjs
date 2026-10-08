@@ -3,6 +3,8 @@
 // Never bypasses CAPTCHA/login/verification.
 //
 // Usage:
+//   node scripts/experiments/51job-search-probe.mjs "AI产品助理" "040000"
+// Backward-compatible:
 //   node scripts/experiments/51job-search-probe.mjs "https://we.51job.com/pc/search?keyword=AI%E4%BA%A7%E5%93%81%E5%8A%A9%E7%90%86"
 
 import { chromium } from "playwright";
@@ -15,8 +17,17 @@ const BLOCK_PATTERNS = [
 ];
 const LOGIN_PATTERNS = [/请登录|登录后查看|扫码登录/];
 
-const SEARCH_URL =
-  "https://we.51job.com/pc/search?keyword=AI%E4%BA%A7%E5%93%81%E5%8A%A9%E7%90%86";
+const DEFAULT_KEYWORD = "AI产品助理";
+const DEFAULT_JOB_AREA = "020000";
+
+function buildSearchUrl(keyword = DEFAULT_KEYWORD, jobArea = "") {
+  const searchUrl = new URL("https://we.51job.com/pc/search");
+  searchUrl.searchParams.set("keyword", keyword);
+  if (jobArea) searchUrl.searchParams.set("jobArea", jobArea);
+  return searchUrl.toString();
+}
+
+const SEARCH_URL = buildSearchUrl();
 
 function cleanText(value) {
   return (value ?? "").replace(/\s+/g, " ").trim();
@@ -167,10 +178,18 @@ async function findCards(page) {
 }
 
 export async function probeSearch(url = SEARCH_URL) {
+  const keyword = (() => {
+    try {
+      return new URL(url).searchParams.get("keyword") || DEFAULT_KEYWORD;
+    } catch {
+      return DEFAULT_KEYWORD;
+    }
+  })();
+
   const result = {
     status: "failed",
     source: "51job",
-    keyword: "AI产品助理",
+    keyword,
     searchUrl: url,
     finalUrl: "",
     httpStatus: 0,
@@ -370,7 +389,15 @@ export async function probeSearch(url = SEARCH_URL) {
   return result;
 }
 
-const url = process.argv[2] || SEARCH_URL;
+const firstArg = process.argv[2];
+const secondArg = process.argv[3];
+
+const cliUrl =
+  firstArg && /^https?:\/\//i.test(firstArg)
+    ? firstArg
+    : buildSearchUrl(firstArg || DEFAULT_KEYWORD, secondArg || "");
+
+const url = cliUrl || SEARCH_URL;
 
 probeSearch(url).then((result) => {
   console.log(JSON.stringify(result, null, 2));
