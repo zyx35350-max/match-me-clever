@@ -125,6 +125,7 @@ function ProfilePage() {
             </div>
           </section>
 
+          <div className="space-y-4">
           <section className="relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm ">
             <div className="absolute -right-8 -top-8 size-24 rounded-full bg-ochre/18 blur-2xl" />
             <SectionHeader title="求职偏好" en="JOB PREFERENCES" />
@@ -165,8 +166,7 @@ function ProfilePage() {
               </div>
             </div>
           </section>
-
-          <section className="relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm lg:col-span-12">
+          <section className="relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm">
             <SectionHeader title="求职城市" en="SEARCH LOCATIONS" action={<span className="text-[10px] font-semibold text-ink/35">{searchCities.length} 个城市</span>} />
             <div className="flex flex-wrap gap-2">
               {searchCities.map((city) => (
@@ -199,6 +199,7 @@ function ProfilePage() {
               </button>
             </div>
           </section>
+          </div>
         </div>
 
         <CareerProfileEditor />
