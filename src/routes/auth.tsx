@@ -75,7 +75,7 @@ function AuthPage() {
                   让你的下一份工作，<span className="underline decoration-ochre decoration-4 underline-offset-4">更聪明。</span>
                 </h1>
                 <p className="mt-5 max-w-lg text-sm leading-7 text-ink/60">
-                  Solstice 会把你的能力、偏好、发展方向和岗位放到同一套匹配系统里。
+                  Solstice 是你的 AI 求职工作台：把你的经历、能力、偏好和职业方向连接起来，帮你找到更适合的岗位，解释为什么匹配，并持续记录你的求职选择。
                 </p>
               </div>
               <div className="mt-10 grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
