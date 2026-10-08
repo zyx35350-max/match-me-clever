@@ -206,6 +206,21 @@ export async function probeSearch(url = SEARCH_URL) {
       viewport: { width: 1440, height: 1000 },
     });
 
+    // URL source: the search-pc JSON the page itself loads to render the list.
+    // Each item carries jobId + jobHref (the same URL a real click opens).
+    const hrefByJobId = new Map();
+    page.on("response", async (response) => {
+      if (!/\/api\/job\/search-pc/.test(response.url())) return;
+      try {
+        const text = await response.text();
+        if (!text.startsWith("{")) return;
+        const items = JSON.parse(text)?.resultbody?.job?.items ?? [];
+        for (const it of items) {
+          if (it?.jobId && it?.jobHref) hrefByJobId.set(String(it.jobId), it.jobHref);
+        }
+      } catch {}
+    });
+
     const response = await page.goto(url, {
       waitUntil: "domcontentloaded",
       timeout: 30000,
@@ -288,9 +303,11 @@ export async function probeSearch(url = SEARCH_URL) {
 
     const jobs = searchCards.map((c) => {
       const jobId = c.jobId && /^\d+$/.test(c.jobId) ? c.jobId : null;
-      // URL only from a real link in this card that carries this card's jobId.
+      // URL only from real page data: a card anchor, or the page's own search
+      // JSON jobHref — accepted only if it is a 51Job detail URL with this jobId.
+      const candidates = [...c.anchors, jobId ? hrefByJobId.get(jobId) : null];
       const url =
-        (jobId && c.anchors.find((h) => looksLikeJobUrl(h) && extractJobId(h) === jobId)) || null;
+        (jobId && candidates.find((h) => looksLikeJobUrl(h) && extractJobId(h) === jobId)) || null;
       return {
         title: c.title,
         company: c.company,
