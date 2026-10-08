@@ -28,7 +28,7 @@ export function useCareer(track?: EmploymentType) {
       jobs.filter((job) => {
         const record = importedJobRecords.find((item) => item.raw.id === job.id);
         const status = effectiveJobLifecycle(record?.lifecycle, record?.raw);
-        return status !== "closed" && status !== "expired" && !hiddenJobIds.includes(job.id);
+        return status !== "closed" && status !== "expired" && !(hiddenJobIds ?? []).includes(job.id);
       }),
     [jobs, importedJobRecords, hiddenJobIds],
   );
@@ -39,7 +39,7 @@ export function useCareer(track?: EmploymentType) {
   );
 
   const hiddenJobs = useMemo(
-    () => jobs.filter((job) => hiddenJobIds.includes(job.id)),
+    () => jobs.filter((job) => (hiddenJobIds ?? []).includes(job.id)),
     [jobs, hiddenJobIds],
   );
 
