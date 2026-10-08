@@ -134,12 +134,12 @@ function searchCardToRawJob(
   card: SearchCard,
   task: FiftyOneJobSearchTask,
   pageNumber: number,
-  hrefByJobId: Map<string, string>,
+  capturedApi.hrefByJobId: Map<string, string>,
   fetchedAt: string,
 ): RawJob | null {
   const jobId =
     card.jobId && /^\d+$/.test(String(card.jobId)) ? String(card.jobId) : null;
-  const href = jobId ? hrefByJobId.get(jobId) ?? null : null;
+  const href = jobId ? capturedApi.hrefByJobId.get(jobId) ?? null : null;
   const url =
     href && looksLikeJobUrl(href) && extractJobId(href) === jobId ? href : null;
 
@@ -173,29 +173,111 @@ function isSearchApiResponse(url: string) {
   return /\/api\/job\/search-pc(?:\?|$)/.test(url);
 }
 
-async function captureSearchApiItems(
-  page: Page,
-  hrefByJobId: Map<string, string>,
-) {
-  const handler = async (response: import("playwright").Response) => {
+interface CapturedSearchApi {
+  capturedApi.hrefByJobId: Map<string, string>;
+  requestUrls: string[];
+}
+
+async function captureSearchApiItems(page: Page): Promise<CapturedSearchApi & { stop: () => void }> {
+  const capturedApi = await captureSearchApiItems(page);
+  const requestUrls: string[] = [];
+
+  const requestHandler = (request: import("playwright").Request) => {
+    if (isSearchApiResponse(request.url())) requestUrls.push(request.url());
+  };
+
+  const responseHandler = async (response: import("playwright").Response) => {
     if (!isSearchApiResponse(response.url())) return;
     try {
       const text = await response.text();
       if (!text.trim().startsWith("{")) return;
       const items = (JSON.parse(text)?.resultbody?.job?.items ?? []) as SearchApiItem[];
       for (const item of items) {
-        if (item?.jobId && item?.jobHref) {
-          hrefByJobId.set(String(item.jobId), String(item.jobHref));
-        }
+        if (item?.jobId && item?.jobHref) capturedApi.hrefByJobId.set(String(item.jobId), String(item.jobHref));
       }
-    } catch {
-      // The DOM card is still used for the structured fields. A malformed
-      // auxiliary response must not crash the entire discovery run.
-    }
+    } catch {}
   };
 
-  page.on("response", handler);
-  return () => page.off("response", handler);
+  page.on("request", requestHandler);
+  page.on("response", responseHandler);
+
+  return {
+    capturedApi.hrefByJobId,
+    requestUrls,
+    stop: () => {
+      page.off("request", requestHandler);
+      page.off("response", responseHandler);
+    },
+  };
+}
+
+function discoverPageParam(apiUrl: string | undefined) {
+  if (!apiUrl) return null;
+  try {
+    const parsed = new URL(apiUrl);
+    const preferred = ["pageNum", "pageNo", "pageIndex", "page", "currentPage"];
+    for (const key of preferred) {
+      const value = parsed.searchParams.get(key);
+      if (value !== null && /^\d+$/.test(value)) return { key, initialValue: Number(value) };
+    }
+    for (const [key, value] of parsed.searchParams.entries()) {
+      if (/page/i.test(key) && !/size|total|count/i.test(key) && /^\d+$/.test(value)) {
+        return { key, initialValue: Number(value) };
+      }
+    }
+  } catch {}
+  return null;
+}
+
+function parseSearchApiPayload(text: string) {
+  if (!text.trim().startsWith("{")) return null;
+  try {
+    const payload = JSON.parse(text);
+    const job = payload?.resultbody?.job;
+    if (!job || !Array.isArray(job.items)) return null;
+    return job;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchSearchApiPage(page: Page, firstApiUrl: string, pageNumber: number) {
+  const pageParam = discoverPageParam(firstApiUrl);
+  if (!pageParam || pageParam.initialValue === pageNumber) return null;
+  const target = new URL(firstApiUrl);
+  target.searchParams.set(pageParam.key, String(pageNumber));
+  const result = await page.evaluate(async (url) => {
+    const response = await fetch(url, {
+      credentials: "include",
+      headers: { Accept: "application/json, text/plain, */*" },
+    });
+    return { status: response.status, url: response.url, text: await response.text() };
+  }, target.toString());
+  if (result.status >= 400) throw new Error("51Job search API page " + pageNumber + " returned HTTP " + result.status);
+  return { requestUrl: result.url, payload: parseSearchApiPayload(result.text) };
+}
+
+function searchApiItemToCard(item: Record<string, unknown>): SearchCard | null {
+  const jobId = item.jobId ? String(item.jobId) : null;
+  const title = item.jobName ? cleanText(String(item.jobName)) : null;
+  const company = item.fullCompanyName
+    ? cleanText(String(item.fullCompanyName))
+    : item.companyName
+      ? cleanText(String(item.companyName))
+      : null;
+  const salary = item.provideSalaryString ? cleanText(String(item.provideSalaryString)) : null;
+  const location = item.jobAreaString ? cleanText(String(item.jobAreaString)) : null;
+  if (!jobId || !title) return null;
+  const description = item.jobDescribe ? cleanText(String(item.jobDescribe)) : JSON.stringify(item);
+  return {
+    pageCode: typeof item.pageCode === "string" ? item.pageCode : "sou|sou|soulb",
+    jobId,
+    title,
+    company,
+    salary,
+    location,
+    rawText: description,
+  };
 }
 
 async function extractMainSearchCards(page: Page): Promise<SearchCard[]> {
@@ -360,8 +442,7 @@ export class FiftyOneJobSourceAdapter {
           locale: "zh-CN",
           viewport: { width: 1440, height: 1000 },
         });
-        const hrefByJobId = new Map<string, string>();
-        const stopCapturing = await captureSearchApiItems(page, hrefByJobId);
+        const capturedApi = await captureSearchApiItems(page);
 
         try {
           let pageNumber = 1;
@@ -370,6 +451,11 @@ export class FiftyOneJobSourceAdapter {
           await page.goto(build51JobSearchUrl(keyword, task.jobArea), {
             waitUntil: "domcontentloaded",
             timeout: 30000,
+          });
+
+          await page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {});
+          const firstApiUrl = capturedApi.requestUrls.find((requestUrl) => {
+            return discoverPageParam(requestUrl)?.initialValue === 1;
           });
 
           while (pageNumber <= maxPages) {
@@ -395,7 +481,7 @@ export class FiftyOneJobSourceAdapter {
             const pageFetchedAt = new Date().toISOString();
             const pageJobs = cards
               .map((card) =>
-                searchCardToRawJob(card, task, pageNumber, hrefByJobId, pageFetchedAt),
+                searchCardToRawJob(card, task, pageNumber, capturedApi.hrefByJobId, pageFetchedAt),
               )
               .filter((job): job is RawJob => Boolean(job));
 
@@ -407,39 +493,70 @@ export class FiftyOneJobSourceAdapter {
             if (pageNumber >= maxPages) break;
 
             const nextPageNumber = pageNumber + 1;
+
+            // 51Job search results are AJAX-driven. The live page has already
+            // emitted a /api/job/search-pc request. If that real request
+            // exposes a page parameter (normally pageNum), reuse it inside
+            // the same browser session instead of guessing a UI selector.
+            const apiPage = firstApiUrl
+              ? await fetchSearchApiPage(page, firstApiUrl, nextPageNumber)
+              : null;
+
+            if (apiPage?.payload?.items?.length) {
+              const apiCards = apiPage.payload.items
+                .map((item: Record<string, unknown>) => searchApiItemToCard(item))
+                .filter((card): card is SearchCard => Boolean(card));
+
+              const apiSignature = apiCards.map((card) => card.jobId).filter(Boolean).join(",");
+              if (!apiSignature || apiSignature === signature) {
+                searchReports.push(`${keyword}/${task.jobArea ?? "all"} page ${nextPageNumber}: API returned no new result set; stopped`);
+                break;
+              }
+
+              for (const item of apiPage.payload.items as Record<string, unknown>[]) {
+                if (item.jobId && item.jobHref) {
+                  capturedApi.hrefByJobId.set(String(item.jobId), String(item.jobHref));
+                }
+              }
+
+              const apiFetchedAt = new Date().toISOString();
+              const apiJobs = apiCards
+                .map((card) =>
+                  searchCardToRawJob(card, task, nextPageNumber, capturedApi.hrefByJobId, apiFetchedAt),
+                )
+                .filter((job): job is RawJob => Boolean(job));
+
+              rawJobs.push(...apiJobs);
+              searchReports.push(`${keyword}/${task.jobArea ?? "all"} page ${nextPageNumber}: ${apiJobs.length}/${apiCards.length} cards converted via search API`);
+              pageNumber += 1;
+              await new Promise((resolve) => setTimeout(resolve, delayMs));
+              continue;
+            }
+
             const next = await findNextPageControl(page, nextPageNumber);
             if (!next) {
-              searchReports.push(
-                `${keyword}/${task.jobArea ?? "all"} page ${pageNumber}: no enabled next-page control; stopped`,
-              );
+              searchReports.push(`${keyword}/${task.jobArea ?? "all"} page ${pageNumber}: no usable API page parameter or enabled next-page control; stopped`);
               break;
             }
 
             const beforeSignature = signature;
             const responsePromise = page
-              .waitForResponse((response) => isSearchApiResponse(response.url()), {
-                timeout: 10000,
-              })
+              .waitForResponse((response) => isSearchApiResponse(response.url()), { timeout: 10000 })
               .catch(() => null);
-
             await next.click({ timeout: 10000 }).catch(() => null);
             await responsePromise;
             await page.waitForTimeout(delayMs);
 
             const afterCards = await extractMainSearchCards(page);
             const afterSignature = afterCards.map((card) => card.jobId).filter(Boolean).join(",");
-
             if (!afterSignature || afterSignature === beforeSignature) {
-              searchReports.push(
-                `${keyword}/${task.jobArea ?? "all"} page ${pageNumber + 1}: next-page click did not produce a new result set; stopped`,
-              );
+              searchReports.push(`${keyword}/${task.jobArea ?? "all"} page ${nextPageNumber}: next-page click did not produce a new result set; stopped`);
               break;
             }
-
             pageNumber += 1;
           }
         } finally {
-          stopCapturing();
+          capturedApi.stop();
           await page.close();
         }
 
