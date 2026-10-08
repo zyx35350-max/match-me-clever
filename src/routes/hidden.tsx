@@ -29,8 +29,13 @@ function lifecycleLabel(status: ReturnType<typeof effectiveJobLifecycle>) {
 }
 
 function HiddenJobsPage() {
-  const { hiddenJobIds, jobs, unhideJob } = useWorkspace();
-  const hiddenJobs = jobs.filter((job) => hiddenJobIds.includes(job.id));
+  const { hiddenJobIds, jobs, importedJobRecords, unhideJob } = useWorkspace();
+  const hiddenJobs = jobs
+    .filter((job) => hiddenJobIds.includes(job.id))
+    .map((job) => ({
+      job,
+      record: importedJobRecords.find((item) => item.raw.id === job.id),
+    }));
 
   return (
     <AppShell>
@@ -49,8 +54,8 @@ function HiddenJobsPage() {
       />
 
       <div className="space-y-3">
-        {hiddenJobs.map((job) => {
-          const lifecycle = effectiveJobLifecycle(job.lifecycle, job.raw);
+        {hiddenJobs.map(({ job, record }) => {
+          const lifecycle = effectiveJobLifecycle(record?.lifecycle, record?.raw);
           return (
             <div key={job.id} className="rounded-2xl border border-ink/10 bg-card p-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
