@@ -72,7 +72,7 @@ function AuthPage() {
               <div className="max-w-md">
                 <div className="text-[10px] font-bold tracking-[0.24em] text-ochre uppercase">YOUR NEXT MOVE</div>
                 <h1 className="mt-3 font-display text-4xl font-extrabold leading-[1.02] sm:text-5xl">
-                  让你的下一份工作，<span className="underline decoration-ochre decoration-4 underline-offset-4">更聪明。</span>
+                  让你的职业道路，<span className="underline decoration-ochre decoration-4 underline-offset-4">更清晰。</span>
                 </h1>
                 <p className="mt-5 max-w-lg text-sm leading-7 text-ink/60">
                   Solstice 是你的 AI 求职工作台：把你的经历、能力、偏好和职业方向连接起来，帮你找到更适合的岗位，解释为什么匹配，并持续记录你的求职选择。
@@ -80,9 +80,9 @@ function AuthPage() {
               </div>
               <div className="mt-10 grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
                 {[
-                  ["01", "记住你的职业画像"],
-                  ["02", "解释为什么匹配"],
-                  ["03", "持续学习你的选择"],
+                  ["01", "建立你的职业画像"],
+                  ["02", "AI 理解真实岗位"],
+                  ["03", "找到真正适合你的机会"],
                 ].map(([n, label]) => (
                   <div key={n} className="rounded-xl border border-ink/8 bg-white/70 px-3 py-2.5 text-xs font-semibold">
                     <span className="mr-2 text-ochre">{n}</span>{label}
