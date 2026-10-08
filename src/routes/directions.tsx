@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { Navigate } from "@tanstack/react-router";
-
 import { AppShell, PageHeading } from "@/components/app-shell";
 import { ScoreBar } from "@/components/match-parts";
 import { useCareer } from "@/lib/use-career";
