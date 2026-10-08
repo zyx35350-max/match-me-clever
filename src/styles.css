@@ -4,11 +4,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Design system — "Solstice": mid-century coastal work tool.
- * All colors are oklch tokens. Never hardcode colors in components.
- */
-
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -16,11 +11,9 @@
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
-
   --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
   --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -40,7 +33,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-
   --color-ink: var(--ink);
   --color-azure: var(--azure);
   --color-azure-deep: var(--azure-deep);
@@ -53,84 +45,67 @@
 }
 
 :root {
-  --radius: 0.875rem;
-
-  --ink: oklch(0.283 0.033 224.5);
-  --azure: oklch(0.508 0.093 240.3);
-  --azure-deep: oklch(0.397 0.083 240.9);
-  --ochre: oklch(0.681 0.121 62.6);
-  --ochre-soft: oklch(0.735 0.101 62.4);
-  --sand: oklch(0.945 0.024 88.4);
-  --cream: oklch(0.976 0.014 88.6);
-  --sage: oklch(0.665 0.043 155.4);
+  --radius: 0.9rem;
+  --ink: oklch(0.24 0.018 85);
+  --azure: oklch(0.48 0.045 246);
+  --azure-deep: oklch(0.38 0.045 246);
+  --ochre: oklch(0.79 0.17 88);
+  --ochre-soft: oklch(0.88 0.12 92);
+  --sand: oklch(0.95 0.018 88);
+  --cream: oklch(0.975 0.012 88);
+  --sage: oklch(0.62 0.08 150);
   --surface: oklch(1 0 0);
-
   --background: var(--cream);
   --foreground: var(--ink);
   --card: var(--surface);
   --card-foreground: var(--ink);
   --popover: var(--surface);
   --popover-foreground: var(--ink);
-  --primary: var(--azure);
+  --primary: var(--ink);
   --primary-foreground: var(--cream);
   --secondary: var(--sand);
   --secondary-foreground: var(--ink);
   --muted: var(--sand);
-  --muted-foreground: oklch(0.53 0.02 224.5);
+  --muted-foreground: oklch(0.52 0.015 85);
   --accent: var(--ochre);
-  --accent-foreground: var(--cream);
+  --accent-foreground: var(--ink);
   --destructive: oklch(0.55 0.17 27.3);
   --destructive-foreground: var(--cream);
-  --border: oklch(0.283 0.033 224.5 / 12%);
-  --input: oklch(0.283 0.033 224.5 / 18%);
-  --ring: var(--azure);
+  --border: oklch(0.24 0.018 85 / 10%);
+  --input: oklch(0.24 0.018 85 / 15%);
+  --ring: var(--ochre);
 }
 
 @layer base {
-  * {
-    border-color: var(--color-border);
-  }
-
+  * { border-color: var(--color-border); }
   body {
-    background-color: var(--color-background);
+    background:
+      radial-gradient(circle at 85% 4%, oklch(0.92 0.07 90 / 45%), transparent 26rem),
+      radial-gradient(circle at 8% 75%, oklch(0.93 0.03 245 / 30%), transparent 24rem),
+      var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
   }
-
-  h1,
-  h2,
-  h3 {
-    font-family: var(--font-display);
-    letter-spacing: -0.02em;
-  }
+  h1,h2,h3 { font-family: var(--font-display); letter-spacing: -0.025em; }
 }
 
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
-@utility animate-fade-up {
-  animation: fadeUp 0.5s ease both;
-}
+@utility animate-fade-up { animation: fadeUp .45s ease both; }
 
 @keyframes growBar {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
+@utility score-bar { transform-origin: left; animation: growBar .8s cubic-bezier(.2,.7,.2,1) both; }
 
-@utility score-bar {
-  transform-origin: left;
-  animation: growBar 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+@utility grain {
+  background-image:
+    radial-gradient(oklch(0.2 0.02 80 / 7%) .6px, transparent .6px),
+    radial-gradient(oklch(1 0 0 / 35%) .6px, transparent .6px);
+  background-position: 0 0, 3px 3px;
+  background-size: 6px 6px;
 }
