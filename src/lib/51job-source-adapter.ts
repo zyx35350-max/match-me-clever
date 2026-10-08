@@ -68,6 +68,7 @@ interface SearchCard {
 interface SearchApiItem {
   jobId?: string | number | null;
   jobHref?: string | null;
+  jobDescribe?: string | null;
 }
 
 export const FIFTYONEJOB_SOURCE: JobSource = {
@@ -465,6 +466,7 @@ function searchCardToRawJob(
   pageNumber: number,
   hrefByJobId: Map<string, string>,
   fetchedAt: string,
+  apiDescriptionByJobId?: Map<string, string>,
 ): RawJob | null {
   const jobId =
     card.jobId && /^\d+$/.test(String(card.jobId)) ? String(card.jobId) : null;
@@ -476,13 +478,17 @@ function searchCardToRawJob(
   if (!jobId || !url || !card.title) return null;
 
   const salary = parse51JobSalary(card.salary);
+  const apiDescription = jobId ? apiDescriptionByJobId?.get(jobId) : undefined;
+  const rawDescription = apiDescription?.trim()
+    ? clean51JobDetailText(apiDescription)
+    : clean51JobSearchText(card.rawText);
 
   return createRawJob({
     source: FIFTYONEJOB_SOURCE,
     externalId: jobId,
     sourceUrl: url,
     rawTitle: cleanText(card.title),
-    rawDescription: clean51JobSearchText(card.rawText),
+    rawDescription,
     ...(card.company ? { companyName: cleanText(card.company) } : {}),
     ...(card.location ? { locationText: cleanText(card.location) } : {}),
     fetchedAt,
@@ -504,6 +510,7 @@ function isSearchApiResponse(url: string) {
 
 interface CapturedSearchApi {
   hrefByJobId: Map<string, string>;
+  descriptionByJobId: Map<string, string>;
   requestUrls: string[];
 }
 
@@ -511,6 +518,7 @@ async function captureSearchApiItems(
   page: Page,
 ): Promise<CapturedSearchApi & { stop: () => void }> {
   const hrefByJobId = new Map<string, string>();
+  const descriptionByJobId = new Map<string, string>();
   const requestUrls: string[] = [];
 
   const requestHandler = (request: import("playwright").Request) => {
@@ -531,6 +539,12 @@ async function captureSearchApiItems(
         if (item?.jobId && item?.jobHref) {
           hrefByJobId.set(String(item.jobId), String(item.jobHref));
         }
+        if (item?.jobId && item?.jobDescribe) {
+          const description = clean51JobDetailText(String(item.jobDescribe));
+          if (description.length >= 30) {
+            descriptionByJobId.set(String(item.jobId), description);
+          }
+        }
       }
     } catch {
       // Ignore unreadable auxiliary responses.
@@ -542,6 +556,7 @@ async function captureSearchApiItems(
 
   return {
     hrefByJobId,
+    descriptionByJobId,
     requestUrls,
     stop: () => {
       page.off("request", requestHandler);
@@ -799,7 +814,14 @@ export class FiftyOneJobSourceAdapter {
         if (urlKey) knownUrls.add(urlKey);
 
         let enriched = job;
-        if (detailPage && job.sourceUrl) {
+        const searchApiHasFullDescription =
+          (job.metadata?.detailStatus === "full") ||
+          job.rawDescription.length >= 80 &&
+          /(岗位职责|职位描述|工作内容|工作职责|岗位要求|任职要求|任职资格|职位要求|任职条件)/.test(
+            job.rawDescription,
+          );
+
+        if (detailPage && job.sourceUrl && !searchApiHasFullDescription) {
           const detail = await fetch51JobDetail(detailPage, job.sourceUrl);
           const detailFetchedAt = new Date().toISOString();
           const detailMetadata: Record<string, string | number | boolean | null> = {
@@ -893,7 +915,14 @@ export class FiftyOneJobSourceAdapter {
             const pageFetchedAt = new Date().toISOString();
             const pageJobs = cards
               .map((card) =>
-                searchCardToRawJob(card, task, 1, capturedApi.hrefByJobId, pageFetchedAt),
+                searchCardToRawJob(
+                  card,
+                  task,
+                  1,
+                  capturedApi.hrefByJobId,
+                  pageFetchedAt,
+                  capturedApi.descriptionByJobId,
+                ),
               )
               .filter((job): job is RawJob => Boolean(job));
 
@@ -936,6 +965,12 @@ export class FiftyOneJobSourceAdapter {
                   if (item.jobId && item.jobHref) {
                     capturedApi.hrefByJobId.set(String(item.jobId), String(item.jobHref));
                   }
+                  if (item.jobId && item.jobDescribe) {
+                    const description = clean51JobDetailText(String(item.jobDescribe));
+                    if (description.length >= 30) {
+                      capturedApi.descriptionByJobId.set(String(item.jobId), description);
+                    }
+                  }
                 }
 
                 const apiFetchedAt = new Date().toISOString();
@@ -947,6 +982,7 @@ export class FiftyOneJobSourceAdapter {
                       nextPageNumber,
                       capturedApi.hrefByJobId,
                       apiFetchedAt,
+                      capturedApi.descriptionByJobId,
                     ),
                   )
                   .filter((job): job is RawJob => Boolean(job));
@@ -1018,6 +1054,7 @@ export class FiftyOneJobSourceAdapter {
                       nextPageNumber,
                       capturedApi.hrefByJobId,
                       nextFetchedAt,
+                      capturedApi.descriptionByJobId,
                     ),
                   )
                   .filter((job): job is RawJob => Boolean(job));
