@@ -39,7 +39,47 @@ function MatchingPage() {
   const [track, setTrack] = useState<EmploymentType>("fulltime");
   const [filter, setFilter] = useState<(typeof filters)[number]["key"]>("all");
   const { matches, aiProfile, refreshAiProfile, topDirection } = useCareer(track);
-  const { suggestions, acceptSuggestion, dismissSuggestion } = useWorkspace();
+  const {
+    suggestions,
+    acceptSuggestion,
+    dismissSuggestion,
+    importDiscoveredJobs,
+    discovery,
+  } = useWorkspace();
+  const [discovering, setDiscovering] = useState(false);
+  const [discoveryMessage, setDiscoveryMessage] = useState<string | null>(null);
+
+  async function discover51Job() {
+    setDiscovering(true);
+    setDiscoveryMessage(null);
+    try {
+      const response = await fetch("/api/discover-51job", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          keywords: ["AI产品助理", "AI产品运营"],
+          cities: ["040000", "020000"],
+          maxPages: 2,
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error ?? "51Job discovery failed.");
+      const summary = importDiscoveredJobs(payload.jobs ?? [], "51Job");
+      setDiscoveryMessage(
+        "Fetched " +
+          summary.fetched +
+          " jobs · added " +
+          summary.added +
+          " new · " +
+          summary.duplicates +
+          " duplicates",
+      );
+    } catch (error) {
+      setDiscoveryMessage(error instanceof Error ? error.message : "51Job discovery failed.");
+    } finally {
+      setDiscovering(false);
+    }
+  }
 
   const visible = matches.filter((m) => {
     if (filter === "recommended") return !m.notRecommended;
@@ -86,6 +126,38 @@ function MatchingPage() {
 
       <div className="mb-6">
         <AICareerProfileCard aiProfile={aiProfile} onRefresh={refreshAiProfile} />
+      </div>
+
+      <div className="mb-6 rounded-2xl border border-ink/10 bg-card p-5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">
+              Live discovery
+            </div>
+            <div className="mt-1 text-sm font-semibold">51Job · AI product roles</div>
+            <p className="mt-1 text-xs text-ink/55">
+              Searches AI产品助理 / AI产品运营 in Shenzhen and Shanghai, then persists the
+              discovered jobs in this workspace.
+            </p>
+            {discovery.lastSyncedAt ? (
+              <p className="mt-2 text-xs text-ink/45">
+                Last sync: {new Date(discovery.lastSyncedAt).toLocaleString()}
+              </p>
+            ) : null}
+          </div>
+          <button
+            onClick={discover51Job}
+            disabled={discovering}
+            className="rounded-xl bg-azure px-4 py-2.5 text-sm font-semibold text-cream hover:bg-azure-deep disabled:opacity-50"
+          >
+            {discovering ? "Discovering…" : "Discover from 51Job"}
+          </button>
+        </div>
+        {discoveryMessage ? (
+          <div className="mt-4 rounded-xl bg-sand px-4 py-3 text-xs text-ink/70">
+            {discoveryMessage}
+          </div>
+        ) : null}
       </div>
 
       <div className="mb-4 flex flex-wrap gap-2">
