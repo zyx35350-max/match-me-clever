@@ -139,7 +139,10 @@ function migrate(raw: string): Persisted {
   };
   const next = { ...initial, ...parsed, identity } as Persisted & { profile?: unknown };
   delete next.profile;
-  return next;
+  return {
+    ...next,
+    hiddenJobIds: Array.isArray(next.hiddenJobIds) ? next.hiddenJobIds : [],
+  };
 }
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
@@ -273,21 +276,21 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const hideJob = useCallback((jobId: string) => {
     setState((prev) => ({
       ...prev,
-      hiddenJobIds: prev.hiddenJobIds.includes(jobId)
-        ? prev.hiddenJobIds
-        : [...prev.hiddenJobIds, jobId],
+      hiddenJobIds: (prev.hiddenJobIds ?? []).includes(jobId)
+        ? (prev.hiddenJobIds ?? [])
+        : [...(prev.hiddenJobIds ?? []), jobId],
     }));
   }, []);
 
   const unhideJob = useCallback((jobId: string) => {
     setState((prev) => ({
       ...prev,
-      hiddenJobIds: prev.hiddenJobIds.filter((id) => id !== jobId),
+      hiddenJobIds: (prev.hiddenJobIds ?? []).filter((id) => id !== jobId),
     }));
   }, []);
 
   const isJobHidden = useCallback(
-    (jobId: string) => state.hiddenJobIds.includes(jobId),
+    (jobId: string) => (state.hiddenJobIds ?? []).includes(jobId),
     [state.hiddenJobIds],
   );
 
