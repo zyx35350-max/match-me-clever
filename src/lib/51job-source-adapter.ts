@@ -134,12 +134,12 @@ function searchCardToRawJob(
   card: SearchCard,
   task: FiftyOneJobSearchTask,
   pageNumber: number,
-  capturedApi.hrefByJobId: Map<string, string>,
+  hrefByJobId: Map<string, string>,
   fetchedAt: string,
 ): RawJob | null {
   const jobId =
     card.jobId && /^\d+$/.test(String(card.jobId)) ? String(card.jobId) : null;
-  const href = jobId ? capturedApi.hrefByJobId.get(jobId) ?? null : null;
+  const href = jobId ? hrefByJobId.get(jobId) ?? null : null;
   const url =
     href && looksLikeJobUrl(href) && extractJobId(href) === jobId ? href : null;
 
