@@ -595,7 +595,7 @@ export class FiftyOneJobSourceAdapter {
               }
             }
           }
-        }        } finally {
+        } finally {
           capturedApi.stop();
           await page.close();
         }
