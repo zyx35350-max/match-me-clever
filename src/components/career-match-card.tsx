@@ -8,7 +8,7 @@ function DualScore({ label, value, tone }: { label: string; value: number; tone:
   const color = tone === "azure" ? "text-azure" : "text-ochre";
   return (
     <div className="min-w-[72px] text-center">
-      <div className={\`font-display text-lg font-bold \${color}\`}>{value}</div>
+      <div className={`${'font-display text-lg font-bold ' + color}`}>{value}</div>
       <div className="text-[9px] font-semibold tracking-[0.12em] text-ink/40 uppercase">{label}</div>
     </div>
   );
