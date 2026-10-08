@@ -8,11 +8,12 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { WorkspaceProvider } from "../lib/store";
+import { WorkspaceProvider, useWorkspace } from "../lib/store";
+import { AuthProvider, useAuth } from "../lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -132,10 +133,38 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <WorkspaceProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-      </WorkspaceProvider>
+      <AuthProvider>
+        <WorkspaceProvider>
+          <CloudProfileSync />
+          <Outlet />
+        </WorkspaceProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
+}
+
+function CloudProfileSync() {
+  const { user, cloudProfile } = useAuth();
+  const { hydrateFromCloud } = useWorkspace();
+  const [hydratedUserId, setHydratedUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user || !cloudProfile || hydratedUserId === user.id) return;
+    hydrateFromCloud({
+      identity: {
+        name: cloudProfile.name ?? "我的资料",
+        headline: cloudProfile.headline ?? "正在探索新的职业方向",
+        minSalary: cloudProfile.min_salary ?? 80000,
+      },
+      career: cloudProfile.career_profile,
+      searchCities: cloudProfile.search_cities ?? [],
+    });
+    setHydratedUserId(user.id);
+  }, [user, cloudProfile, hydratedUserId, hydrateFromCloud]);
+
+  useEffect(() => {
+    if (!user) setHydratedUserId(null);
+  }, [user]);
+
+  return null;
 }
