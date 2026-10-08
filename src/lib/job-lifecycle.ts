@@ -59,9 +59,14 @@ export function expireJobLifecycle(lifecycle: JobLifecycle, expiredAt: string): 
   };
 }
 
-export function effectiveJobLifecycle(lifecycle: JobLifecycle, raw?: RawJob, now = Date.now()): JobLifecycleStatus {
+export function effectiveJobLifecycle(
+  lifecycle: JobLifecycle | undefined,
+  raw?: RawJob,
+  now = Date.now(),
+): JobLifecycleStatus {
   const detailStatus = raw?.metadata?.detailStatus;
   if (detailStatus === "not_found") return "closed";
+  if (!lifecycle) return "active";
   if (lifecycle.status === "closed" || lifecycle.status === "expired") return lifecycle.status;
 
   const lastSeen = Date.parse(lifecycle.lastSeenAt);
