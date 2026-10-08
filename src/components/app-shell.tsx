@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import {
   Archive,
   BriefcaseBusiness,
-  Compass,
   FilePlus2,
   Heart,
   Home,
@@ -25,7 +24,6 @@ const nav = [
   { to: "/today", label: "今日推荐", en: "Today", icon: Zap },
   { to: "/saved", label: "已收藏", en: "Saved", icon: Heart },
   { to: "/activity", label: "求职记录", en: "Activity", icon: ListChecks },
-  { to: "/directions", label: "职业方向", en: "Directions", icon: Compass },
   { to: "/import", label: "导入岗位", en: "Import", icon: Upload },
   { to: "/hidden", label: "已隐藏", en: "Hidden", icon: Archive },
   { to: "/profile", label: "我的资料", en: "Profile", icon: UserRound },
