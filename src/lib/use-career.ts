@@ -16,7 +16,7 @@ import type { EmploymentType } from "./types";
  * Every page reads matches from here, so a job scores the same everywhere.
  */
 export function useCareer(track?: EmploymentType) {
-  const { career, profile, jobs, hiddenJobIds } = useWorkspace();
+  const { career, profile, jobs, hiddenJobIds, importedJobRecords } = useWorkspace();
   const [refreshedAt, setRefreshedAt] = useState(0);
 
   const directions = useMemo(() => assessAllDirections(career), [career]);
@@ -26,13 +26,11 @@ export function useCareer(track?: EmploymentType) {
   const activeJobs = useMemo(
     () =>
       jobs.filter((job) => {
-        const status = effectiveJobLifecycle(
-          job.lifecycle,
-          job.raw,
-        );
+        const record = importedJobRecords.find((item) => item.raw.id === job.id);
+        const status = effectiveJobLifecycle(record?.lifecycle, record?.raw);
         return status !== "closed" && status !== "expired" && !hiddenJobIds.includes(job.id);
       }),
-    [jobs, hiddenJobIds],
+    [jobs, importedJobRecords, hiddenJobIds],
   );
 
   const matches = useMemo(
