@@ -273,7 +273,7 @@ async function findNextPageControl(page: Page) {
 
 async function hasVerification(page: Page) {
   const text = await page.evaluate(() => document.body?.innerText ?? "");
-  const haystack = \`${await page.title()}\n${text.slice(0, 10000)}\n${page.url()}\`;
+  const haystack = `${await page.title()}\n${text.slice(0, 10000)}\n${page.url()}`;
 
   return VERIFY_PATTERNS.some((pattern) => pattern.test(haystack)) ||
     (LOGIN_PATTERNS.some((pattern) => pattern.test(haystack)) &&
@@ -333,7 +333,7 @@ export class FiftyOneJobSourceAdapter {
 
             if (await hasVerification(page)) {
               searchReports.push(
-                \`${keyword}/${task.jobArea ?? "all"} page ${pageNumber}: verification detected; stopped without bypassing\`,
+                `${keyword}/${task.jobArea ?? "all"} page ${pageNumber}: verification detected; stopped without bypassing`,
               );
               break;
             }
@@ -342,7 +342,7 @@ export class FiftyOneJobSourceAdapter {
             const signature = cards.map((card) => card.jobId).filter(Boolean).join(",");
             if (signature && signature === previousSignature) {
               searchReports.push(
-                \`${keyword}/${task.jobArea ?? "all"} page ${pageNumber}: repeated result page; stopped\`,
+                `${keyword}/${task.jobArea ?? "all"} page ${pageNumber}: repeated result page; stopped`,
               );
               break;
             }
@@ -357,7 +357,7 @@ export class FiftyOneJobSourceAdapter {
 
             rawJobs.push(...pageJobs);
             searchReports.push(
-              \`${keyword}/${task.jobArea ?? "all"} page ${pageNumber}: ${pageJobs.length}/${cards.length} cards converted\`,
+              `${keyword}/${task.jobArea ?? "all"} page ${pageNumber}: ${pageJobs.length}/${cards.length} cards converted`,
             );
 
             if (pageNumber >= maxPages) break;
@@ -365,7 +365,7 @@ export class FiftyOneJobSourceAdapter {
             const next = await findNextPageControl(page);
             if (!next) {
               searchReports.push(
-                \`${keyword}/${task.jobArea ?? "all"} page ${pageNumber}: no enabled next-page control; stopped\`,
+                `${keyword}/${task.jobArea ?? "all"} page ${pageNumber}: no enabled next-page control; stopped`,
               );
               break;
             }
@@ -386,7 +386,7 @@ export class FiftyOneJobSourceAdapter {
 
             if (!afterSignature || afterSignature === beforeSignature) {
               searchReports.push(
-                \`${keyword}/${task.jobArea ?? "all"} page ${pageNumber + 1}: next-page click did not produce a new result set; stopped\`,
+                `${keyword}/${task.jobArea ?? "all"} page ${pageNumber + 1}: next-page click did not produce a new result set; stopped`,
               );
               break;
             }
@@ -409,7 +409,7 @@ export class FiftyOneJobSourceAdapter {
         sourceId: this.source.id,
         jobs: deduped.uniqueJobs,
         message: [
-          \`51Job V1 discovery: ${deduped.uniqueJobs.length} unique RawJob(s), ${deduped.duplicates.length} duplicate(s) removed.\`,
+          `51Job V1 discovery: ${deduped.uniqueJobs.length} unique RawJob(s), ${deduped.duplicates.length} duplicate(s) removed.`,
           ...searchReports,
         ].join("\n"),
       };
@@ -422,7 +422,7 @@ export class FiftyOneJobSourceAdapter {
         jobs: deduped.uniqueJobs,
         message:
           error instanceof Error
-            ? \`51Job adapter failed: ${error.message}\`
+            ? `51Job adapter failed: ${error.message}`
             : "51Job adapter failed.",
       };
     } finally {
