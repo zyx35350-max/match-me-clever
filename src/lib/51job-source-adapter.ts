@@ -112,14 +112,17 @@ export function parse51JobSalary(text: string | null): {
   );
 
   if (range) {
+    const inferredMaxUnit = range[4];
+    const inferredMinUnit = range[2] ?? inferredMaxUnit;
+
     const toNumber = (raw: string, unit?: string) => {
       const normalized = (unit ?? "千").toLowerCase();
       return Number(raw) * (normalized === "万" ? 10000 : normalized === "k" ? 1000 : 1000);
     };
 
     return {
-      min: toNumber(range[1]!, range[2]),
-      max: toNumber(range[3]!, range[4]),
+      min: toNumber(range[1]!, inferredMinUnit),
+      max: toNumber(range[3]!, inferredMaxUnit),
       note: value,
     };
   }
