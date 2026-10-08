@@ -11,6 +11,7 @@ const navItems = [
   { to: "/matching", label: "Matching" },
   { to: "/today", label: "Today" },
   { to: "/saved", label: "Saved" },
+  { to: "/hidden", label: "Hidden" },
   { to: "/activity", label: "Activity" },
   { to: "/import", label: "Import Job" },
 ] as const;
