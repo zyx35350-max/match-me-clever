@@ -73,6 +73,54 @@ function cleanText(value: string | null | undefined) {
   return (value ?? "").replace(/\s+/g, " ").trim();
 }
 
+/**
+ * Search-card text is only a compact discovery snapshot, not the full JD.
+ * Some 51Job cards render the same text block more than once for different
+ * interaction layers. Collapse exact duplicate lines and adjacent repeated
+ * blocks while preserving the first occurrence and original order.
+ */
+export function clean51JobSearchText(value: string | null | undefined) {
+  const lines = (value ?? "")
+    .split(/\r?\n/)
+    .map((line) => cleanText(line))
+    .filter(Boolean);
+
+  const dedupedLines: string[] = [];
+  for (const line of lines) {
+    if (dedupedLines.at(-1) !== line) dedupedLines.push(line);
+  }
+
+  let changed = true;
+  while (changed && dedupedLines.length >= 4) {
+    changed = false;
+
+    for (let blockSize = Math.floor(dedupedLines.length / 2); blockSize >= 2; blockSize -= 1) {
+      let removed = false;
+
+      for (let start = 0; start + blockSize * 2 <= dedupedLines.length; start += 1) {
+        let same = true;
+        for (let offset = 0; offset < blockSize; offset += 1) {
+          if (dedupedLines[start + offset] !== dedupedLines[start + blockSize + offset]) {
+            same = false;
+            break;
+          }
+        }
+
+        if (!same) continue;
+
+        dedupedLines.splice(start + blockSize, blockSize);
+        removed = true;
+        changed = true;
+        break;
+      }
+
+      if (removed) break;
+    }
+  }
+
+  return dedupedLines.join("\n");
+}
+
 export function build51JobSearchUrl(keyword: string, jobArea?: string) {
   const url = new URL(DEFAULT_SEARCH_BASE);
   url.searchParams.set("keyword", keyword);
@@ -153,7 +201,7 @@ function searchCardToRawJob(
     externalId: jobId,
     sourceUrl: url,
     rawTitle: cleanText(card.title),
-    rawDescription: cleanText(card.rawText),
+    rawDescription: clean51JobSearchText(card.rawText),
     ...(card.company ? { companyName: cleanText(card.company) } : {}),
     ...(card.location ? { locationText: cleanText(card.location) } : {}),
     fetchedAt,
@@ -278,7 +326,9 @@ function searchApiItemToCard(item: Record<string, unknown>): SearchCard | null {
   const salary = item.provideSalaryString ? cleanText(String(item.provideSalaryString)) : null;
   const location = item.jobAreaString ? cleanText(String(item.jobAreaString)) : null;
   if (!jobId || !title) return null;
-  const description = item.jobDescribe ? cleanText(String(item.jobDescribe)) : JSON.stringify(item);
+  const description = item.jobDescribe
+    ? clean51JobSearchText(String(item.jobDescribe))
+    : clean51JobSearchText(JSON.stringify(item));
   return {
     pageCode: typeof item.pageCode === "string" ? item.pageCode : "sou|sou|soulb",
     jobId,
