@@ -11,7 +11,7 @@ import type {
 } from "@/lib/career-types";
 
 const inputClass =
-  "w-full rounded-xl border border-ink/12 bg-surface px-3 py-2.5 text-sm text-ink outline-none transition focus:border-azure focus:ring-2 focus:ring-azure/10";
+  "w-full rounded-xl border border-ink/12 bg-surface px-3 py-2.5 text-sm text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/10";
 
 const levels: Skill等级[] = ["learning", "working", "proficient", "advanced"];
 
@@ -60,7 +60,7 @@ function RatingRow({
         max={5}
         value={value}
         onChange={(e) => onChange(Number(e.target.value) as Rating)}
-        className="h-1.5 flex-1 accent-azure"
+        className="h-1.5 flex-1 accent-ochre"
       />
       <span className="w-6 rounded-md bg-ochre/25 py-0.5 text-center text-[10px] font-extrabold text-ink">{value}</span>
     </div>
@@ -95,7 +95,7 @@ function ListEditor({
       ))}
       <button
         onClick={() => onChange([...values, ""])}
-        className="w-full rounded-xl border border-azure/20 bg-azure/5 py-2.5 text-xs font-semibold text-azure transition hover:bg-azure/10"
+        className="w-full rounded-xl border border-ochre/30 bg-ochre/10 py-2.5 text-xs font-semibold text-ink transition hover:bg-ochre/20"
       >
         {placeholder}
       </button>
@@ -151,7 +151,7 @@ export function CareerProfileEditor() {
           {savedAt ? <span className="text-xs text-sage">已保存于 {savedAt}</span> : null}
           <button
             onClick={save}
-            className="rounded-xl bg-azure px-5 py-2.5 text-sm font-bold text-cream shadow-sm transition hover:bg-azure-deep"
+            className="rounded-xl bg-ink px-5 py-2.5 text-sm font-bold text-cream shadow-sm transition hover:bg-ink/90"
           >
             保存资料
           </button>
