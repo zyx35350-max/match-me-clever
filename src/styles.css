@@ -116,3 +116,38 @@
   background-size: auto, 7px 7px;
   background-position: center, 0 0;
 }
+
+
+@utility profile-range {
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  min-width: 0;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(to right, var(--ochre) 0 var(--range-progress, 0%), oklch(0.24 0.018 85 / 12%) var(--range-progress, 0%) 100%);
+}
+
+.profile-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid white;
+  border-radius: 999px;
+  background: var(--ochre);
+  box-shadow: 0 1px 4px oklch(0.24 0.018 85 / 18%);
+}
+
+.profile-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 2px solid white;
+  border-radius: 999px;
+  background: var(--ochre);
+  box-shadow: 0 1px 4px oklch(0.24 0.018 85 / 18%);
+}
+
+.profile-range:focus-visible {
+  box-shadow: 0 0 0 3px oklch(0.79 0.17 88 / 18%);
+}
