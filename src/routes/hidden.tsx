@@ -266,7 +266,7 @@ function Hidden职位sPage() {
                 上一页
               </button>
               <span className="px-2 text-xs font-semibold text-ink/45">
-                第 {safePage} / {pageCount}
+                第 {safe第} / {pageCount}
               </span>
               <button
                 type="button"
