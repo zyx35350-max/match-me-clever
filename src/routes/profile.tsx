@@ -6,6 +6,7 @@ import { CareerProfileEditor } from "@/components/career-profile-editor";
 import { formatSalary } from "@/lib/matching";
 import { useWorkspace } from "@/lib/store";
 import type { Profile, WorkMode } from "@/lib/types";
+import { createSearchCity, type JobSearchCity } from "@/lib/job-search-preferences";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -29,7 +30,15 @@ export const Route = createFileRoute("/profile")({
 const modes: Array<WorkMode | "any"> = ["remote", "hybrid", "onsite", "any"];
 
 function ProfilePage() {
-  const { profile, updateProfile, hydrated } = useWorkspace();
+  const {
+    profile,
+    updateProfile,
+    hydrated,
+    searchCities,
+    addSearchCity,
+    removeSearchCity,
+    updateSearchCity,
+  } = useWorkspace();
   const [draft, setDraft] = useState<Profile>(profile);
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
@@ -101,6 +110,53 @@ function ProfilePage() {
                 {profile.summary}
               </p>
             </Field>
+          </section>
+
+          <section className="rounded-2xl border border-ink/10 bg-card p-6">
+            <SectionTitle>Job search cities</SectionTitle>
+            <p className="mb-4 text-sm text-ink/60">
+              These cities appear as selectable filters on Matching. You can add, rename, edit the 51Job area code, or remove a city.
+            </p>
+            <div className="space-y-3">
+              {searchCities.map((city) => (
+                <div key={city.id} className="grid gap-3 rounded-xl bg-sand p-3 sm:grid-cols-[1fr_1fr_auto]">
+                  <input
+                    value={city.name}
+                    onChange={(e) => updateSearchCity({ ...city, name: e.target.value })}
+                    className={inputClass}
+                    aria-label="City name"
+                  />
+                  <input
+                    value={city.jobArea}
+                    onChange={(e) => updateSearchCity({ ...city, jobArea: e.target.value })}
+                    className={inputClass}
+                    aria-label="51Job area code"
+                    placeholder="51Job area code"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeSearchCity(city.id)}
+                    disabled={searchCities.length <= 1}
+                    className="rounded-xl border border-ink/10 px-3 py-2 text-sm font-semibold text-ink/60 hover:bg-card disabled:cursor-not-allowed disabled:opacity-30"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const id = `custom-${Date.now()}`;
+                addSearchCity(createSearchCity("New city", "", id));
+              }}
+              className="mt-4 rounded-xl border border-ink/15 px-4 py-2.5 text-sm font-semibold hover:bg-sand"
+            >
+              + Add city
+            </button>
+            <p className="mt-3 text-[11px] text-ink/45">
+              Default cities: Shenzhen, Huizhou, Zhuhai. 51Job area codes are used only when searching 51Job.
+            </p>
           </section>
 
           <section className="rounded-2xl border border-ink/10 bg-card p-6">
