@@ -324,12 +324,12 @@ export function buildAICareerProfile(profile: CareerProfile): AICareerProfile {
 // ------------------------------------------------------------- job matching
 
 const NEGATIVES: Record<NegativeTag, { label: string; penalty: number }> = {
-  pure_sales: { label: "Pure sales role", penalty: 30 },
-  customer_service: { label: "Customer service duties", penalty: 30 },
-  data_entry: { label: "Pure data entry", penalty: 30 },
-  repetitive: { label: "Highly repetitive work", penalty: 20 },
-  no_growth: { label: "No meaningful growth", penalty: 25 },
-  unpaid_overtime: { label: "Heavy unpaid overtime", penalty: 20 },
+  pure_sales: { label: "纯销售岗位", penalty: 30 },
+  customer_service: { label: "客服相关工作", penalty: 30 },
+  data_entry: { label: "纯数据录入", penalty: 30 },
+  repetitive: { label: "高度重复性工作", penalty: 20 },
+  no_growth: { label: "缺乏成长空间", penalty: 25 },
+  unpaid_overtime: { label: "大量无意义加班", penalty: 20 },
 };
 
 const MATCH_WEIGHTS: Record<keyof JobMatchBreakdown, number> = {
@@ -599,7 +599,7 @@ function explain(args: {
       `Your ${matchedSkills.slice(0, 3).join(", ")} experience maps onto what this role actually does day to day.`,
     );
   } else {
-    fits.push("Nothing in your proven skills overlaps with this listing's requirements.");
+    fits.push("你的已验证技能与这个岗位的要求暂时没有明显重合。");
   }
   if (direction) fits.push(`Sits in ${direction.name}, one of the directions you're testing.`);
 
@@ -616,7 +616,7 @@ function explain(args: {
       ? [`On-the-job exposure to ${missingSkills.slice(0, 3).join(", ")}.`]
       : []),
   ];
-  if (!learn.length) learn.push("Little new ground — this repeats what you can already do.");
+  if (!learn.length) learn.push("新增能力有限，主要是在重复你已经会的事情。");
 
   const concerns: string[] = negatives.map((n) =>
     n.isDealBreaker ? `${n.label} — one of your deal breakers.` : `${n.label} is a risk here.`,
@@ -627,40 +627,40 @@ function explain(args: {
     );
   if (track === "parttime" && (job.salaryMax ?? 0) < 5000)
     concerns.push("Pay is low; it only makes sense for the evidence it creates.");
-  if (!concerns.length) concerns.push("No significant red flags detected in the listing.");
+  if (!concerns.length) concerns.push("暂未发现明显风险。");
 
   const careerValue =
     track === "parttime"
       ? `Portfolio value ${portfolio}/100. ${
           portfolio >= 75
-            ? "Finishing this would give you a concrete artefact to show, which matters more than the fee."
-            : "Limited portfolio payoff — the output is hard to show to anyone else."
+            ? "完成后能形成可以展示的作品，这比短期报酬更有价值。"
+            : "作品集价值有限，最终产出不太容易作为作品展示。"
         }`
       : `${
           careerGrowthValue >= 75
-            ? "Real direction-building value: it adds evidence you currently lack."
+            ? "有较明显的方向建设价值，可以补足你目前缺少的经历证据。"
             : careerGrowthValue >= 55
-              ? "Moderate growth value — it extends your current lane rather than opening a new one."
-              : "Low growth value; it mostly reuses what you already know."
+              ? "成长价值中等，主要延伸你现有能力，而不是打开新的职业方向。"
+              : "成长价值较低，主要是在重复使用已有经验。"
         }`;
 
   const gap = careerGrowthValue - immediateFit;
   const tradeoff =
     Math.abs(gap) < 8
-      ? "Immediate fit and growth value are close — no real tradeoff to weigh."
+      ? "即时匹配与长期成长比较接近，没有明显取舍。"
       : gap > 0
         ? `Harder to land now (${immediateFit}) than it is valuable later (${careerGrowthValue}). Worth stretching for if you can cover the gaps.`
         : `Easy for you today (${immediateFit}) but it adds less to where you're heading (${careerGrowthValue}). Comfortable, not developmental.`;
 
   const recommendation = notRecommended
-    ? "Not recommended — kept visible so you can see why, not hidden."
+    ? "不推荐 — 保留展示，方便你了解原因，不会自动隐藏。"
     : careerGrowthValue >= 75 && immediateFit >= 60
-      ? "Worth reviewing first."
+      ? "优先查看"
       : careerGrowthValue >= 70
-        ? "Worth reviewing, with the gaps in mind."
+        ? "值得查看，但需要留意能力差距"
         : immediateFit >= 75
-          ? "Reviewable, but treat it as a safe option rather than a step forward."
-          : "Low priority for now.";
+          ? "可以查看，但更偏稳妥选择，不一定推动你的长期方向"
+          : "当前优先级较低";
 
   return { fits, bring, learn, concerns, careerValue, recommendation, tradeoff };
 }
