@@ -6,6 +6,7 @@ import { AppShell, PageHeading } from "@/components/app-shell";
 import { CareerProfileEditor } from "@/components/career-profile-editor";
 import { formatSalary } from "@/lib/matching";
 import { useCareer } from "@/lib/use-career";
+import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/store";
 import type { Profile, WorkMode } from "@/lib/types";
 import { createSearchCity } from "@/lib/job-search-preferences";
@@ -38,6 +39,7 @@ function ProfilePage() {
     hydrated,
   } = useWorkspace();
   const { directions } = useCareer();
+  const { saveProfile } = useAuth();
   const [draft, setDraft] = useState<Profile>(profile);
 
   useEffect(() => {
@@ -48,6 +50,21 @@ function ProfilePage() {
     setDraft((d) => ({ ...d, [key]: value }));
 
   const topDirections = directions.slice(0, 3);
+  const [savingBasic, setSavingBasic] = useState(false);
+  const [savedBasicAt, setSavedBasicAt] = useState<string | null>(null);
+
+  const saveBasic = async () => {
+    setSavingBasic(true);
+    updateProfile(draft);
+    const result = await saveProfile({
+      identity: { name: draft.name, headline: draft.headline, minSalary: draft.minSalary },
+      career: profileToCareer(draft, useWorkspace().career),
+      searchCities,
+      onboardingComplete: true,
+    });
+    setSavingBasic(false);
+    if (!result.error) setSavedBasicAt(new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }));
+  };
 
   return (
     <AppShell>
@@ -99,6 +116,9 @@ function ProfilePage() {
             <span className="ml-1 text-[11px] text-ink/40">
               AI 方向判断会随着你的资料变化自动更新。
             </span>
+            <button type="button" onClick={saveBasic} disabled={savingBasic} className="ml-auto rounded-xl bg-ink px-3 py-2 text-[11px] font-extrabold text-cream disabled:opacity-50">
+              {savingBasic ? "保存中…" : savedBasicAt ? "已保存" : "保存基础资料"}
+            </button>
           </div>
         </section>
 
@@ -239,6 +259,17 @@ function Signal({ label, value, note }: { label: string; value: string; note: st
       <div className="mt-1 text-[9px] font-semibold text-ink/30">{note}</div>
     </div>
   );
+}
+
+function profileToCareer(profile: Profile, career: ReturnType<typeof useWorkspace>["career"]) {
+  return {
+    ...career,
+    basics: {
+      ...career.basics,
+      workMode: profile.workModePreference,
+      preferredLocations: [profile.location, ...career.basics.preferredLocations.filter((city) => city !== profile.location)],
+    },
+  };
 }
 
 const inputClass = "min-w-0 rounded-lg border border-ink/8 bg-white px-2.5 py-1.5 text-xs font-semibold text-ink outline-none focus:border-ochre focus:ring-2 focus:ring-ochre/15";
