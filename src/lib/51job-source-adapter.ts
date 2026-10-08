@@ -90,6 +90,23 @@ export function clean51JobSearchText(value: string | null | undefined) {
     if (dedupedLines.at(-1) !== line) dedupedLines.push(line);
   }
 
+  // Some search cards flatten their contents into one long text node and
+  // repeat the same payload back-to-back. Collapse exact whole-string repeats
+  // before applying the line/block dedupe below.
+  for (let i = 0; i < dedupedLines.length; i += 1) {
+    const line = dedupedLines[i]!;
+    if (line.length < 20) continue;
+
+    for (let split = Math.floor(line.length / 2); split >= 20; split -= 1) {
+      const left = line.slice(0, split).trim();
+      const right = line.slice(split).trim();
+      if (left && left === right) {
+        dedupedLines[i] = left;
+        break;
+      }
+    }
+  }
+
   let changed = true;
   while (changed && dedupedLines.length >= 4) {
     changed = false;
