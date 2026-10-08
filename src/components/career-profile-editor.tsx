@@ -25,7 +25,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-ink/10 bg-card p-5 shadow-sm">
+    <section className={`rounded-2xl border border-ink/10 bg-white p-4 shadow-sm ${title.startsWith("A") || title.startsWith("B") ? "lg:col-span-6" : title.startsWith("E") || title.startsWith("F") ? "lg:col-span-6" : "lg:col-span-12"}`}>
       <h2 className="text-sm font-bold text-ink">{title}</h2>
       {hint ? <p className="mt-1 mb-4 text-xs text-ink/55">{hint}</p> : <div className="mb-4" />}
       {children}
