@@ -103,7 +103,7 @@ function ProfilePage() {
         </section>
 
         <div className="grid gap-4 lg:grid-cols-12">
-          <section className="yellow-grain relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm lg:col-span-7">
+          <section className="yellow-grain relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm lg:col-span-8">
             <SectionHeader title="核心能力" en="CORE SKILLS" />
             <div className="grid gap-2 sm:grid-cols-2">
               {profile.skills.map((skill) => (
@@ -125,7 +125,7 @@ function ProfilePage() {
             </div>
           </section>
 
-          <section className="relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm lg:col-span-5">
+          <section className="relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm lg:col-span-4">
             <div className="absolute -right-8 -top-8 size-24 rounded-full bg-ochre/18 blur-2xl" />
             <SectionHeader title="求职偏好" en="JOB PREFERENCES" />
             <div className="grid gap-4 sm:grid-cols-2">
