@@ -40,7 +40,7 @@ function Hidden职位sPage() {
   const hidden职位s = useMemo(
     () =>
       jobs
-        .filter((job) => hidden职位Ids.includes(job.id))
+        .filter((job) => (hidden职位Ids ?? []).includes(job.id))
         .map((job) => {
           const record = imported职位Records.find((item) => item.raw.id === job.id);
           const lifecycle = effectiveJobLifecycle(record?.lifecycle, record?.raw);
