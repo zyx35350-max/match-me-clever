@@ -114,6 +114,8 @@ interface Store extends Persisted {
   addSearchCity: (city: JobSearchCity) => void;
   removeSearchCity: (id: string) => void;
   updateSearchCity: (city: JobSearchCity) => void;
+  replaceSearchCities: (cities: JobSearchCity[]) => void;
+  hydrateFromCloud: (input: { identity: ProfileIdentity; career: CareerProfile; searchCities: JobSearchCity[] }) => void;
   hideJob: (jobId: string) => void;
   unhideJob: (jobId: string) => void;
   isJobHidden: (jobId: string) => boolean;
@@ -309,6 +311,17 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       return { ...prev, searchCities: prev.searchCities.filter((city) => city.id !== id) };
     });
   }, []);
+
+  const replaceSearchCities = useCallback((cities: JobSearchCity[]) => {
+    setState((prev) => ({ ...prev, searchCities: cities.length ? cities : prev.searchCities }));
+  }, []);
+
+  const hydrateFromCloud = useCallback(
+    ({ identity, career, searchCities }: { identity: ProfileIdentity; career: CareerProfile; searchCities: JobSearchCity[] }) => {
+      setState((prev) => ({ ...prev, identity, career, searchCities: searchCities.length ? searchCities : prev.searchCities }));
+    },
+    [],
+  );
 
   const updateSearchCity = useCallback((city: JobSearchCity) => {
     setState((prev) => ({
@@ -540,6 +553,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       addSearchCity,
       removeSearchCity,
       updateSearchCity,
+      replaceSearchCities,
+      hydrateFromCloud,
       hideJob,
       unhideJob,
       isJobHidden,
@@ -562,6 +577,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       addSearchCity,
       removeSearchCity,
       updateSearchCity,
+      replaceSearchCities,
+      hydrateFromCloud,
       hideJob,
       unhideJob,
       isJobHidden,
