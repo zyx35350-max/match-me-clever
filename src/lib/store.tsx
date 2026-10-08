@@ -51,6 +51,7 @@ interface Persisted {
   importedJobRecords: JobRecord[];
   discovery: DiscoverySyncState;
   searchCities: JobSearchCity[];
+  hiddenJobIds: string[];
 }
 
 export interface DiscoverySyncState {
@@ -83,6 +84,7 @@ const initial: Persisted = {
   applications: [],
   activity: seedActivity,
   searchCities: DEFAULT_SEARCH_CITIES,
+  hiddenJobIds: [],
 };
 
 interface Store extends Persisted {
@@ -112,6 +114,9 @@ interface Store extends Persisted {
   addSearchCity: (city: JobSearchCity) => void;
   removeSearchCity: (id: string) => void;
   updateSearchCity: (city: JobSearchCity) => void;
+  hideJob: (jobId: string) => void;
+  unhideJob: (jobId: string) => void;
+  isJobHidden: (jobId: string) => boolean;;
 }
 
 const StoreContext = createContext<Store | null>(null);
@@ -264,6 +269,27 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
     return summary;
   }, []);
+
+  const hideJob = useCallback((jobId: string) => {
+    setState((prev) => ({
+      ...prev,
+      hiddenJobIds: prev.hiddenJobIds.includes(jobId)
+        ? prev.hiddenJobIds
+        : [...prev.hiddenJobIds, jobId],
+    }));
+  }, []);
+
+  const unhideJob = useCallback((jobId: string) => {
+    setState((prev) => ({
+      ...prev,
+      hiddenJobIds: prev.hiddenJobIds.filter((id) => id !== jobId),
+    }));
+  }, []);
+
+  const isJobHidden = useCallback(
+    (jobId: string) => state.hiddenJobIds.includes(jobId),
+    [state.hiddenJobIds],
+  );
 
   const addSearchCity = useCallback((city: JobSearchCity) => {
     setState((prev) => ({
@@ -511,6 +537,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       addSearchCity,
       removeSearchCity,
       updateSearchCity,
+      hideJob,
+      unhideJob,
+      isJobHidden,
     }),
     [
       state,
@@ -530,6 +559,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       addSearchCity,
       removeSearchCity,
       updateSearchCity,
+      hideJob,
+      unhideJob,
+      isJobHidden,
       jobs,
     ],
   );
