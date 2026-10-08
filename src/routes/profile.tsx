@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { BriefcaseBusiness, MapPin, Sparkles, Target, WalletCards } from "lucide-react";
+import { MapPin, Sparkles, Target } from "lucide-react";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
 import { CareerProfileEditor } from "@/components/career-profile-editor";
