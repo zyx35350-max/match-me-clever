@@ -29,28 +29,51 @@ export function ingestDiscoveredJobs(
 ): JobDiscoveryPipelineResult {
   const existingRawJobs = store.records.map((record) => record.raw);
   const deduped = deduplicateJobs(existingRawJobs, incomingJobs);
-  const existingById = new Map(store.records.map((record) => [record.raw.id, record]));
-
   const nextRecords = [...store.records];
 
-  for (const raw of deduped.uniqueJobs.slice(existingRawJobs.length)) {
-    nextRecords.push({
+  // Refresh existing records using stable source identity.
+  for (const raw of incomingJobs) {
+    const existingEntry = store.records
+      .map((record, index) => ({ record, index }))
+      .find(({ record }) => {
+        const existing = record.raw;
+        return (
+          existing.id === raw.id ||
+          (
+            existing.sourceId === raw.sourceId &&
+            !!existing.externalId &&
+            !!raw.externalId &&
+            existing.externalId.trim() === raw.externalId.trim()
+          )
+        );
+      });
+
+    if (!existingEntry) continue;
+
+    const refreshed = touchJobLifecycle(existingEntry.record.lifecycle, raw.fetchedAt);
+    nextRecords[existingEntry.index] = {
       raw,
-      lifecycle: createJobLifecycle(raw.fetchedAt),
-    });
+      lifecycle: refreshed,
+    };
   }
 
-  for (const raw of incomingJobs) {
-    const existing = existingById.get(raw.id);
-    if (!existing) continue;
+  // Add only genuinely new records.
+  for (const raw of deduped.uniqueJobs) {
+    const alreadyStored = nextRecords.some((record) =>
+      record.raw.id === raw.id ||
+      (
+        record.raw.sourceId === raw.sourceId &&
+        !!record.raw.externalId &&
+        !!raw.externalId &&
+        record.raw.externalId.trim() === raw.externalId.trim()
+      ),
+    );
 
-    const refreshed = touchJobLifecycle(existing.lifecycle, raw.fetchedAt);
-    const index = nextRecords.findIndex((record) => record.raw.id === raw.id);
-    if (index >= 0) {
-      nextRecords[index] = {
+    if (!alreadyStored) {
+      nextRecords.push({
         raw,
-        lifecycle: refreshed,
-      };
+        lifecycle: createJobLifecycle(raw.fetchedAt),
+      });
     }
   }
 
