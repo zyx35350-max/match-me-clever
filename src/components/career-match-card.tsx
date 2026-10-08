@@ -19,10 +19,10 @@ export function ExplanationBlock({ match }: { match: JobMatch }) {
   return (
     <div className="space-y-3">
       {[
-        ["Why this job fits you", e.fits],
-        ["What you can bring", e.bring],
-        ["What you can learn", e.learn],
-        ["Potential concerns", e.concerns],
+        ["为什么这个岗位适合你", e.fits],
+        ["你能带来的能力", e.bring],
+        ["可以学到什么", e.learn],
+        ["需要注意的问题", e.concerns],
       ].map(([title, items]) => {
         const list = items as string[];
         if (!list.length) return null;
@@ -93,10 +93,10 @@ export function CareerMatchCard({ match, compact = false }: { match: JobMatch; c
             <Link to="/jobs/$jobId" params={{ jobId: job.id }} onClick={() => recordFeedback(job, "viewed")} className="rounded-lg bg-ink px-2.5 py-1.5 text-[11px] font-semibold text-cream hover:bg-azure-deep">Review</Link>
             <button onClick={() => hideJob(job.id)} className="rounded-lg border border-ink/12 px-2.5 py-1.5 text-[11px] font-semibold text-ink/55 hover:bg-sand">Hide</button>
             <button onClick={() => { toggleSaved(job); if (!isSaved(job.id)) recordFeedback(job, "saved"); }} className="rounded-lg border border-ink/12 px-2.5 py-1.5 text-[11px] font-semibold hover:bg-sand">
-              {isSaved(job.id) ? "Saved" : "Save"}
+              {isSaved(job.id) ? "已收藏" : "收藏"}
             </button>
             <button onClick={() => { apply(job); recordFeedback(job, "applied"); }} disabled={applied} className="rounded-lg border border-ink/12 px-2.5 py-1.5 text-[11px] font-semibold hover:bg-sand disabled:opacity-45">
-              {applied ? "Applied" : "Apply"}
+              {applied ? "已申请" : "申请"}
             </button>
           </div>
         </div>
