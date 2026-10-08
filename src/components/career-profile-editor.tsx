@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { useWorkspace } from "@/lib/store";
+import { useAuth } from "@/lib/auth";
 import type {
   CareerProfile,
   DealBreaker,
@@ -124,7 +125,8 @@ function ChipsEditor({
 }
 
 export function CareerProfileEditor() {
-  const { career, updateCareer, hydrated } = useWorkspace();
+  const { career, identity, searchCities, updateCareer, hydrated } = useWorkspace();
+  const { saveProfile } = useAuth();
   const [draft, setDraft] = useState<CareerProfile>(career);
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
@@ -144,9 +146,15 @@ export function CareerProfileEditor() {
   const setBreaker = (i: number, patch: Partial<DealBreaker>) =>
     set("dealBreakers", draft.dealBreakers.map((d, idx) => (idx === i ? { ...d, ...patch } : d)));
 
-  const save = () => {
+  const save = async () => {
     updateCareer(draft);
-    setSavedAt(new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }));
+    const result = await saveProfile({
+      identity,
+      career: draft,
+      searchCities,
+      onboardingComplete: true,
+    });
+    if (!result.error) setSavedAt(new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }));
   };
 
   return (
