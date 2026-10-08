@@ -9,7 +9,9 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "acceptance:51job:structure": "node --experimental-strip-types src/lib/51job-source-adapter.test.ts",
+    "acceptance:51job:live": "node --experimental-strip-types src/lib/51job-source-adapter.acceptance.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"
