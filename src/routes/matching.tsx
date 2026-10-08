@@ -49,8 +49,31 @@ function MatchingPage() {
   } = useWorkspace();
   const [discovering, setDiscovering] = useState(false);
   const [discoveryMessage, setDiscoveryMessage] = useState<string | null>(null);
+  const [keywordInput, setKeywordInput] = useState("AI产品经理, AI产品助理");
+  const [selectedCities, setSelectedCities] = useState<string[]>(["040000", "020000"]);
+  const [maxPages, setMaxPages] = useState(2);
+
+  const cities = [
+    { code: "040000", label: "Shenzhen" },
+    { code: "020000", label: "Shanghai" },
+  ];
 
   async function discover51Job() {
+    const keywords = keywordInput
+      .split(/[，,、\\n]+/)
+      .map((keyword) => keyword.trim())
+      .filter(Boolean)
+      .slice(0, 8);
+
+    if (!keywords.length) {
+      setDiscoveryMessage("Enter at least one keyword.");
+      return;
+    }
+    if (!selectedCities.length) {
+      setDiscoveryMessage("Select at least one city.");
+      return;
+    }
+
     setDiscovering(true);
     setDiscoveryMessage(null);
     try {
@@ -58,9 +81,9 @@ function MatchingPage() {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          keywords: ["AI产品助理", "AI产品运营"],
-          cities: ["040000", "020000"],
-          maxPages: 2,
+          keywords,
+          cities: selectedCities,
+          maxPages,
         }),
       });
       const payload = await response.json();
@@ -133,30 +156,88 @@ function MatchingPage() {
       </div>
 
       <div className="mb-6 rounded-2xl border border-ink/10 bg-card p-5">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="min-w-0 flex-1">
             <div className="text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">
               Live discovery
             </div>
-            <div className="mt-1 text-sm font-semibold">51Job · AI product roles</div>
+            <div className="mt-1 text-sm font-semibold">51Job · Custom search</div>
             <p className="mt-1 text-xs text-ink/55">
-              Searches AI产品助理 / AI产品运营 in Shenzhen and Shanghai, then persists the
-              discovered jobs in this workspace.
+              Enter the roles you actually want to test. Results are added to this workspace and
+              matched with your current profile.
             </p>
-            {discovery.lastSyncedAt ? (
-              <p className="mt-2 text-xs text-ink/45">
-                Last sync: {new Date(discovery.lastSyncedAt).toLocaleString()}
-              </p>
-            ) : null}
           </div>
           <button
             onClick={discover51Job}
             disabled={discovering}
             className="rounded-xl bg-azure px-4 py-2.5 text-sm font-semibold text-cream hover:bg-azure-deep disabled:opacity-50"
           >
-            {discovering ? "Discovering…" : "Discover from 51Job"}
+            {discovering ? "Discovering…" : "Search 51Job"}
           </button>
         </div>
+
+        <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold text-ink/60">Keywords</span>
+            <input
+              value={keywordInput}
+              onChange={(e) => setKeywordInput(e.target.value)}
+              placeholder="e.g. AI产品经理, AI产品助理, AI应用产品"
+              className="w-full rounded-xl border border-ink/15 bg-card px-3.5 py-2.5 text-sm text-ink outline-none focus:border-azure"
+            />
+            <span className="mt-1.5 block text-[11px] text-ink/45">
+              Separate multiple keywords with commas.
+            </span>
+          </label>
+
+          <div>
+            <span className="mb-1.5 block text-xs font-semibold text-ink/60">Cities</span>
+            <div className="flex flex-wrap gap-2">
+              {cities.map((city) => {
+                const checked = selectedCities.includes(city.code);
+                return (
+                  <button
+                    key={city.code}
+                    type="button"
+                    onClick={() =>
+                      setSelectedCities((current) =>
+                        checked
+                          ? current.filter((code) => code !== city.code)
+                          : [...current, city.code],
+                      )
+                    }
+                    className={`rounded-full px-3 py-2 text-sm font-medium transition-colors ${
+                      checked ? "bg-ink text-cream" : "border border-ink/15 hover:bg-sand"
+                    }`}
+                  >
+                    {city.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold text-ink/60">Pages / city</span>
+            <select
+              value={maxPages}
+              onChange={(e) => setMaxPages(Number(e.target.value))}
+              className="rounded-xl border border-ink/15 bg-card px-3.5 py-2.5 text-sm text-ink outline-none focus:border-azure"
+            >
+              {[1, 2, 3].map((page) => (
+                <option key={page} value={page}>
+                  {page}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        {discovery.lastSyncedAt ? (
+          <p className="mt-3 text-[11px] text-ink/45">
+            Last sync: {new Date(discovery.lastSyncedAt).toLocaleString()}
+          </p>
+        ) : null}
         {discoveryMessage ? (
           <div className="mt-4 rounded-xl bg-sand px-4 py-3 text-xs text-ink/70">
             {discoveryMessage}
