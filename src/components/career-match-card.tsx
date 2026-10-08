@@ -79,7 +79,15 @@ export function CareerMatchCard({
   compact?: boolean;
 }) {
   const { job } = match;
-  const { isSaved, toggleSaved, apply, recordFeedback, feedbackFor, statusFor } = useWorkspace();
+  const {
+    isSaved,
+    toggleSaved,
+    apply,
+    recordFeedback,
+    feedbackFor,
+    statusFor,
+    hideJob,
+  } = useWorkspace();
   const feedback = feedbackFor(job.id);
   const applied = Boolean(statusFor(job.id));
 
@@ -155,6 +163,12 @@ export function CareerMatchCard({
         >
           Review
         </Link>
+        <button
+          onClick={() => hideJob(job.id)}
+          className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold text-ink/60 transition-colors hover:bg-sand"
+        >
+          Hide
+        </button>
         <button
           onClick={() => {
             toggleSaved(job);
