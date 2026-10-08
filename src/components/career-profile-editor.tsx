@@ -4,16 +4,16 @@ import { useWorkspace } from "@/lib/store";
 import type {
   CareerProfile,
   DealBreaker,
-  EvidenceItem,
+  经历证据Item,
   ProvenSkill,
   Rating,
-  SkillLevel,
+  Skill等级,
 } from "@/lib/career-types";
 
 const inputClass =
   "w-full rounded-xl border border-ink/15 bg-card px-3 py-2 text-sm text-ink outline-none focus:border-azure";
 
-const levels: SkillLevel[] = ["learning", "working", "proficient", "advanced"];
+const levels: Skill等级[] = ["learning", "working", "proficient", "advanced"];
 
 function Section({
   title,
@@ -25,7 +25,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-ink/10 bg-card p-6">
+    <section className="rounded-xl border border-ink/10 bg-card p-4">
       <h2 className="text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">{title}</h2>
       {hint ? <p className="mt-1.5 mb-4 text-sm text-ink/60">{hint}</p> : <div className="mb-4" />}
       {children}
@@ -89,7 +89,7 @@ function ListEditor({
             onClick={() => onChange(values.filter((_, idx) => idx !== i))}
             className="shrink-0 px-2 text-xs font-semibold text-ink/40 hover:text-destructive"
           >
-            Remove
+            删除
           </button>
         </div>
       ))}
@@ -121,7 +121,7 @@ export function CareerProfileEditor() {
       draft.skills.map((s, idx) => (idx === i ? { ...s, ...patch } : s)),
     );
 
-  const setEvidence = (i: number, patch: Partial<EvidenceItem>) =>
+  const set经历证据 = (i: number, patch: Partial<经历证据Item>) =>
     set(
       "evidence",
       draft.evidence.map((e, idx) => (idx === i ? { ...e, ...patch } : e)),
@@ -142,32 +142,32 @@ export function CareerProfileEditor() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-sand p-5">
         <div>
-          <div className="font-display text-lg font-bold">Structured career profile</div>
+          <div className="font-display text-lg font-bold">结构化职业档案</div>
           <p className="text-sm text-ink/65">
-            This is what the AI career profile, career directions and job scores are built from.
+            AI 职业画像、职业方向和岗位匹配都会基于这里的信息。
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {savedAt ? <span className="text-xs text-sage">Saved at {savedAt}</span> : null}
+          {savedAt ? <span className="text-xs text-sage">已保存于 {savedAt}</span> : null}
           <button
             onClick={save}
             className="rounded-xl bg-azure px-5 py-2.5 font-display font-bold text-cream hover:bg-azure-deep"
           >
-            Save career profile
+            保存职业档案
           </button>
         </div>
       </div>
 
-      <Section title="A · Basic profile">
+      <Section title="A · 基础资料">
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Education">
+          <Field label="学历">
             <input
               value={draft.basics.education}
               onChange={(e) => set("basics", { ...draft.basics, education: e.target.value })}
               className={inputClass}
             />
           </Field>
-          <Field label="Years of experience">
+          <Field label="工作年限">
             <input
               type="number"
               min={0}
@@ -178,21 +178,21 @@ export function CareerProfileEditor() {
               className={inputClass}
             />
           </Field>
-          <Field label="Current career stage">
+          <Field label="当前职业阶段">
             <input
               value={draft.basics.careerStage}
               onChange={(e) => set("basics", { ...draft.basics, careerStage: e.target.value })}
               className={inputClass}
             />
           </Field>
-          <Field label="Relocation willingness">
+          <Field label="接受异地/搬迁">
             <input
               value={draft.basics.relocation}
               onChange={(e) => set("basics", { ...draft.basics, relocation: e.target.value })}
               className={inputClass}
             />
           </Field>
-          <Field label="Work mode preference">
+          <Field label="工作方式偏好">
             <select
               value={draft.basics.workMode}
               onChange={(e) =>
@@ -205,7 +205,7 @@ export function CareerProfileEditor() {
             >
               {["remote", "hybrid", "onsite", "any"].map((m) => (
                 <option key={m} value={m}>
-                  {m}
+                  {{ remote: "远程", hybrid: "混合办公", onsite: "现场办公", any: "不限" }[m]}
                 </option>
               ))}
             </select>
@@ -214,32 +214,32 @@ export function CareerProfileEditor() {
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
             <span className="mb-1.5 block text-xs font-semibold text-ink/60">
-              Preferred locations
+              期望城市
             </span>
             <ListEditor
               values={draft.basics.preferredLocations}
               onChange={(next) => set("basics", { ...draft.basics, preferredLocations: next })}
-              placeholder="Add location"
+              placeholder="添加城市"
             />
           </div>
           <div>
-            <span className="mb-1.5 block text-xs font-semibold text-ink/60">Languages</span>
+            <span className="mb-1.5 block text-xs font-semibold text-ink/60">语言</span>
             <ListEditor
               values={draft.basics.languages}
               onChange={(next) => set("basics", { ...draft.basics, languages: next })}
-              placeholder="Add language"
+              placeholder="添加语言"
             />
           </div>
         </div>
       </Section>
 
       <Section
-        title="B · Proven skills"
-        hint="What you can already do, with the evidence behind it. This is current experience — not future potential."
+        title="B · 已掌握技能"
+        hint="你已经掌握的能力，以及对应的经历证据。这里记录的是当前能力，不是未来潜力。"
       >
-        <div className="space-y-4">
+        <div className="space-y-2.5">
           {draft.skills.map((skill, i) => (
-            <div key={skill.id} className="rounded-xl border border-ink/10 p-4">
+            <div key={skill.id} className="rounded-lg border border-ink/10 p-3">
               <div className="flex flex-wrap items-center gap-2">
                 <input
                   value={skill.name}
@@ -258,24 +258,24 @@ export function CareerProfileEditor() {
                   }
                   className="ml-auto text-xs font-semibold text-ink/40 hover:text-destructive"
                 >
-                  Remove
+                  删除
                 </button>
               </div>
-              <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                <Field label="Level">
+              <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                <Field label="等级">
                   <select
                     value={skill.level}
-                    onChange={(e) => setSkill(i, { level: e.target.value as SkillLevel })}
+                    onChange={(e) => setSkill(i, { level: e.target.value as Skill等级 })}
                     className={inputClass}
                   >
                     {levels.map((l) => (
                       <option key={l} value={l}>
-                        {l}
+                        {{ learning: "学习中", working: "能独立工作", proficient: "熟练", advanced: "高级" }[l]}
                       </option>
                     ))}
                   </select>
                 </Field>
-                <Field label="Years">
+                <Field label="年限">
                   <input
                     type="number"
                     min={0}
@@ -284,7 +284,7 @@ export function CareerProfileEditor() {
                     className={inputClass}
                   />
                 </Field>
-                <Field label={`Confidence — ${skill.confidence}/5`}>
+                <Field label={`信心 — ${skill.confidence}/5`}>
                   <input
                     type="range"
                     min={1}
@@ -295,7 +295,7 @@ export function CareerProfileEditor() {
                   />
                 </Field>
               </div>
-              <Field label="Evidence">
+              <Field label="经历证据">
                 <input
                   value={skill.evidence}
                   onChange={(e) => setSkill(i, { evidence: e.target.value })}
@@ -321,15 +321,15 @@ export function CareerProfileEditor() {
           }
           className="mt-4 w-full rounded-lg border border-ink/20 py-2 text-xs font-semibold hover:bg-sand"
         >
-          Add skill
+          添加技能
         </button>
       </Section>
 
       <Section
-        title="C · Evidence & achievements"
+        title="C · 经历证据 & achievements"
         hint="Structured proof the assistant can quote back to you."
       >
-        <div className="space-y-3">
+        <div className="space-y-2">
           {draft.evidence.map((item, i) => (
             <div
               key={item.id}
@@ -338,7 +338,7 @@ export function CareerProfileEditor() {
               <Field label="Achievement">
                 <input
                   value={item.label}
-                  onChange={(e) => setEvidence(i, { label: e.target.value })}
+                  onChange={(e) => set经历证据(i, { label: e.target.value })}
                   className={inputClass}
                 />
               </Field>
@@ -346,7 +346,7 @@ export function CareerProfileEditor() {
                 <div className="flex gap-2">
                   <input
                     value={item.detail}
-                    onChange={(e) => setEvidence(i, { detail: e.target.value })}
+                    onChange={(e) => set经历证据(i, { detail: e.target.value })}
                     className={inputClass}
                   />
                   <button
@@ -358,7 +358,7 @@ export function CareerProfileEditor() {
                     }
                     className="shrink-0 px-2 text-xs font-semibold text-ink/40 hover:text-destructive"
                   >
-                    Remove
+                    删除
                   </button>
                 </div>
               </Field>
@@ -453,7 +453,7 @@ export function CareerProfileEditor() {
       </Section>
 
       <Section
-        title="E · Deal breakers"
+        title="E · 不能接受的条件"
         hint="Severe deal breakers can mark a job Not Recommended — never hidden."
       >
         <div className="space-y-2">
@@ -483,7 +483,7 @@ export function CareerProfileEditor() {
                 }
                 className="text-xs font-semibold text-ink/40 hover:text-destructive"
               >
-                Remove
+                删除
               </button>
             </div>
           ))}
