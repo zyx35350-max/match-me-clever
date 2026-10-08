@@ -92,6 +92,16 @@ function JobDetail() {
               >
                 {isSaved(job.id) ? "Remove from saved" : "Save role"}
               </button>
+              {job.sourceUrl ? (
+                <a
+                  href={job.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-xl border border-azure/30 px-5 py-3 font-semibold text-azure transition-colors hover:bg-azure/8"
+                >
+                  Open original listing ↗
+                </a>
+              ) : null}
             </div>
           </div>
 
