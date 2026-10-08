@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { MapPin, Sparkles, Target } from "lucide-react";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
@@ -102,8 +102,8 @@ function ProfilePage() {
           </div>
         </section>
 
-        <div className="grid gap-4 lg:grid-cols-12">
-          <section className="yellow-grain relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm lg:col-span-8">
+        <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(300px,1fr)]">
+          <section className="yellow-grain relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm ">
             <SectionHeader title="核心能力" en="CORE SKILLS" />
             <div className="grid gap-2 sm:grid-cols-2">
               {profile.skills.map((skill) => (
@@ -125,7 +125,7 @@ function ProfilePage() {
             </div>
           </section>
 
-          <section className="relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm lg:col-span-4">
+          <section className="relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm ">
             <div className="absolute -right-8 -top-8 size-24 rounded-full bg-ochre/18 blur-2xl" />
             <SectionHeader title="求职偏好" en="JOB PREFERENCES" />
             <div className="grid gap-4 sm:grid-cols-2">
@@ -159,7 +159,8 @@ function ProfilePage() {
                   step={5000}
                   value={draft.minSalary}
                   onChange={(e) => set("minSalary", Number(e.target.value))}
-                  className="h-1.5 w-full accent-ochre"
+                  className="profile-range"
+                  style={{ "--range-progress": `${((draft.minSalary - 40000) / 180000) * 100}%` } as CSSProperties}
                 />
               </div>
             </div>
