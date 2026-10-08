@@ -51,7 +51,7 @@ function MatchingPage() {
   const [discoveryMessage, setDiscoveryMessage] = useState<string | null>(null);
   const [keywordInput, setKeywordInput] = useState("AI产品经理, AI产品助理");
   const [selectedCities, setSelectedCities] = useState<string[]>(["040000", "020000"]);
-  const [maxPages, setMaxPages] = useState(2);
+  const [targetCount, setTargetCount] = useState(100);
 
   const cities = [
     { code: "040000", label: "Shenzhen" },
@@ -83,7 +83,7 @@ function MatchingPage() {
         body: JSON.stringify({
           keywords,
           cities: selectedCities,
-          maxPages,
+          targetCount,
         }),
       });
       const payload = await response.json();
@@ -163,8 +163,8 @@ function MatchingPage() {
             </div>
             <div className="mt-1 text-sm font-semibold">51Job · Custom search</div>
             <p className="mt-1 text-xs text-ink/55">
-              Enter the roles you actually want to test. Results are added to this workspace and
-              matched with your current profile.
+              Enter the roles you actually want to test. 51Job pages are followed automatically,
+              duplicates are removed, and each job URL is opened to fetch the full JD.
             </p>
           </div>
           <button
@@ -218,18 +218,19 @@ function MatchingPage() {
           </div>
 
           <label className="block">
-            <span className="mb-1.5 block text-xs font-semibold text-ink/60">Pages / city</span>
+            <span className="mb-1.5 block text-xs font-semibold text-ink/60">Jobs to collect</span>
             <select
-              value={maxPages}
-              onChange={(e) => setMaxPages(Number(e.target.value))}
+              value={targetCount}
+              onChange={(e) => setTargetCount(Number(e.target.value))}
               className="rounded-xl border border-ink/15 bg-card px-3.5 py-2.5 text-sm text-ink outline-none focus:border-azure"
             >
-              {[1, 2, 3].map((page) => (
-                <option key={page} value={page}>
-                  {page}
+              {[50, 100, 200, 300, 500].map((count) => (
+                <option key={count} value={count}>
+                  {count}
                 </option>
               ))}
             </select>
+            <span className="mt-1.5 block text-[11px] text-ink/45">The crawler keeps turning pages until it reaches this target or the source has no more usable jobs.</span>
           </label>
         </div>
 
