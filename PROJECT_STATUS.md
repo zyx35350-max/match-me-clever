@@ -1,3 +1,23 @@
+## Current 51Job Source Adapter V1
+
+Implemented directly in GitHub:
+- `src/lib/51job-source-adapter.ts`
+- Multiple keyword + city (`jobArea`) search tasks
+- 51Job search pagination through the page's own next-page control
+- Main-result-card extraction only
+- jobId → real `jobHref` mapping from `/api/job/search-pc`
+- Conversion into the existing `RawJob` contract
+- Cross-keyword/city/page deduplication through the existing `job-dedup.ts`
+- Integration boundary verified with `ingestAndAdaptJobs`
+- Structural and live acceptance scripts added
+- 51Job remains disabled in the generic source list until automated discovery is explicitly enabled
+
+Acceptance commands:
+- `npm run acceptance:51job:structure`
+- `npm run acceptance:51job:live`
+
+The live acceptance intentionally remains a manual/DEV test. It must not bypass CAPTCHA, login, or other access controls.
+
 ## Current AI Understanding Layer
 
 Implemented:
