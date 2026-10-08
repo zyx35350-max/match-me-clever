@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { useWorkspace } from "@/lib/store";
+import { useAuth } from "@/lib/auth";
 
 const nav = [
   { to: "/", label: "首页", en: "Dashboard", icon: LayoutDashboard, group: "核心工作台" },
