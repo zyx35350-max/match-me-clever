@@ -75,13 +75,13 @@ export function MatchRow({ match }: { match: JobMatch }) {
         <div className="flex justify-end gap-3 text-right">
           <div>
             <div className="font-display text-lg font-bold text-azure">{match.immediateFit}</div>
-            <div className="text-[10px] tracking-[0.12em] text-ink/50 uppercase">Fit</div>
+            <div className="text-[10px] tracking-[0.12em] text-ink/50 uppercase">匹配</div>
           </div>
           <div>
             <div className="font-display text-lg font-bold text-ochre">
               {match.careerGrowthValue}
             </div>
-            <div className="text-[10px] tracking-[0.12em] text-ink/50 uppercase">Growth</div>
+            <div className="text-[10px] tracking-[0.12em] text-ink/50 uppercase">成长</div>
           </div>
         </div>
         <div className="mt-1">
@@ -93,7 +93,7 @@ export function MatchRow({ match }: { match: JobMatch }) {
           onClick={() => toggleSaved(job)}
           className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-sand"
         >
-          {isSaved(job.id) ? "Saved" : "Save"}
+          {isSaved(job.id) ? "已收藏" : "收藏"}
         </button>
         <Link
           to="/jobs/$jobId"
@@ -130,15 +130,15 @@ export function WhyItFits({ match }: { match: JobMatch }) {
 export function BreakdownGrid({ match }: { match: JobMatch }) {
   const b = match.breakdown;
   const rows: Array<[string, number, "azure" | "ochre" | "sage"]> = [
-    ["Career direction fit (20%)", b.directionFit, "ochre"],
-    ["Skill match (20%)", b.skillMatch, "azure"],
-    ["Relevant experience (15%)", b.relevantExperience, "sage"],
-    ["Growth potential (15%)", b.growthPotential, "ochre"],
-    ["AI relevance (10%)", b.aiRelevance, "azure"],
-    ["Transferable skills (8%)", b.transferableSkills, "sage"],
-    ["Work preference (5%)", b.workPreference, "azure"],
-    ["Salary (4%)", b.salary, "ochre"],
-    ["Location / work mode (3%)", b.location, "sage"],
+    ["职业方向匹配 (20%)", b.directionFit, "ochre"],
+    ["技能匹配 (20%)", b.skillMatch, "azure"],
+    ["相关经验 (15%)", b.relevantExperience, "sage"],
+    ["成长潜力 (15%)", b.growthPotential, "ochre"],
+    ["AI 相关性 (10%)", b.aiRelevance, "azure"],
+    ["可迁移技能 (8%)", b.transferableSkills, "sage"],
+    ["工作偏好 (5%)", b.workPreference, "azure"],
+    ["薪资 (4%)", b.salary, "ochre"],
+    ["地点 / 工作方式 (3%)", b.location, "sage"],
   ];
   return (
     <div className="space-y-3">
@@ -156,7 +156,7 @@ export function BreakdownGrid({ match }: { match: JobMatch }) {
           {match.negatives.map((n) => `−${n.penalty} ${n.label}`).join(" · ")}
         </div>
       ) : null}
-      <p className="pt-1 text-[11px] text-ink/45">AI assessment, not an exact measurement.</p>
+      <p className="pt-1 text-[11px] text-ink/45">AI 评估，不是精确测量。</p>
     </div>
   );
 }
