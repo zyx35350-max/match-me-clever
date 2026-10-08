@@ -29,6 +29,7 @@ export const Route = createFileRoute("/matching")({
 
 const filters = [
   { key: "all", label: "All roles" },
+  { key: "new", label: "New this sync" },
   { key: "recommended", label: "Recommended" },
   { key: "growth", label: "High growth value (75+)" },
   { key: "immediate", label: "High immediate fit (75+)" },
@@ -68,9 +69,11 @@ function MatchingPage() {
       setDiscoveryMessage(
         "Fetched " +
           summary.fetched +
-          " jobs · added " +
+          " jobs · " +
           summary.added +
           " new · " +
+          summary.updated +
+          " updated · " +
           summary.duplicates +
           " duplicates",
       );
@@ -82,6 +85,7 @@ function MatchingPage() {
   }
 
   const visible = matches.filter((m) => {
+    if (filter === "new") return discovery.lastAddedJobIds.includes(m.job.id);
     if (filter === "recommended") return !m.notRecommended;
     if (filter === "growth") return m.careerGrowthValue >= 75;
     if (filter === "immediate") return m.immediateFit >= 75;
