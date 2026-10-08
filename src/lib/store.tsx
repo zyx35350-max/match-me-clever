@@ -193,7 +193,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         jobTitle: normalized.title,
         company: normalized.company,
         kind: "saved",
-        label: "Imported job — " + normalized.title,
+        label: "导入岗位 — " + normalized.title,
       });
       return { added: true, warnings: latest.warnings };
     },
@@ -259,7 +259,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             jobTitle: latest?.job.title ?? "",
             company: latest?.job.company ?? sourceName,
             kind: "status",
-            label: "Synced " + rawJobs.length + " " + sourceName + " jobs — " + added + " new",
+            label: "同步 " + rawJobs.length + " 个" + sourceName + "岗位 — 新增 " + added + " 个",
             at: fetchedAt,
           },
           ...prev.activity,
@@ -371,7 +371,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         jobTitle: "",
         company: "",
         kind: "profile",
-        label: "Profile updated — matches re-scored",
+        label: "个人资料已更新 — 匹配已重新计算",
       });
     },
     [log],
@@ -392,7 +392,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         jobTitle: job.title,
         company: job.company,
         kind: wasSaved ? "unsaved" : "saved",
-        label: `${wasSaved ? "Removed" : "Saved"} ${job.title} — ${job.company}`,
+        label: `${wasSaved ? "已取消收藏" : "已收藏"} ${job.title} — ${job.company}`,
       });
     },
     [log, state.saved],
@@ -415,7 +415,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         jobTitle: job.title,
         company: job.company,
         kind: "applied",
-        label: `Applied to ${job.title} — ${job.company}`,
+        label: `已申请 ${job.title} — ${job.company}`,
       });
       recordFeedback(job, "applied");
     },
@@ -441,7 +441,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         jobTitle: job.title,
         company: job.company,
         kind: "status",
-        label: `Status moved to ${statusLabel(status)} — ${job.company}`,
+        label: `申请状态更新为 ${statusLabel(status)} — ${job.company}`,
       });
       const action = STATUS_FEEDBACK[status];
       if (action) recordFeedback(job, action);
@@ -457,7 +457,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         jobTitle: "",
         company: "",
         kind: "profile",
-        label: "Career profile updated — directions and matches re-scored",
+        label: "职业档案已更新 — 方向与岗位匹配已重新计算",
       });
     },
     [log],
@@ -487,7 +487,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         jobTitle: "",
         company: "",
         kind: "profile",
-        label: "You confirmed a career profile suggestion",
+        label: "你确认了一项职业档案建议",
       });
     },
     [log],
@@ -577,12 +577,12 @@ export function useWorkspace() {
 
 export function statusLabel(status: ApplicationStatus) {
   return {
-    saved: "Saved",
-    applied: "Applied",
-    in_review: "In review",
-    interview: "Interview",
+    saved: "已收藏",
+    applied: "已申请",
+    in_review: "筛选中",
+    interview: "面试",
     offer: "Offer",
-    rejected: "Closed",
+    rejected: "已结束",
   }[status];
 }function adaptStoredRecord(record: JobRecord): Job {
   return adaptRawJobToJob(record.raw).job;
