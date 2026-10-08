@@ -84,8 +84,10 @@ export const defaultJobSources: JobSource[] = [
     name: "51Job",
     group: "domestic_apps",
     type: "job_board",
-    accessPolicy: "unknown",
+    accessPolicy: "public_page",
     enabled: false,
+    description:
+      "51Job public search pages; automated discovery remains opt-in and must respect platform access controls and rate limits.",
   }),
   createJobSource({
     id: "zhaopin",
