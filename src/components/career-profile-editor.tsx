@@ -199,7 +199,7 @@ export function CareerProfileEditor() {
                   </select>
                 </Field>
                 <Field label="年限"><input type="number" min={0} value={skill.years} onChange={(e) => setSkill(i, { years: Number(e.target.value) })} className={inputClass} /></Field>
-                <Field label={`信心 · ${skill.confidence}/5`}><input type="range" min={1} max={5} value={skill.confidence} onChange={(e) => setSkill(i, { confidence: Number(e.target.value) as Rating })} className="mt-3 h-1.5 w-full accent-ochre" /></Field>
+                <Field label={`信心 · ${skill.confidence}/5`}><input type="range" min={1} max={5} value={skill.confidence} onChange={(e) => setSkill(i, { confidence: Number(e.target.value) as Rating })} className="profile-range" style={{ "--range-progress": `${((skill.confidence - 1) / 4) * 100}%` } as React.CSSProperties} /></Field>
                 <button type="button" onClick={() => set("skills", draft.skills.filter((_, idx) => idx !== i))} className="mb-1 text-[11px] font-bold text-ink/30 hover:text-destructive">删除</button>
               </div>
               <div className="mt-2 grid gap-2 md:grid-cols-[120px_minmax(0,1fr)] md:items-center">
