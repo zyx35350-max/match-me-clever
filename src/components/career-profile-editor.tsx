@@ -52,8 +52,8 @@ function RatingRow({
   onChange: (v: Rating) => void;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-surface px-3 py-2">
-      <span className="w-40 text-sm text-ink/75">{label}</span>
+    <div className="flex items-center gap-3 rounded-xl bg-sand/70 px-3 py-2">
+      <span className="w-36 shrink-0 text-xs font-semibold text-ink/70">{label}</span>
       <input
         type="range"
         min={1}
@@ -62,7 +62,7 @@ function RatingRow({
         onChange={(e) => onChange(Number(e.target.value) as Rating)}
         className="h-1.5 flex-1 accent-azure"
       />
-      <span className="w-5 rounded-md bg-azure/10 py-0.5 text-center text-xs font-bold text-azure">{value}</span>
+      <span className="w-6 rounded-md bg-ochre/25 py-0.5 text-center text-[10px] font-extrabold text-ink">{value}</span>
     </div>
   );
 }
@@ -139,8 +139,8 @@ export function CareerProfileEditor() {
   };
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-azure/10 bg-gradient-to-r from-azure/5 via-card to-sage/5 p-5 shadow-sm">
+    <div className="grid grid-cols-12 gap-4">
+      <div className="col-span-12 flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-2xl border border-ink/10 bg-gradient-to-r from-ochre/20 via-white to-ink/5 p-4 shadow-sm">
         <div>
           <div className="font-display text-lg font-bold">职业档案</div>
           <p className="text-sm text-ink/65">
