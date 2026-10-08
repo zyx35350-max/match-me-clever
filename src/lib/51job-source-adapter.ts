@@ -218,27 +218,111 @@ export async function extract51JobDetail(page: Page): Promise<FiftyOneJobDetailR
     };
 
     const bodyText = document.body?.innerText ?? "";
-    const detailSelectors = [
-      ".bmsg.job_msg.inbox",
-      ".bmsg.job_msg",
-      ".job_msg.inbox",
-      '[class*="job_msg"]',
-    ];
-
-    let description = "";
-    for (const selector of detailSelectors) {
-      const candidate = text(selector);
-      if (candidate.length >= 30) {
-        description = candidate;
-        break;
-      }
-    }
-
     const title = text(".cn h1") || text(".tHeader h1") || text("h1");
     const company = text(".cn .cname a") || text(".cn .cname") || text(".com_name");
     const salary = text(".cn strong") || text(".cn .lname");
     const locationSource =
       text(".cn p.msg.ltype") || text(".cn .msg") || text(".tHeader .msg");
+
+    const detailSelectors = [
+      ".bmsg.job_msg.inbox",
+      ".bmsg.job_msg",
+      ".job_msg.inbox",
+      '[class*="job_msg"]',
+      '[class*="jobmsg"]',
+      '[class*="job-detail"]',
+      '[class*="job_detail"]',
+      '[class*="job-description"]',
+      '[class*="job_description"]',
+    ];
+
+    const headingPatterns = [
+      /岗位职责/,
+      /职位描述/,
+      /工作内容/,
+      /工作职责/,
+      /岗位要求/,
+      /任职要求/,
+      /任职资格/,
+      /职位要求/,
+      /任职条件/,
+    ];
+
+    const normalize = (value: string) =>
+      value
+        .replace(/\u00a0/g, " ")
+        .replace(/\r/g, "")
+        .replace(/[ \t]+\n/g, "\n")
+        .replace(/\n[ \t]+/g, "\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+
+    let description = "";
+    let strategy = "";
+
+    for (const selector of detailSelectors) {
+      const candidate = normalize(text(selector));
+      if (candidate.length >= 80) {
+        description = candidate;
+        strategy = "selector";
+        break;
+      }
+    }
+
+    // 51Job occasionally changes the detail container class or wraps the same
+    // content in a different responsive DOM tree. Find the smallest visible
+    // element that contains JD section headings instead of relying on one CSS
+    // class forever.
+    if (!description) {
+      const elements = Array.from(
+        document.querySelectorAll("main, article, section, div, ul"),
+      );
+
+      const candidates = elements
+        .map((element) => normalize((element as HTMLElement).innerText ?? ""))
+        .filter((value) => value.length >= 80 && value.length <= 30000)
+        .filter((value) => {
+          const headingCount = headingPatterns.reduce(
+            (count, pattern) => count + (pattern.test(value) ? 1 : 0),
+            0,
+          );
+          return headingCount >= 2;
+        })
+        .sort((a, b) => a.length - b.length);
+
+      if (candidates[0]) {
+        description = candidates[0];
+        strategy = "heading_container";
+      }
+    }
+
+    // Last-resort text extraction: take the section beginning at a JD heading
+    // and stop before common unrelated sections such as company/contact info.
+    if (!description) {
+      const flat = normalize(bodyText);
+      const headingRegex =
+        /(岗位职责|职位描述|工作内容|工作职责|岗位要求|任职要求|任职资格|职位要求|任职条件)/;
+      const match = flat.match(headingRegex);
+
+      if (match?.index !== undefined) {
+        const trailing = flat.slice(match.index);
+        const stopPatterns = [
+          /\n(?:公司简介|公司信息|工商信息|联系方式|联系人|联系电话|工作地址)\b/,
+          /\n(?:职位来源|职位发布者|免责声明)\b/,
+        ];
+        let cutoff = trailing.length;
+        for (const pattern of stopPatterns) {
+          const stop = trailing.search(pattern);
+          if (stop > 80 && stop < cutoff) cutoff = stop;
+        }
+
+        const candidate = trailing.slice(0, cutoff).trim();
+        if (candidate.length >= 80) {
+          description = candidate;
+          strategy = "body_heading_fallback";
+        }
+      }
+    }
 
     return {
       bodyText,
@@ -248,6 +332,7 @@ export async function extract51JobDetail(page: Page): Promise<FiftyOneJobDetailR
       locationSource,
       pageTitle: document.title,
       description,
+      strategy,
     };
   });
 
@@ -265,13 +350,14 @@ export async function extract51JobDetail(page: Page): Promise<FiftyOneJobDetailR
   }
 
   const description = clean51JobDetailText(snapshot.description);
-  if (description.length < 30) {
+  if (description.length < 80) {
     return {
       status: "summary_only",
       title: snapshot.title || undefined,
       company: snapshot.company || undefined,
       salary: snapshot.salary || undefined,
-      message: "Detail page loaded, but no reliable full JD section was found.",
+      message:
+        "Detail page loaded, but no reliable full JD section was found. Search-page summary was retained.",
     };
   }
 
@@ -288,6 +374,7 @@ export async function extract51JobDetail(page: Page): Promise<FiftyOneJobDetailR
     location: parts[0] || undefined,
     postedAt: parts.at(-1) || undefined,
     description,
+    message: "Full JD extracted via " + snapshot.strategy + ".",
   };
 }
 
