@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
 import { AICareerProfileCard } from "@/components/ai-career-profile";
@@ -51,13 +51,18 @@ function MatchingPage() {
   const [discovering, setDiscovering] = useState(false);
   const [discoveryMessage, setDiscoveryMessage] = useState<string | null>(null);
   const [keywordInput, setKeywordInput] = useState("AI产品经理, AI产品助理");
-  const [selectedCities, setSelectedCities] = useState<string[]>(["040000", "020000"]);
+  const [selectedCities, setSelectedCities] = useState<string[]>(() =>
+    searchCities.map((city) => city.jobArea),
+  );
   const [targetCountInput, setTargetCountInput] = useState("10");
 
-  const cities = [
-    { code: "040000", label: "Shenzhen" },
-    { code: "020000", label: "Shanghai" },
-  ];
+  useEffect(() => {
+    const availableCodes = new Set(searchCities.map((city) => city.jobArea));
+    setSelectedCities((current) => {
+      const valid = current.filter((code) => availableCodes.has(code));
+      return valid.length ? valid : searchCities.map((city) => city.jobArea);
+    });
+  }, [searchCities]);
 
   async function discover51Job() {
     const keywords = keywordInput
