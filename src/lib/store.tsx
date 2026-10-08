@@ -57,6 +57,8 @@ export interface DiscoverySyncState {
   lastFetchedCount: number;
   lastAddedCount: number;
   lastDuplicateCount: number;
+  lastAddedJobIds: string[];
+  lastUpdatedJobIds: string[];
 }
 
 const seedActivity: ActivityEntry[] = [
@@ -99,6 +101,8 @@ const initial: Persisted = {
     lastFetchedCount: 0,
     lastAddedCount: 0,
     lastDuplicateCount: 0,
+    lastAddedJobIds: [],
+    lastUpdatedJobIds: [],
   },
   saved: ["pivot-ai-prompt-project", "yuanli-ai-visual-designer"],
   applications: [
@@ -224,10 +228,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const importDiscoveredJobs = useCallback((rawJobs: RawJob[], sourceName = "51Job") => {
     if (!rawJobs.length) {
-      return { fetched: 0, added: 0, duplicates: 0 };
+      return { fetched: 0, added: 0, updated: 0, duplicates: 0 };
     }
 
-    let summary = { fetched: rawJobs.length, added: 0, duplicates: 0 };
+    let summary = { fetched: rawJobs.length, added: 0, updated: 0, duplicates: 0 };
 
     setState((prev) => {
       const beforeIds = new Set(prev.importedJobRecords.map((record) => record.raw.id));
@@ -237,9 +241,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         0,
       );
       const fetchedAt = new Date().toISOString();
+      const updatedJobIds = rawJobs
+        .filter((raw) => beforeIds.has(raw.id))
+        .map((raw) => raw.id);
       summary = {
         fetched: rawJobs.length,
         added,
+        updated: updatedJobIds.length,
         duplicates: pipeline.duplicates.length,
       };
 
@@ -256,6 +264,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           lastFetchedCount: rawJobs.length,
           lastAddedCount: added,
           lastDuplicateCount: pipeline.duplicates.length,
+          lastAddedJobIds: pipeline.records
+            .filter((record) => !beforeIds.has(record.raw.id))
+            .map((record) => record.raw.id),
+          lastUpdatedJobIds: updatedJobIds,
         },
         activity: [
           {
