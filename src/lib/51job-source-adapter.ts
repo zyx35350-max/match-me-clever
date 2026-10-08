@@ -238,45 +238,79 @@ async function extractMainSearchCards(page: Page): Promise<SearchCard[]> {
   });
 }
 
-async function findNextPageControl(page: Page) {
+async function isUsablePaginationControl(locator: import("playwright").Locator) {
+  if ((await locator.count()) === 0) return false;
+
+  return locator.evaluate((el) => {
+    const style = window.getComputedStyle(el);
+    const rect = el.getBoundingClientRect();
+    return (
+      style.display !== "none" &&
+      style.visibility !== "hidden" &&
+      rect.width > 0 &&
+      rect.height > 0 &&
+      (el as HTMLButtonElement).disabled !== true &&
+      el.getAttribute("aria-disabled") !== "true" &&
+      !el.classList.contains("disabled")
+    );
+  }).catch(() => false);
+}
+
+async function findNextPageControl(page: Page, nextPageNumber: number) {
+  // Strategy 1: explicit next-page semantics.
   const selectors = [
-    'a[aria-label*="下一页"],button[aria-label*="下一页"]',
-    'a[title*="下一页"],button[title*="下一页"]',
-    'a[aria-label*="next" i],button[aria-label*="next" i]',
-    'a[title*="next" i],button[title*="next" i]',
+    'a[aria-label*="下一页"],button[aria-label*="下一页"],[role="button"][aria-label*="下一页"]',
+    'a[title*="下一页"],button[title*="下一页"],[role="button"][title*="下一页"]',
+    'a[aria-label*="next" i],button[aria-label*="next" i],[role="button"][aria-label*="next" i]',
+    'a[title*="next" i],button[title*="next" i],[role="button"][title*="next" i]',
   ];
 
   for (const selector of selectors) {
-    const locator = page.locator(selector).first();
-    if ((await locator.count()) === 0) continue;
-
-    const disabled = await locator.evaluate((el) => {
-      const style = window.getComputedStyle(el);
-      return (
-        style.display === "none" ||
-        style.visibility === "hidden" ||
-        (el as HTMLButtonElement).disabled === true ||
-        el.getAttribute("aria-disabled") === "true" ||
-        el.classList.contains("disabled")
-      );
-    });
-
-    if (!disabled) return locator;
+    const locator = page.locator(selector).last();
+    if (await isUsablePaginationControl(locator)) return locator;
   }
 
-  const textLocator = page.getByText(/^(下一页|下页|Next|next)$/).last();
-  if ((await textLocator.count()) > 0) {
-    const disabled = await textLocator.evaluate((el) => {
-      const style = window.getComputedStyle(el);
-      return (
-        style.display === "none" ||
-        style.visibility === "hidden" ||
-        el.getAttribute("aria-disabled") === "true" ||
-        el.classList.contains("disabled")
-      );
-    });
-    if (!disabled) return textLocator;
+  for (const locator of [
+    page.getByText(/^(下一页|下页|Next|next)$/).last(),
+    page.getByText(/^(>|»|›)$/).last(),
+  ]) {
+    if (await isUsablePaginationControl(locator)) return locator;
   }
+
+  // Strategy 2: common page controls expose an explicit next-page data attribute.
+  const nextPageSelectors = [
+    '[data-page="' + nextPageNumber + '"]',
+    '[data-pagenum="' + nextPageNumber + '"]',
+    '[data-page-number="' + nextPageNumber + '"]',
+    '[data-pageindex="' + nextPageNumber + '"]',
+    '[data-index="' + (nextPageNumber - 1) + '"]',
+  ];
+
+  for (const selector of nextPageSelectors) {
+    const locator = page.locator(selector).last();
+    if (await isUsablePaginationControl(locator)) return locator;
+  }
+
+  // Strategy 3: click the visible numeric button/link for the next page.
+  const nextNumber = page
+    .locator('a,button,[role="button"]')
+    .filter({ hasText: new RegExp("^\\\\s*" + String(nextPageNumber) + "\\\\s*$") })
+    .last();
+
+  if (await isUsablePaginationControl(nextNumber)) return nextNumber;
+
+  // Strategy 4: inspect visible pagination-ish elements and match either an
+  // explicit page number or a next-page label. This is intentionally based on
+  // the live DOM rather than a single brittle CSS class.
+  const candidate = page.locator(
+    'a[class*="page"],button[class*="page"],[role="button"][class*="page"],' +
+      'a[class*="pagination"],button[class*="pagination"],[role="button"][class*="pagination"],' +
+      'a[class*="pager"],button[class*="pager"],[role="button"][class*="pager"]',
+  ).filter({ hasText: new RegExp(
+    "^(?:" + String(nextPageNumber) + "|下一页|下页|Next|next|>|»|›)$",
+  ) }).last();
+
+  if (await isUsablePaginationControl(candidate)) return candidate;
 
   return null;
 }
@@ -372,7 +406,8 @@ export class FiftyOneJobSourceAdapter {
 
             if (pageNumber >= maxPages) break;
 
-            const next = await findNextPageControl(page);
+            const nextPageNumber = pageNumber + 1;
+            const next = await findNextPageControl(page, nextPageNumber);
             if (!next) {
               searchReports.push(
                 `${keyword}/${task.jobArea ?? "all"} page ${pageNumber}: no enabled next-page control; stopped`,
