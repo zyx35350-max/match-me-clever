@@ -15,7 +15,6 @@ import {
   Zap,
 } from "lucide-react";
 
-import avatar from "@/assets/avatar.jpg";
 import { useWorkspace } from "@/lib/store";
 
 const nav = [
@@ -30,7 +29,6 @@ const nav = [
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { profile } = useWorkspace();
   const location = useLocation();
 
   return (
@@ -79,13 +77,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             <p className="text-[11px] leading-relaxed text-ink/50">让岗位、能力与职业方向在一个工作台里连接起来。</p>
           </div>
-          <Link to="/profile" className="flex items-center gap-3 rounded-2xl border border-ink/8 bg-white/70 p-2.5 hover:bg-white">
-            <img src={avatar} alt="" width={816} height={816} className="size-9 rounded-xl object-cover" />
-            <div className="min-w-0">
-              <div className="truncate text-xs font-bold">{profile.name}</div>
-              <div className="truncate text-[10px] text-ink/45">{profile.headline}</div>
-            </div>
-          </Link>
         </div>
       </aside>
 
@@ -100,8 +91,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="text-[10px] font-bold tracking-[0.2em] text-ink/35 uppercase">AI Job Search Workspace</div>
             </div>
             <div className="ml-auto flex items-center gap-2">
-              <div className="hidden rounded-full border border-ink/10 bg-white/70 px-3 py-2 text-xs text-ink/45 sm:block">⌘ K · 快速搜索</div>
-              <div className="grid size-9 place-items-center rounded-full bg-ochre/20 text-xs font-bold">S</div>
+              <Link
+                to="/profile"
+                aria-label="打开账号与个人资料"
+                title="账号 / 我的资料"
+                className="grid size-9 place-items-center rounded-full border border-ochre/30 bg-ochre/20 text-xs font-bold transition hover:-translate-y-0.5 hover:bg-ochre/30"
+              >
+                S
+              </Link>
             </div>
           </div>
         </header>
