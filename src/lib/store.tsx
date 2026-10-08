@@ -141,6 +141,7 @@ interface Store extends Persisted {
   importDiscoveredJobs: (rawJobs: RawJob[], sourceName?: string) => {
     fetched: number;
     added: number;
+    updated: number;
     duplicates: number;
   };
 }
@@ -242,7 +243,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       );
       const fetchedAt = new Date().toISOString();
       const updatedJobIds = rawJobs
-        .filter((raw) => beforeIds.has(raw.id))
+        .filter((raw) =>
+          prev.importedJobRecords.some(
+            (record) =>
+              record.raw.id === raw.id ||
+              (record.raw.sourceId === raw.sourceId &&
+                !!record.raw.externalId &&
+                !!raw.externalId &&
+                record.raw.externalId.trim() === raw.externalId.trim()),
+          ),
+        )
         .map((raw) => raw.id);
       summary = {
         fetched: rawJobs.length,
