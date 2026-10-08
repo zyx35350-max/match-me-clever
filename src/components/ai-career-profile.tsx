@@ -4,9 +4,9 @@ import { useState } from "react";
 import type { AICareerProfile, ClaimKind } from "@/lib/career-types";
 
 const KIND_LABEL: Record<ClaimKind, string> = {
-  fact: "Verified fact",
-  preference: "Your preference",
-  inference: "AI inference",
+  fact: "已确认事实",
+  preference: "你的偏好",
+  inference: "AI 推断",
 };
 
 const KIND_STYLE: Record<ClaimKind, string> = {
@@ -30,7 +30,7 @@ export function AICareerProfileCard({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">
-            AI Career Profile — hypothesis, not a job title
+            AI 职业画像 — 是假设，不是固定职位
           </div>
           <p className="mt-2 max-w-2xl font-display text-lg leading-snug font-bold">
             “{aiProfile.identityHypothesis}”
@@ -45,19 +45,19 @@ export function AICareerProfileCard({
             onClick={onRefresh}
             className="rounded-lg bg-azure px-3 py-1.5 text-xs font-semibold text-cream hover:bg-azure-deep"
           >
-            Refresh AI profile
+            刷新 AI 职业画像
           </button>
           <Link
             to="/profile"
             className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold hover:bg-sand"
           >
-            Edit profile
+            编辑资料
           </Link>
           <button
             onClick={() => setShowWhy((v) => !v)}
             className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold hover:bg-sand"
           >
-            {showWhy ? "Hide reasoning" : "Why this conclusion"}
+            {showWhy ? "收起推理" : "为什么得出这个结论"}
           </button>
         </div>
       </div>
@@ -71,7 +71,7 @@ export function AICareerProfileCard({
               filter === k ? "bg-ink text-cream" : "border border-ink/15 hover:bg-sand"
             }`}
           >
-            {k === "all" ? "Everything" : KIND_LABEL[k]}
+            {k === "all" ? "全部" : KIND_LABEL[k]}
           </button>
         ))}
       </div>
