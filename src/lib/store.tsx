@@ -21,6 +21,7 @@ import { adaptRawJobToJob } from "./job-adapter";
 import { ingestAndAdaptJobs } from "./job-discovery-adapter";
 import type { JobRecord } from "./job-discovery-pipeline";
 import { normalizeJobConcepts } from "./job-normalize";
+import { DEFAULT_SEARCH_CITIES, type JobSearchCity } from "./job-search-preferences";
 import type { RawJob } from "./job-source-types";
 import { defaultIdentity, deriveLegacyProfile, type ProfileIdentity } from "./profile-bridge";
 import type {
@@ -49,6 +50,7 @@ interface Persisted {
   dismissedSuggestions: string[];
   importedJobRecords: JobRecord[];
   discovery: DiscoverySyncState;
+  searchCities: JobSearchCity[];
 }
 
 export interface DiscoverySyncState {
@@ -80,6 +82,7 @@ const initial: Persisted = {
   saved: [],
   applications: [],
   activity: seedActivity,
+  searchCities: DEFAULT_SEARCH_CITIES,
 };
 
 interface Store extends Persisted {
@@ -106,6 +109,9 @@ interface Store extends Persisted {
     updated: number;
     duplicates: number;
   };
+  addSearchCity: (city: JobSearchCity) => void;
+  removeSearchCity: (id: string) => void;
+  updateSearchCity: (city: JobSearchCity) => void;
 }
 
 const StoreContext = createContext<Store | null>(null);
@@ -257,6 +263,29 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     });
 
     return summary;
+  }, []);
+
+  const addSearchCity = useCallback((city: JobSearchCity) => {
+    setState((prev) => ({
+      ...prev,
+      searchCities: prev.searchCities.some((item) => item.id === city.id)
+        ? prev.searchCities
+        : [...prev.searchCities, city],
+    }));
+  }, []);
+
+  const removeSearchCity = useCallback((id: string) => {
+    setState((prev) => {
+      if (prev.searchCities.length <= 1) return prev;
+      return { ...prev, searchCities: prev.searchCities.filter((city) => city.id !== id) };
+    });
+  }, []);
+
+  const updateSearchCity = useCallback((city: JobSearchCity) => {
+    setState((prev) => ({
+      ...prev,
+      searchCities: prev.searchCities.map((item) => (item.id === city.id ? city : item)),
+    }));
   }, []);
 
   const recordFeedback = useCallback(
@@ -479,6 +508,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       statusFor: (id) => state.applications.find((a) => a.jobId === id)?.status,
       importRawJob,
       importDiscoveredJobs,
+      addSearchCity,
+      removeSearchCity,
+      updateSearchCity,
     }),
     [
       state,
@@ -495,6 +527,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setStatus,
       importRawJob,
       importDiscoveredJobs,
+      addSearchCity,
+      removeSearchCity,
+      updateSearchCity,
       jobs,
     ],
   );
