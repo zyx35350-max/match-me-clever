@@ -174,35 +174,45 @@ function isSearchApiResponse(url: string) {
 }
 
 interface CapturedSearchApi {
-  capturedApi.hrefByJobId: Map<string, string>;
+  hrefByJobId: Map<string, string>;
   requestUrls: string[];
 }
 
-async function captureSearchApiItems(page: Page): Promise<CapturedSearchApi & { stop: () => void }> {
-  const capturedApi = await captureSearchApiItems(page);
+async function captureSearchApiItems(
+  page: Page,
+): Promise<CapturedSearchApi & { stop: () => void }> {
+  const hrefByJobId = new Map<string, string>();
   const requestUrls: string[] = [];
 
   const requestHandler = (request: import("playwright").Request) => {
-    if (isSearchApiResponse(request.url())) requestUrls.push(request.url());
+    if (isSearchApiResponse(request.url())) {
+      requestUrls.push(request.url());
+    }
   };
 
   const responseHandler = async (response: import("playwright").Response) => {
     if (!isSearchApiResponse(response.url())) return;
+
     try {
       const text = await response.text();
       if (!text.trim().startsWith("{")) return;
+
       const items = (JSON.parse(text)?.resultbody?.job?.items ?? []) as SearchApiItem[];
       for (const item of items) {
-        if (item?.jobId && item?.jobHref) capturedApi.hrefByJobId.set(String(item.jobId), String(item.jobHref));
+        if (item?.jobId && item?.jobHref) {
+          hrefByJobId.set(String(item.jobId), String(item.jobHref));
+        }
       }
-    } catch {}
+    } catch {
+      // Ignore unreadable auxiliary responses.
+    }
   };
 
   page.on("request", requestHandler);
   page.on("response", responseHandler);
 
   return {
-    capturedApi.hrefByJobId,
+    hrefByJobId,
     requestUrls,
     stop: () => {
       page.off("request", requestHandler);
