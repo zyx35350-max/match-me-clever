@@ -11,7 +11,7 @@ import type {
 } from "@/lib/career-types";
 
 const inputClass =
-  "w-full rounded-xl border border-ink/15 bg-card px-3 py-2 text-sm text-ink outline-none focus:border-azure";
+  "w-full rounded-xl border border-ink/12 bg-surface px-3 py-2.5 text-sm text-ink outline-none transition focus:border-azure focus:ring-2 focus:ring-azure/10";
 
 const levels: Skill等级[] = ["learning", "working", "proficient", "advanced"];
 
@@ -25,9 +25,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-ink/10 bg-card p-4">
-      <h2 className="text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">{title}</h2>
-      {hint ? <p className="mt-1.5 mb-4 text-sm text-ink/60">{hint}</p> : <div className="mb-4" />}
+    <section className="rounded-2xl border border-ink/10 bg-card p-5 shadow-sm">
+      <h2 className="text-sm font-bold text-ink">{title}</h2>
+      {hint ? <p className="mt-1 mb-4 text-xs text-ink/55">{hint}</p> : <div className="mb-4" />}
       {children}
     </section>
   );
@@ -52,17 +52,17 @@ function RatingRow({
   onChange: (v: Rating) => void;
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <span className="w-44 text-sm">{label}</span>
+    <div className="flex items-center gap-3 rounded-xl bg-surface px-3 py-2">
+      <span className="w-40 text-sm text-ink/75">{label}</span>
       <input
         type="range"
         min={1}
         max={5}
         value={value}
         onChange={(e) => onChange(Number(e.target.value) as Rating)}
-        className="h-1 flex-1 accent-azure"
+        className="h-1.5 flex-1 accent-azure"
       />
-      <span className="w-4 text-right text-sm font-semibold text-azure">{value}</span>
+      <span className="w-5 rounded-md bg-azure/10 py-0.5 text-center text-xs font-bold text-azure">{value}</span>
     </div>
   );
 }
@@ -87,7 +87,7 @@ function ListEditor({
           />
           <button
             onClick={() => onChange(values.filter((_, idx) => idx !== i))}
-            className="shrink-0 px-2 text-xs font-semibold text-ink/40 hover:text-destructive"
+            className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-ink/40 hover:bg-destructive/5 hover:text-destructive"
           >
             删除
           </button>
@@ -95,7 +95,7 @@ function ListEditor({
       ))}
       <button
         onClick={() => onChange([...values, ""])}
-        className="w-full rounded-lg border border-ink/20 py-2 text-xs font-semibold hover:bg-sand"
+        className="w-full rounded-xl border border-azure/20 bg-azure/5 py-2.5 text-xs font-semibold text-azure transition hover:bg-azure/10"
       >
         {placeholder}
       </button>
@@ -139,21 +139,21 @@ export function CareerProfileEditor() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-sand p-5">
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-azure/10 bg-gradient-to-r from-azure/5 via-card to-sage/5 p-5 shadow-sm">
         <div>
-          <div className="font-display text-lg font-bold">结构化职业档案</div>
+          <div className="font-display text-lg font-bold">职业档案</div>
           <p className="text-sm text-ink/65">
-            AI 职业画像、职业方向和岗位匹配都会基于这里的信息。
+            AI 职业画像、职业方向和岗位匹配都会基于这里的信息。建议只填写真实、可验证的信息。
           </p>
         </div>
         <div className="flex items-center gap-3">
           {savedAt ? <span className="text-xs text-sage">已保存于 {savedAt}</span> : null}
           <button
             onClick={save}
-            className="rounded-xl bg-azure px-5 py-2.5 font-display font-bold text-cream hover:bg-azure-deep"
+            className="rounded-xl bg-azure px-5 py-2.5 text-sm font-bold text-cream shadow-sm transition hover:bg-azure-deep"
           >
-            保存职业档案
+            保存资料
           </button>
         </div>
       </div>
@@ -235,11 +235,11 @@ export function CareerProfileEditor() {
 
       <Section
         title="B · 已掌握技能"
-        hint="你已经掌握的能力，以及对应的经历证据。这里记录的是当前能力，不是未来潜力。"
+        hint="记录你已经掌握的能力。等级用于岗位匹配，不代表未来潜力。"
       >
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           {draft.skills.map((skill, i) => (
-            <div key={skill.id} className="rounded-lg border border-ink/10 p-3">
+            <div key={skill.id} className="rounded-xl border border-ink/8 bg-surface/70 p-3 transition hover:border-azure/20">
               <div className="grid gap-2 sm:grid-cols-[minmax(180px,1.6fr)_minmax(120px,1fr)_80px_minmax(120px,1fr)_auto] sm:items-end">
                 <Field label="技能">
                   <input
@@ -251,7 +251,7 @@ export function CareerProfileEditor() {
                 <Field label="等级">
                   <select
                     value={skill.level}
-                    onChange={(e) => setSkill(i, { level: e.target.value as SkillLevel })}
+                    onChange={(e) => setSkill(i, { level: e.target.value as Skill等级 })}
                     className={inputClass}
                   >
                     {levels.map((l) => (
@@ -277,7 +277,7 @@ export function CareerProfileEditor() {
                     max={5}
                     value={skill.confidence}
                     onChange={(e) => setSkill(i, { confidence: Number(e.target.value) as Rating })}
-                    className="mt-2 h-1 w-full accent-ochre"
+                    className="mt-2 h-1.5 w-full accent-ochre"
                   />
                 </Field>
                 <button
@@ -319,15 +319,15 @@ export function CareerProfileEditor() {
               },
             ])
           }
-          className="mt-4 w-full rounded-lg border border-ink/20 py-2 text-xs font-semibold hover:bg-sand"
+          className="mt-4 w-full rounded-xl border border-azure/20 bg-azure/5 py-2.5 text-xs font-semibold text-azure transition hover:bg-azure/10"
         >
           添加技能
         </button>
       </Section>
 
       <Section
-        title="C · 经历证据 & achievements"
-        hint="Structured proof the assistant can quote back to you."
+        title="C · 经历证据"
+        hint="记录真实经历、成果和可被岗位匹配引用的证据。"
       >
         <div className="space-y-2">
           {draft.evidence.map((item, i) => (
@@ -335,14 +335,14 @@ export function CareerProfileEditor() {
               key={item.id}
               className="grid gap-2 rounded-xl border border-ink/10 p-4 sm:grid-cols-2"
             >
-              <Field label="Achievement">
+              <Field label="成果">
                 <input
                   value={item.label}
                   onChange={(e) => set经历证据(i, { label: e.target.value })}
                   className={inputClass}
                 />
               </Field>
-              <Field label="Detail">
+              <Field label="具体说明">
                 <div className="flex gap-2">
                   <input
                     value={item.detail}
@@ -369,22 +369,22 @@ export function CareerProfileEditor() {
           onClick={() =>
             set("evidence", [...draft.evidence, { id: `ev-${Date.now()}`, label: "", detail: "" }])
           }
-          className="mt-4 w-full rounded-lg border border-ink/20 py-2 text-xs font-semibold hover:bg-sand"
+          className="mt-4 w-full rounded-xl border border-azure/20 bg-azure/5 py-2.5 text-xs font-semibold text-azure transition hover:bg-azure/10"
         >
-          Add evidence
+          添加经历证据
         </button>
       </Section>
 
-      <Section title="D · Work preferences" hint="1 = not important, 5 = very important.">
+      <Section title="D · 工作偏好" hint="1 = 不重要，5 = 非常重要。">
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="space-y-3">
-            <div className="text-xs font-semibold text-ink/60">Work content</div>
+          <div className="space-y-2.5">
+            <div className="text-xs font-semibold text-ink/60">工作内容偏好</div>
             {(
               [
-                ["Creativity", "creativity"],
-                ["Communication", "communication"],
-                ["Analysis", "analysis"],
-                ["Execution", "execution"],
+                ["创造力", "creativity"],
+                ["沟通协作", "communication"],
+                ["分析能力", "analysis"],
+                ["执行力", "execution"],
               ] as const
             ).map(([label, key]) => (
               <RatingRow
@@ -394,12 +394,12 @@ export function CareerProfileEditor() {
                 onChange={(v) => set("workContent", { ...draft.workContent, [key]: v })}
               />
             ))}
-            <div className="pt-3 text-xs font-semibold text-ink/60">Work style</div>
+            <div className="pt-3 text-xs font-semibold text-ink/60">工作方式偏好</div>
             {(
               [
-                ["Remote", "remote"],
-                ["Hybrid", "hybrid"],
-                ["On-site", "onsite"],
+                ["远程", "remote"],
+                ["混合办公", "hybrid"],
+                ["现场办公", "onsite"],
               ] as const
             ).map(([label, key]) => (
               <RatingRow
@@ -411,15 +411,15 @@ export function CareerProfileEditor() {
             ))}
           </div>
           <div className="space-y-3">
-            <div className="text-xs font-semibold text-ink/60">Career priorities</div>
+            <div className="text-xs font-semibold text-ink/60">职业优先级</div>
             {(
               [
-                ["Growth potential", "growth"],
-                ["Industry outlook", "industryOutlook"],
-                ["Transferable skills", "transferableSkills"],
-                ["Salary", "salary"],
-                ["Working hours", "workingHours"],
-                ["Stability", "stability"],
+                ["成长空间", "growth"],
+                ["行业前景", "industryOutlook"],
+                ["技能迁移", "transferableSkills"],
+                ["薪资", "salary"],
+                ["工作时间", "workingHours"],
+                ["稳定性", "stability"],
               ] as const
             ).map(([label, key]) => (
               <RatingRow
@@ -429,7 +429,7 @@ export function CareerProfileEditor() {
                 onChange={(v) => set("priorities", { ...draft.priorities, [key]: v })}
               />
             ))}
-            <div className="pt-3 text-xs font-semibold text-ink/60">Other preferences</div>
+            <div className="pt-3 text-xs font-semibold text-ink/60">其他偏好</div>
             {draft.otherPreferences.map((pref, i) => (
               <label key={pref.id} className="flex items-center gap-2 text-sm">
                 <input
@@ -453,12 +453,12 @@ export function CareerProfileEditor() {
       </Section>
 
       <Section
-        title="E · 不能接受的条件"
-        hint="Severe deal breakers can mark a job Not Recommended — never hidden."
+        title="E · 不接受的工作条件"
+        hint="严重条件会直接影响岗位推荐结果；岗位不会因此被隐藏。"
       >
         <div className="space-y-2">
           {draft.dealBreakers.map((breaker, i) => (
-            <div key={breaker.id} className="flex flex-wrap items-center gap-2">
+            <div key={breaker.id} className="flex flex-wrap items-center gap-2 rounded-xl bg-surface px-3 py-2">
               <input
                 value={breaker.label}
                 onChange={(e) => setBreaker(i, { label: e.target.value })}
@@ -469,10 +469,10 @@ export function CareerProfileEditor() {
                 onChange={(e) =>
                   setBreaker(i, { severity: e.target.value as DealBreaker["severity"] })
                 }
-                className="rounded-lg border border-ink/15 bg-card px-2.5 py-2 text-xs font-semibold"
+                className="rounded-lg border border-ink/12 bg-card px-2.5 py-2 text-xs font-semibold"
               >
-                <option value="severe">severe</option>
-                <option value="moderate">moderate</option>
+                <option value="严重">严重</option>
+                <option value="中等">中等</option>
               </select>
               <button
                 onClick={() =>
@@ -481,7 +481,7 @@ export function CareerProfileEditor() {
                     draft.dealBreakers.filter((_, idx) => idx !== i),
                   )
                 }
-                className="text-xs font-semibold text-ink/40 hover:text-destructive"
+                className="rounded-lg px-2 py-1 text-xs font-semibold text-ink/40 hover:bg-destructive/5 hover:text-destructive"
               >
                 删除
               </button>
@@ -491,21 +491,21 @@ export function CareerProfileEditor() {
       </Section>
 
       <Section
-        title="F · Learning & future potential"
-        hint="Kept separate from proven skills on purpose — this is where you want to go, not what you've already done."
+        title="F · 学习与未来发展"
+        hint="这里与已掌握技能分开：记录你想发展的方向，而不是已经具备的能力。"
       >
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-3">
             {(
               [
-                ["Learning willingness", "willingness"],
-                ["AI interest", "ai"],
-                ["Programming interest", "programming"],
-                ["Automation interest", "automation"],
-                ["Product interest", "product"],
-                ["Content interest", "content"],
-                ["Visual / creative interest", "visual"],
-                ["Accepts career uncertainty for growth", "uncertaintyTolerance"],
+                ["学习意愿", "willingness"],
+                ["AI 兴趣", "ai"],
+                ["编程兴趣", "programming"],
+                ["自动化兴趣", "automation"],
+                ["产品兴趣", "product"],
+                ["内容创作兴趣", "content"],
+                ["视觉 / 创意兴趣", "visual"],
+                ["接受为成长承担一定不确定性", "uncertaintyTolerance"],
               ] as const
             ).map(([label, key]) => (
               <RatingRow
@@ -518,12 +518,12 @@ export function CareerProfileEditor() {
           </div>
           <div>
             <span className="mb-1.5 block text-xs font-semibold text-ink/60">
-              Interested skills
+              想发展的技能
             </span>
             <ListEditor
               values={draft.learning.interestedSkills}
               onChange={(next) => set("learning", { ...draft.learning, interestedSkills: next })}
-              placeholder="Add interest"
+              placeholder="添加发展方向"
             />
           </div>
         </div>
