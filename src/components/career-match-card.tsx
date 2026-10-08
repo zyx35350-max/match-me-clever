@@ -62,7 +62,7 @@ export function CareerMatchCard({ match, compact = false }: { match: JobMatch; c
             </Link>
             {job.titleOriginal ? <span className="hidden text-[11px] text-ink/35 xl:inline">({job.title})</span> : null}
             {match.direction ? <span className="rounded-full bg-azure/10 px-2 py-0.5 text-[10px] font-semibold text-azure">{match.direction.name}</span> : null}
-            {match.notRecommended ? <span className="rounded-full bg-ochre/15 px-2 py-0.5 text-[10px] font-semibold text-ochre">Not recommended</span> : null}
+            {match.notRecommended ? <span className="rounded-full bg-ochre/15 px-2 py-0.5 text-[10px] font-semibold text-ochre">不推荐</span> : null}
             {statusFor(job.id) ? <span className="rounded-full bg-sand px-2 py-0.5 text-[10px] font-semibold text-ink/50">{statusFor(job.id)}</span> : null}
           </div>
           <div className="mt-0.5 truncate text-[11px] text-ink/50">
@@ -86,12 +86,12 @@ export function CareerMatchCard({ match, compact = false }: { match: JobMatch; c
 
         <div className="flex flex-wrap items-center justify-between gap-2 lg:justify-end">
           <div className="flex items-center gap-2">
-            <DualScore label="Fit" value={match.immediateFit} tone="azure" />
-            <DualScore label="Growth" value={match.careerGrowthValue} tone="ochre" />
+            <DualScore label="匹配" value={match.immediateFit} tone="azure" />
+            <DualScore label="成长" value={match.careerGrowthValue} tone="ochre" />
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
-            <Link to="/jobs/$jobId" params={{ jobId: job.id }} onClick={() => recordFeedback(job, "viewed")} className="rounded-lg bg-ink px-2.5 py-1.5 text-[11px] font-semibold text-cream hover:bg-azure-deep">Review</Link>
-            <button onClick={() => hideJob(job.id)} className="rounded-lg border border-ink/12 px-2.5 py-1.5 text-[11px] font-semibold text-ink/55 hover:bg-sand">Hide</button>
+            <Link to="/jobs/$jobId" params={{ jobId: job.id }} onClick={() => recordFeedback(job, "viewed")} className="rounded-lg bg-ink px-2.5 py-1.5 text-[11px] font-semibold text-cream hover:bg-azure-deep">查看</Link>
+            <button onClick={() => hideJob(job.id)} className="rounded-lg border border-ink/12 px-2.5 py-1.5 text-[11px] font-semibold text-ink/55 hover:bg-sand">隐藏</button>
             <button onClick={() => { toggleSaved(job); if (!isSaved(job.id)) recordFeedback(job, "saved"); }} className="rounded-lg border border-ink/12 px-2.5 py-1.5 text-[11px] font-semibold hover:bg-sand">
               {isSaved(job.id) ? "已收藏" : "收藏"}
             </button>
@@ -101,7 +101,7 @@ export function CareerMatchCard({ match, compact = false }: { match: JobMatch; c
           </div>
         </div>
       </div>
-      {feedback ? <div className="mt-1.5 text-[10px] font-semibold text-sage">Logged: {feedback.replace("_", " ")}</div> : null}
+      {feedback ? <div className="mt-1.5 text-[10px] font-semibold text-sage">记录：{feedback.replace("_", " ")}</div> : null}
     </div>
   );
 }
