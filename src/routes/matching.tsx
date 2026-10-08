@@ -46,6 +46,7 @@ function MatchingPage() {
     dismissSuggestion,
     importDiscoveredJobs,
     discovery,
+    searchCities,
   } = useWorkspace();
   const [discovering, setDiscovering] = useState(false);
   const [discoveryMessage, setDiscoveryMessage] = useState<string | null>(null);
@@ -199,24 +200,24 @@ function MatchingPage() {
           <div>
             <span className="mb-1.5 block text-xs font-semibold text-ink/60">Cities</span>
             <div className="flex flex-wrap gap-2">
-              {cities.map((city) => {
-                const checked = selectedCities.includes(city.code);
+              {searchCities.map((city) => {
+                const checked = selectedCities.includes(city.jobArea);
                 return (
                   <button
-                    key={city.code}
+                    key={city.id}
                     type="button"
                     onClick={() =>
                       setSelectedCities((current) =>
                         checked
-                          ? current.filter((code) => code !== city.code)
-                          : [...current, city.code],
+                          ? current.filter((code) => code !== city.jobArea)
+                          : [...current, city.jobArea],
                       )
                     }
                     className={`rounded-full px-3 py-2 text-sm font-medium transition-colors ${
                       checked ? "bg-ink text-cream" : "border border-ink/15 hover:bg-sand"
                     }`}
                   >
-                    {city.label}
+                    {city.name}
                   </button>
                 );
               })}
