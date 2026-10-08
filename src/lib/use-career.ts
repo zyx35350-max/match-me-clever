@@ -7,6 +7,7 @@ import {
   type MatchContext,
 } from "./career-engine";
 import { matchJobsWithUnderstanding } from "./job-understanding-matcher";
+import { effectiveJobLifecycle } from "./job-lifecycle";
 import { useWorkspace } from "./store";
 import type { EmploymentType } from "./types";
 
@@ -22,7 +23,22 @@ export function useCareer(track?: EmploymentType) {
 
   const ctx = useMemo<MatchContext>(() => buildMatchContext(career, profile), [career, profile]);
 
-  const matches = useMemo(() => matchJobsWithUnderstanding(ctx, jobs, track), [ctx, jobs, track]);
+  const activeJobs = useMemo(
+    () =>
+      jobs.filter((job) => {
+        const status = effectiveJobLifecycle(
+          job.lifecycle,
+          job.raw,
+        );
+        return status !== "closed" && status !== "expired";
+      }),
+    [jobs],
+  );
+
+  const matches = useMemo(
+    () => matchJobsWithUnderstanding(ctx, activeJobs, track),
+    [ctx, activeJobs, track],
+  );
 
   const aiProfile = useMemo(
     () => buildAICareerProfile(career),
