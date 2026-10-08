@@ -240,32 +240,18 @@ export function CareerProfileEditor() {
         <div className="space-y-2.5">
           {draft.skills.map((skill, i) => (
             <div key={skill.id} className="rounded-lg border border-ink/10 p-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <input
-                  value={skill.name}
-                  onChange={(e) => setSkill(i, { name: e.target.value })}
-                  className={`${inputClass} max-w-xs`}
-                />
-                {skill.nameOriginal ? (
-                  <span className="text-xs text-ink/45">{skill.nameOriginal}</span>
-                ) : null}
-                <button
-                  onClick={() =>
-                    set(
-                      "skills",
-                      draft.skills.filter((_, idx) => idx !== i),
-                    )
-                  }
-                  className="ml-auto text-xs font-semibold text-ink/40 hover:text-destructive"
-                >
-                  删除
-                </button>
-              </div>
-              <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              <div className="grid gap-2 sm:grid-cols-[minmax(180px,1.6fr)_minmax(120px,1fr)_80px_minmax(120px,1fr)_auto] sm:items-end">
+                <Field label="技能">
+                  <input
+                    value={skill.name}
+                    onChange={(e) => setSkill(i, { name: e.target.value })}
+                    className={inputClass}
+                  />
+                </Field>
                 <Field label="等级">
                   <select
                     value={skill.level}
-                    onChange={(e) => setSkill(i, { level: e.target.value as Skill等级 })}
+                    onChange={(e) => setSkill(i, { level: e.target.value as SkillLevel })}
                     className={inputClass}
                   >
                     {levels.map((l) => (
@@ -294,7 +280,21 @@ export function CareerProfileEditor() {
                     className="mt-2 h-1 w-full accent-ochre"
                   />
                 </Field>
+                <button
+                  onClick={() =>
+                    set(
+                      "skills",
+                      draft.skills.filter((_, idx) => idx !== i),
+                    )
+                  }
+                  className="mb-1 text-xs font-semibold text-ink/40 hover:text-destructive"
+                >
+                  删除
+                </button>
               </div>
+              {skill.nameOriginal ? (
+                <div className="mt-1 text-[10px] text-ink/40">原名：{skill.nameOriginal}</div>
+              ) : null}
               <Field label="经历证据">
                 <input
                   value={skill.evidence}
