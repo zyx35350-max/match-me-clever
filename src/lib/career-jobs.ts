@@ -1,5 +1,4 @@
 import { normalizeJobConcepts } from "./job-normalize";
-import { mockJobs } from "./mock-jobs";
 import type { Job, NormalizedJob } from "./types";
 
 /**
@@ -362,6 +361,9 @@ function withDefaults(job: Job): Job {
  * carrying canonical bilingual concept metadata. Original titles and
  * descriptions are untouched — normalization only adds fields.
  */
-export const allJobs: NormalizedJob[] = [...careerJobs, ...mockJobs]
-  .map(withDefaults)
-  .map(normalizeJobConcepts);
+/**
+ * Production workspace starts empty. Jobs enter through real discovery or
+ * explicit user import; the demo/mock catalog is kept in source only as a
+ * development fixture and is not surfaced in the live product.
+ */
+export const allJobs: NormalizedJob[] = [];
