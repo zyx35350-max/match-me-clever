@@ -68,17 +68,17 @@ function RatingRow({
   onChange: (v: Rating) => void;
 }) {
   return (
-    <div className="flex items-center gap-2 rounded-lg bg-ink/[0.035] px-2.5 py-2">
-      <span className="w-[104px] shrink-0 text-[11px] font-semibold text-ink/65">{label}</span>
+    <div className="grid min-w-0 grid-cols-[minmax(58px,auto)_minmax(70px,1fr)_24px] items-center gap-2 rounded-lg border border-ink/7 bg-white px-2.5 py-2">
+      <span className="truncate text-[10px] font-semibold text-ink/60">{label}</span>
       <input
         type="range"
         min={1}
         max={5}
         value={value}
         onChange={(e) => onChange(Number(e.target.value) as Rating)}
-        className="h-1.5 flex-1 accent-ochre"
+        className="min-w-0 h-1.5 w-full accent-ochre"
       />
-      <span className="grid size-5 shrink-0 place-items-center rounded-md bg-ochre/20 text-[9px] font-extrabold">
+      <span className="grid size-5 place-items-center rounded-md bg-ochre/20 text-[9px] font-extrabold">
         {value}
       </span>
     </div>
