@@ -200,9 +200,6 @@ async function captureSearchApiItems(
 
 async function extractMainSearchCards(page: Page): Promise<SearchCard[]> {
   return page.evaluate(() => {
-    const text = (el: Element | null) =>
-      (el?.textContent ?? "").replace(/\s+/g, " ").trim() || null;
-
     return [...document.querySelectorAll(".joblist .joblist-item")]
       .map((item) => {
         const job = item.querySelector(".joblist-item-job[sensorsdata]");
@@ -211,19 +208,29 @@ async function extractMainSearchCards(page: Page): Promise<SearchCard[]> {
           meta = JSON.parse(job?.getAttribute("sensorsdata") ?? "{}");
         } catch {}
 
+        const titleEl = item.querySelector(".jname");
+        const companyEl = item.querySelector(".cname");
+        const salaryEl = item.querySelector(".sal");
+        const areaShrinkEl = item.querySelector(".area .shrink-0");
+        const areaEl = item.querySelector(".area");
+
         return {
           pageCode: typeof meta.pageCode === "string" ? meta.pageCode : null,
           jobId: meta.jobId ? String(meta.jobId) : null,
           title:
-            item.querySelector(".jname")?.getAttribute("title")?.trim() ||
-            text(item.querySelector(".jname")),
+            titleEl?.getAttribute("title")?.trim() ||
+            (titleEl?.textContent ?? "").replace(/\s+/g, " ").trim() ||
+            null,
           company:
-            item.querySelector(".cname")?.getAttribute("title")?.trim() ||
-            text(item.querySelector(".cname")),
-          salary: text(item.querySelector(".sal")),
+            companyEl?.getAttribute("title")?.trim() ||
+            (companyEl?.textContent ?? "").replace(/\s+/g, " ").trim() ||
+            null,
+          salary:
+            (salaryEl?.textContent ?? "").replace(/\s+/g, " ").trim() || null,
           location:
-            text(item.querySelector(".area .shrink-0")) ??
-            text(item.querySelector(".area")),
+            (areaShrinkEl?.textContent ?? "").replace(/\s+/g, " ").trim() ||
+            (areaEl?.textContent ?? "").replace(/\s+/g, " ").trim() ||
+            null,
           rawText: (item as HTMLElement).innerText?.trim() ?? "",
         };
       })
