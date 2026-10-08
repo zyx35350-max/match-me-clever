@@ -2,7 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
-import { effective职位Lifecycle } from "@/lib/job-lifecycle";
+import { effectiveJobLifecycle } from "@/lib/job-lifecycle";
 import { formatSalary, labelMode } from "@/lib/matching";
 import { useWorkspace } from "@/lib/store";
 
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/hidden")({
 
 type HiddenFilter = "all" | "active" | "stale" | "closed" | "expired";
 
-function lifecycleLabel(status: ReturnType<typeof effective职位Lifecycle>) {
+function lifecycleLabel(status: ReturnType<typeof effectiveJobLifecycle>) {
   return {
     active: "Active",
     discovered: "New",
@@ -43,7 +43,7 @@ function Hidden职位sPage() {
         .filter((job) => hidden职位Ids.includes(job.id))
         .map((job) => {
           const record = imported职位Records.find((item) => item.raw.id === job.id);
-          const lifecycle = effective职位Lifecycle(record?.lifecycle, record?.raw);
+          const lifecycle = effectiveJobLifecycle(record?.lifecycle, record?.raw);
           return { job, lifecycle };
         }),
     [jobs, hidden职位Ids, imported职位Records],
