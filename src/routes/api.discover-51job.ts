@@ -9,7 +9,7 @@ export const Route = createFileRoute("/api/discover-51job")({
           const body = (await request.json().catch(() => ({}))) as {
             keywords?: unknown;
             cities?: unknown;
-            maxPages?: unknown;
+            targetCount?: unknown;
           };
 
           const keywords = Array.isArray(body.keywords)
@@ -20,24 +20,25 @@ export const Route = createFileRoute("/api/discover-51job")({
             ? body.cities.filter((value): value is string => typeof value === "string" && value.trim())
             : ["040000", "020000"];
 
-          const maxPages =
-            typeof body.maxPages === "number" && Number.isFinite(body.maxPages)
-              ? Math.max(1, Math.min(3, Math.floor(body.maxPages)))
-              : 2;
+          const targetCount =
+            typeof body.targetCount === "number" && Number.isFinite(body.targetCount)
+              ? Math.max(1, Math.min(500, Math.floor(body.targetCount)))
+              : 100;
 
           const searches = keywords.flatMap((keyword) =>
             cities.map((jobArea) => ({
               keyword,
               jobArea,
-              maxPages,
             })),
           );
 
           const adapter = createFiftyOneJobSourceAdapter();
           const result = await adapter.discover({
             searches,
-            maxPagesPerSearch: maxPages,
+            targetCount,
+            maxPagesPerSearch: 50,
             delayMs: 1500,
+            detailDelayMs: 1500,
             headless: true,
           });
 
