@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import {
   Archive,
@@ -12,6 +12,7 @@ import {
   Target,
   Upload,
   UserRound,
+  LogOut,
   Zap,
 } from "lucide-react";
 
@@ -30,6 +31,22 @@ const nav = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, loading, profileLoading, profileComplete, signOut } = useAuth();
+  const [accountOpen, setAccountOpen] = useState(false);
+
+  useEffect(() => {
+    if (loading || profileLoading) return;
+    if (!user) {
+      void navigate({ to: "/auth", replace: true });
+    } else if (!profileComplete && location.pathname !== "/onboarding") {
+      void navigate({ to: "/onboarding", replace: true });
+    }
+  }, [loading, profileLoading, user, profileComplete, location.pathname, navigate]);
+
+  if (loading || profileLoading || !user || !profileComplete) {
+    return <div className="grid min-h-screen place-items-center bg-white text-sm font-semibold text-ink/45">正在连接你的 Solstice 工作台…</div>;
+  }
 
   return (
     <div className="app-shell min-h-screen text-ink">
@@ -99,14 +116,31 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="text-[10px] font-bold tracking-[0.2em] text-ink/35 uppercase">AI Job Search Workspace</div>
             </div>
             <div className="ml-auto flex items-center gap-2">
-              <Link
-                to="/profile"
-                aria-label="打开账号与个人资料"
-                title="账号 / 我的资料"
+              <div className="relative">
+              <button
+                type="button"
+                onClick={() => setAccountOpen((open) => !open)}
+                aria-label="打开账号菜单"
+                title="账号"
                 className="grid size-9 place-items-center rounded-full border border-ochre/35 bg-ochre/16 text-xs font-bold shadow-sm transition hover:-translate-y-0.5 hover:bg-ochre/25"
               >
                 S
-              </Link>
+              </button>
+              {accountOpen ? (
+                <div className="absolute right-0 top-11 w-56 rounded-2xl border border-ink/10 bg-white p-2 shadow-2xl shadow-ink/10">
+                  <div className="border-b border-ink/8 px-3 py-2">
+                    <div className="text-[9px] font-bold tracking-[0.18em] text-ink/30 uppercase">ACCOUNT</div>
+                    <div className="mt-1 truncate text-xs font-semibold text-ink/65">{user.email ?? "已登录"}</div>
+                  </div>
+                  <Link to="/profile" onClick={() => setAccountOpen(false)} className="mt-1 flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold hover:bg-ochre/8">
+                    <UserRound className="size-3.5 text-ochre" /> 我的资料
+                  </Link>
+                  <button type="button" onClick={() => void signOut()} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-ink/55 hover:bg-ink/5">
+                    <LogOut className="size-3.5" /> 退出登录
+                  </button>
+                </div>
+              ) : null}
+            </div>
             </div>
           </div>
         </header>
