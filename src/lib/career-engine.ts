@@ -165,16 +165,16 @@ export function buildAICareerProfile(profile: CareerProfile): AICareerProfile {
 
   return {
     identityHypothesis:
-      "A candidate with cross-border e-commerce, overseas market research and product development experience who is exploring AI-related product, content, visual and e-commerce opportunities.",
+      "你是一名拥有跨境电商、海外市场研究和产品开发经验的早期职场人，正在探索 AI 产品、内容、视觉和电商方向。",
     generatedAt: new Date().toISOString(),
     sections: [
       {
         key: "identity",
-        title: "Career Identity",
+        title: "职业身份",
         claims: [
           fact(
             `${profile.basics.yearsExperience} years of experience, currently ${profile.basics.careerStage.toLowerCase()}.`,
-            "Taken directly from your basic profile.",
+            "直接来自你的基础资料。",
           ),
           inf(
             "Best read as a cross-functional e-commerce operator moving toward AI-assisted product and creative work, not a single fixed title.",
@@ -184,21 +184,21 @@ export function buildAICareerProfile(profile: CareerProfile): AICareerProfile {
       },
       {
         key: "strengths",
-        title: "Core Strengths",
+        title: "核心优势",
         claims: [
           fact(
-            `Advanced or proficient in ${advanced
+            `以下技能达到熟练或高级水平：${advanced
               .slice(0, 5)
-              .map((s) => s.name)
-              .join(", ")}.`,
-            "Level and years recorded on each skill.",
+              .map((s) => s.nameOriginal ?? s.name)
+              .join("、")}。`,
+            "依据你为每项技能填写的水平和年限。",
           ),
           ...profile.evidence.slice(0, 3).map((e) => fact(e.label, e.detail)),
         ],
       },
       {
         key: "transferable",
-        title: "Transferable Skills",
+        title: "可迁移技能",
         claims: [
           inf(
             "Market research, competitor analysis and data monitoring transfer cleanly into product and analyst work.",
@@ -212,7 +212,7 @@ export function buildAICareerProfile(profile: CareerProfile): AICareerProfile {
       },
       {
         key: "creative",
-        title: "Creative Profile",
+        title: "创意特征",
         claims: [
           pref(
             `Creativity is rated ${profile.workContent.creativity}/5 in your work-content preferences.`,
@@ -230,7 +230,7 @@ export function buildAICareerProfile(profile: CareerProfile): AICareerProfile {
       },
       {
         key: "ai",
-        title: "AI Potential",
+        title: "AI 潜力",
         claims: [
           pref(`AI interest rated ${profile.learning.ai}/5.`, "Your own rating."),
           fact(
@@ -245,7 +245,7 @@ export function buildAICareerProfile(profile: CareerProfile): AICareerProfile {
       },
       {
         key: "learning",
-        title: "Learning Profile",
+        title: "学习特征",
         claims: [
           pref(
             `Learning willingness ${profile.learning.willingness}/5, tolerance for career uncertainty ${profile.learning.uncertaintyTolerance}/5.`,
@@ -263,7 +263,7 @@ export function buildAICareerProfile(profile: CareerProfile): AICareerProfile {
       },
       {
         key: "preferences",
-        title: "Work Preferences",
+        title: "工作偏好",
         claims: [
           pref(
             `Prefers ${profile.basics.workMode} work; remote rated ${profile.workStyle.remote}/5, on-site ${profile.workStyle.onsite}/5.`,
@@ -281,7 +281,7 @@ export function buildAICareerProfile(profile: CareerProfile): AICareerProfile {
       },
       {
         key: "risks",
-        title: "Career Risks",
+        title: "职业风险",
         claims: [
           inf(
             "Operations experience can pull you back into repetitive roles that pay adequately but stall growth.",
@@ -295,7 +295,7 @@ export function buildAICareerProfile(profile: CareerProfile): AICareerProfile {
       },
       {
         key: "gaps",
-        title: "Skill Gaps",
+        title: "技能差距",
         claims: [
           fact(
             `Still early-stage: ${learningSkills.map((s) => s.name).join(", ")}.`,
@@ -309,7 +309,7 @@ export function buildAICareerProfile(profile: CareerProfile): AICareerProfile {
       },
       {
         key: "directions",
-        title: "Recommended Career Directions",
+        title: "推荐职业方向",
         claims: top.map((a) =>
           inf(
             `${a.direction.name} — hypothesis score ${a.score}. ${a.direction.blurb}`,
@@ -649,7 +649,7 @@ function explain(args: {
     Math.abs(gap) < 8
       ? "即时匹配与长期成长比较接近，没有明显取舍。"
       : gap > 0
-        ? `Harder to land now (${immediateFit}) than it is valuable later (${careerGrowthValue}). Worth stretching for if you can cover the gaps.`
+        ? `目前较难拿到（${immediateFit}），但长期成长价值更高（${careerGrowthValue}）。如果能补足差距，值得挑战。`
         : `Easy for you today (${immediateFit}) but it adds less to where you're heading (${careerGrowthValue}). Comfortable, not developmental.`;
 
   const recommendation = notRecommended
@@ -709,14 +709,14 @@ export function buildSuggestions(
 
 export function feedbackLabel(action: FeedbackAction) {
   return {
-    viewed: "Viewed",
-    saved: "Saved",
-    applied: "Applied",
-    not_for_me: "Not for me",
-    dismissed: "Dismissed",
-    interview: "Interview",
-    rejected: "Rejected",
-    accepted: "Accepted",
+    viewed: "已查看",
+    saved: "已收藏",
+    applied: "已申请",
+    not_for_me: "不适合我",
+    dismissed: "已忽略",
+    interview: "面试",
+    rejected: "未通过",
+    accepted: "已接受",
   }[action];
 }
 
