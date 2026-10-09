@@ -4,7 +4,6 @@ import { MapPin, Sparkles, Target } from "lucide-react";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
 import { CareerProfileEditor } from "@/components/career-profile-editor";
-import { formatSalary } from "@/lib/matching";
 import { useCareer } from "@/lib/use-career";
 import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/store";
