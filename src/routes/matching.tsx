@@ -7,6 +7,7 @@ import { CareerMatchCard } from "@/components/career-match-card";
 import { useCareer } from "@/lib/use-career";
 import { useWorkspace } from "@/lib/store";
 import type { EmploymentType } from "@/lib/types";
+import { isJobInSelectedCities } from "@/lib/job-search-preferences";
 
 export const Route = createFileRoute("/matching")({
   head: () => ({
@@ -79,8 +80,17 @@ function MatchingPage() {
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error ?? "51Job discovery failed.");
-      const summary = importDiscoveredJobs(payload.jobs ?? [], "51Job");
-      setDiscoveryMessage("Fetched " + summary.fetched + " · " + summary.added + " new · " + summary.updated + " updated · " + summary.duplicates + " duplicates");
+      const selectedCityPreferences = searchCities.filter((city) => selectedCities.includes(city.jobArea));
+      const fetchedJobs = Array.isArray(payload.jobs) ? payload.jobs : [];
+      const cityMatchedJobs = fetchedJobs.filter((job) =>
+        isJobInSelectedCities(job.locationText, selectedCityPreferences),
+      );
+      const rejectedByCity = fetchedJobs.length - cityMatchedJobs.length;
+      const summary = importDiscoveredJobs(cityMatchedJobs, "51Job");
+      setDiscoveryMessage(
+        "抓取 " + fetchedJobs.length + " 个 · 城市筛选排除 " + rejectedByCity +
+        " 个 · 新增 " + summary.added + " 个 · 更新 " + summary.updated + " 个 · 重复 " + summary.duplicates + " 个",
+      );
     } catch (error) {
       setDiscoveryMessage(error instanceof Error ? error.message : "51Job discovery failed.");
     } finally {
