@@ -51,7 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-shell min-h-screen text-ink">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] border-r border-ink/8 bg-white px-4 py-5 lg:flex lg:flex-col">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] border-r border-ink/8 bg-white/90 px-4 py-5 backdrop-blur-2xl lg:flex lg:flex-col">
         <Link to="/" className="mb-7 flex items-center gap-3 rounded-2xl px-2 py-1.5">
           <div className="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-ink text-cream shadow-sm">
             <Sparkles className="size-4" />
@@ -107,7 +107,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="lg:pl-[248px]">
-        <header className="sticky top-0 z-30 border-b border-ink/8 bg-white/95 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 border-b border-ink/8 bg-white/80 backdrop-blur-2xl">
           <div className="mx-auto flex min-h-16 max-w-[1380px] items-center gap-3 px-4 sm:px-6">
             <Link to="/" className="flex items-center gap-2 lg:hidden">
               <div className="grid size-8 place-items-center rounded-lg bg-ink text-cream"><Sparkles className="size-4" /></div>
@@ -148,7 +148,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <main className="app-content mx-auto max-w-[1380px] px-4 py-6 sm:px-6 lg:py-8">{children}</main>
 
-        <nav className="fixed inset-x-3 bottom-3 z-50 flex overflow-x-auto rounded-2xl border border-ink/10 bg-white/90 p-1.5 shadow-2xl shadow-ink/10 backdrop-blur-xl lg:hidden">
+        <nav className="fixed inset-x-3 bottom-3 z-50 flex overflow-x-auto rounded-2xl border border-white/80 bg-white/80 p-1.5 shadow-[0_16px_44px_rgba(20,18,12,0.12)] backdrop-blur-2xl lg:hidden">
           {nav.slice(0, 5).map((item) => {
             const Icon = item.icon;
             const active = item.to === "/" ? location.pathname === "/" : location.pathname.startsWith(item.to);
