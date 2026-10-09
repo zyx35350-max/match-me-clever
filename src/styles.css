@@ -304,3 +304,116 @@
   transform: translateY(-1px);
   box-shadow: 0 9px 20px rgb(20 18 12 / 15%);
 }
+
+
+/* Solstice airy editorial refresh — visual-only pass */
+:root {
+  --solstice-glass: rgb(255 255 255 / 88%);
+  --solstice-glass-edge: rgb(255 255 255 / 96%);
+  --solstice-shadow: 0 5px 22px rgb(34 31 22 / 4%), 0 1px 3px rgb(34 31 22 / 3%);
+  --background: #fafaf7;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --sand: #f3f1e9;
+  --cream: #faf9f4;
+  --ochre: #e7bd27;
+  --ochre-soft: #fbf0bd;
+}
+@layer base {
+  body { background: #fafaf7; }
+}
+.app-shell {
+  background: #fafaf7;
+}
+.app-shell aside {
+  background: rgb(255 255 255 / 90%);
+  border-right: 1px solid rgb(41 41 35 / 7%);
+  box-shadow: 4px 0 22px rgb(41 41 35 / 2%);
+  backdrop-filter: blur(18px);
+}
+.app-shell header {
+  background: rgb(250 250 247 / 88%);
+  border-bottom: 1px solid rgb(41 41 35 / 7%);
+  backdrop-filter: blur(18px);
+}
+.app-shell .app-content {
+  padding-top: clamp(1.5rem, 3vw, 2.25rem);
+  padding-bottom: 6rem;
+}
+.app-content .rounded-2xl.border,
+.app-content .rounded-xl.border {
+  border-color: rgb(41 41 35 / 8%);
+  box-shadow: var(--solstice-shadow);
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.app-content .rounded-2xl.border:hover {
+  border-color: rgb(231 189 39 / 30%);
+  box-shadow: 0 9px 28px rgb(34 31 22 / 6%);
+}
+.app-content [class*="bg-card"] {
+  background: #fff;
+}
+.app-content .bg-sand {
+  background: #f4f2eb;
+  border: 1px solid rgb(41 41 35 / 6%);
+  box-shadow: none;
+}
+.app-shell a:focus-visible,
+.app-shell button:focus-visible {
+  outline-color: rgb(231 189 39 / 75%);
+}
+.solstice-hero {
+  min-height: 230px;
+  border: 1px solid rgb(231 189 39 / 22%);
+  background:
+    radial-gradient(ellipse at 100% 0%, rgb(244 201 40 / 15%), transparent 24rem),
+    linear-gradient(125deg, #fffefa 0%, #fff 72%, #fffdf5 100%);
+  box-shadow: 0 10px 32px rgb(41 41 35 / 4%);
+}
+.solstice-hero::before {
+  width: 250px;
+  height: 250px;
+  right: -90px;
+  top: -140px;
+  border-color: rgb(231 189 39 / 12%);
+  background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / 95%), rgb(244 201 40 / 12%) 48%, transparent 72%);
+  box-shadow: none;
+}
+.solstice-hero::after {
+  width: 130px;
+  height: 130px;
+  right: 100px;
+  bottom: -100px;
+  border-color: rgb(231 189 39 / 10%);
+  background: radial-gradient(circle at 30% 25%, rgb(255 255 255 / 95%), rgb(244 201 40 / 9%) 52%, transparent 72%);
+}
+.solstice-hero h1 {
+  letter-spacing: -.04em;
+  line-height: 1.16;
+}
+.solstice-hero p {
+  line-height: 1.8;
+}
+.solstice-feature-card {
+  background: #fff;
+  box-shadow: 0 5px 22px rgb(34 31 22 / 4%);
+}
+.solstice-feature-card::before { display: none; }
+.app-content .grid.grid-cols-12 > div > .rounded-2xl.border,
+.app-content .grid.grid-cols-12 > aside > .rounded-2xl.border {
+  border-radius: 18px;
+}
+.app-content .grid.grid-cols-12 > div > .rounded-2xl.border:hover,
+.app-content .grid.grid-cols-12 > aside > .rounded-2xl.border:hover {
+  transform: translateY(-1px);
+}
+.app-shell nav.fixed {
+  background: rgb(255 255 255 / 94%);
+  border-color: rgb(41 41 35 / 8%);
+  box-shadow: 0 8px 30px rgb(41 41 35 / 9%);
+  backdrop-filter: blur(20px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-content .rounded-2xl.border,
+  .app-content .rounded-xl.border { transition: none; }
+}
