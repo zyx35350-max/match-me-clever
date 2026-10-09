@@ -53,10 +53,7 @@ function MatchingPage() {
 
   useEffect(() => {
     const availableCodes = new Set(searchCities.map((city) => city.jobArea));
-    setSelectedCities((current) => {
-      const valid = current.filter((code) => availableCodes.has(code));
-      return valid.length ? valid : searchCities.map((city) => city.jobArea);
-    });
+    setSelectedCities((current) => current.filter((code) => availableCodes.has(code)));
   }, [searchCities]);
 
   useEffect(() => setPage(1), [filter, track]);
@@ -80,7 +77,10 @@ function MatchingPage() {
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error ?? "51Job discovery failed.");
       const summary = importDiscoveredJobs(payload.jobs ?? [], "51Job");
-      setDiscoveryMessage("抓取 " + summary.fetched + " 个 · 新增 " + summary.added + " 个 · 更新 " + summary.updated + " 个 · 重复 " + summary.duplicates);
+      const sourceReport = typeof payload.message === "string" && payload.message.trim()
+        ? "。抓取日志：" + payload.message
+        : "";
+      setDiscoveryMessage("抓取 " + summary.fetched + " 个 · 新增 " + summary.added + " 个 · 更新 " + summary.updated + " 个 · 重复 " + summary.duplicates + sourceReport);
     } catch (error) {
       setDiscoveryMessage(error instanceof Error ? error.message : "51Job discovery failed.");
     } finally {
