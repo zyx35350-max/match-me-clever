@@ -53,7 +53,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="app-shell min-h-screen text-ink">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] border-r border-ink/8 bg-white/90 px-4 py-5 backdrop-blur-2xl lg:flex lg:flex-col">
         <Link to="/" className="mb-7 flex items-center gap-2 rounded-2xl px-2 py-1.5">
-          <img src="/solstice-mark.svg" alt="" className="size-7 object-contain" />
           <span className="font-display text-[20px] font-extrabold tracking-tight">Solstice</span>
         </Link>
 
@@ -104,7 +103,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-30 border-b border-ink/8 bg-white/80 backdrop-blur-2xl">
           <div className="mx-auto flex min-h-16 max-w-[1380px] items-center gap-3 px-4 sm:px-6">
             <Link to="/" className="flex items-center gap-2 lg:hidden">
-              <img src="/solstice-mark.svg" alt="" className="size-7 object-contain" />
               <span className="font-display text-lg font-extrabold tracking-tight">Solstice</span>
             </Link>
             <div className="hidden lg:block">
