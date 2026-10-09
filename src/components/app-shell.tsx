@@ -53,8 +53,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="app-shell min-h-screen text-ink">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] border-r border-ink/8 bg-white/90 px-4 py-5 backdrop-blur-2xl lg:flex lg:flex-col">
         <Link to="/" className="solstice-shell-brand mb-7 flex items-center gap-2 rounded-2xl px-2 py-1.5">
-          <span className="solstice-brand-mark" aria-hidden="true"><span /></span>
-          <span><span className="block font-display text-[20px] font-extrabold tracking-tight">Solstice</span><span className="mt-0.5 block text-[9px] font-bold tracking-[0.18em] text-ink/35 uppercase">Career, in focus</span></span>
+          <span className="solstice-wordmark solstice-wordmark--sidebar" aria-label="Solstice">Solstice<span className="solstice-wordmark__period">.</span><span className="solstice-wordmark__descriptor">CAREER, IN FOCUS</span></span>
         </Link>
 
         <nav className="space-y-4">
@@ -104,8 +103,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-30 border-b border-ink/8 bg-white/80 backdrop-blur-2xl">
           <div className="mx-auto flex min-h-16 max-w-[1380px] items-center gap-3 px-4 sm:px-6">
             <Link to="/" className="solstice-shell-brand flex items-center gap-2 lg:hidden">
-              <span className="solstice-brand-mark" aria-hidden="true"><span /></span>
-              <span className="font-display text-lg font-extrabold tracking-tight">Solstice</span>
+              <span className="solstice-wordmark solstice-wordmark--mobile" aria-label="Solstice">Solstice<span className="solstice-wordmark__period">.</span></span>
             </Link>
             <div className="hidden lg:block">
               <div className="text-[10px] font-bold tracking-[0.2em] text-ink/35 uppercase">AI Job Search Workspace</div>
