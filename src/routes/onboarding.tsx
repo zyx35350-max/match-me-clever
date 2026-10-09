@@ -123,16 +123,20 @@ function OnboardingPage() {
 
         <div className="grid overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-[0_25px_90px_rgba(38,31,8,0.09)] lg:grid-cols-[0.74fr_1.26fr]">
           <section className="yellow-grain p-7 sm:p-9">
-            <div className="text-[10px] font-bold tracking-[0.24em] text-ochre uppercase">01 · 从你的求职目标开始</div>
-            <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight">先从你在意的事开始，<br />一步步明确求职方向。</h1>
-            <p className="mt-4 text-sm leading-7 text-ink/55">这些信息会直接影响岗位理解、匹配分数和今日推荐。以后都可以在「我的资料」继续细化。</p>
-            <div className="mt-8 space-y-2">
-              {["姓名 / 显示名", "工作年限与职业阶段", "求职城市与工作方式", "期望月薪（税前）"].map((item, i) => (
-                <div key={item} className="rounded-xl border border-ink/8 bg-white/70 px-3 py-2.5 text-xs font-semibold">
-                  <span className="mr-2 text-ochre">0{i + 1}</span>{item}
-                </div>
-              ))}
+            <div className="text-[10px] font-bold tracking-[0.24em] text-ochre uppercase">开始之前 · 建立你的求职画像</div>
+            <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight">从你现在的情况出发，<br />找到更适合你的工作机会。</h1>
+            <p className="mt-4 text-sm leading-7 text-ink/55">告诉我们你目前的职业方向、求职偏好和期待。Solstice 会结合这些信息理解岗位、分析匹配度，帮你更有方向地探索机会。</p>
+            <div className="mt-8 rounded-2xl border border-ink/8 bg-white/70 p-4">
+              <div className="text-xs font-bold text-ink/65">你将完善以下信息</div>
+              <div className="mt-3 space-y-3">
+                {["基本信息与职业方向", "工作经验与当前阶段", "求职城市与工作方式", "期望月薪与薪资偏好"].map((item, i) => (
+                  <div key={item} className="flex items-center gap-3 text-xs font-semibold text-ink/70">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[#F2EAD7] text-ochre">0{i + 1}</span>{item}
+                  </div>
+                ))}
+              </div>
             </div>
+            <p className="mt-4 text-xs leading-6 text-ink/40">不必一开始就想清楚所有答案。先填写目前确定的信息，之后可以随时调整。</p>
           </section>
 
           <section className="p-7 sm:p-9">
