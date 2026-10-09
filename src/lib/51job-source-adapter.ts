@@ -215,7 +215,7 @@ export async function extract51JobDetail(page: Page): Promise<FiftyOneJobDetailR
   const snapshot = await page.evaluate(() => {
     const text = (selector: string) => {
       const element = document.querySelector(selector);
-      return (element?.innerText ?? element?.textContent ?? "").trim();
+      return ((element as HTMLElement | null)?.innerText ?? element?.textContent ?? "").trim();
     };
 
     const bodyText = document.body?.innerText ?? "";
@@ -364,7 +364,7 @@ export async function extract51JobDetail(page: Page): Promise<FiftyOneJobDetailR
 
   const parts = snapshot.locationSource
     .split("|")
-    .map((part) => cleanText(part))
+    .map((part: string) => cleanText(part))
     .filter(Boolean);
 
   return {
@@ -537,12 +537,12 @@ async function captureSearchApiItems(
       const items = (JSON.parse(text)?.resultbody?.job?.items ?? []) as SearchApiItem[];
       for (const item of items) {
         if (item?.jobId && item?.jobHref) {
-          hrefByJobId.set(String(item.jobId), String(item.jobHref));
+          hrefByJobId.set(String(item["jobId"]), String(item["jobHref"]));
         }
         if (item?.jobId && item?.jobDescribe) {
-          const description = clean51JobDetailText(String(item.jobDescribe));
+          const description = clean51JobDetailText(String(item["jobDescribe"]));
           if (description.length >= 30) {
-            descriptionByJobId.set(String(item.jobId), description);
+            descriptionByJobId.set(String(item["jobId"]), description);
           }
         }
       }
@@ -612,21 +612,21 @@ async function fetchSearchApiPage(page: Page, firstApiUrl: string, pageNumber: n
 }
 
 function searchApiItemToCard(item: Record<string, unknown>): SearchCard | null {
-  const jobId = item.jobId ? String(item.jobId) : null;
-  const title = item.jobName ? cleanText(String(item.jobName)) : null;
-  const company = item.fullCompanyName
-    ? cleanText(String(item.fullCompanyName))
-    : item.companyName
-      ? cleanText(String(item.companyName))
+  const jobId = item["jobId"] ? String(item["jobId"]) : null;
+  const title = item["jobName"] ? cleanText(String(item["jobName"])) : null;
+  const company = item["fullCompanyName"]
+    ? cleanText(String(item["fullCompanyName"]))
+    : item["companyName"]
+      ? cleanText(String(item["companyName"]))
       : null;
-  const salary = item.provideSalaryString ? cleanText(String(item.provideSalaryString)) : null;
-  const location = item.jobAreaString ? cleanText(String(item.jobAreaString)) : null;
+  const salary = item["provideSalaryString"] ? cleanText(String(item["provideSalaryString"])) : null;
+  const location = item["jobAreaString"] ? cleanText(String(item["jobAreaString"])) : null;
   if (!jobId || !title) return null;
-  const description = item.jobDescribe
-    ? clean51JobSearchText(String(item.jobDescribe))
+  const description = item["jobDescribe"]
+    ? clean51JobSearchText(String(item["jobDescribe"]))
     : clean51JobSearchText(JSON.stringify(item));
   return {
-    pageCode: typeof item.pageCode === "string" ? item.pageCode : "sou|sou|soulb",
+    pageCode: typeof item["pageCode"] === "string" ? item["pageCode"] : "sou|sou|soulb",
     jobId,
     title,
     company,
@@ -821,7 +821,7 @@ export class FiftyOneJobSourceAdapter {
 
         let enriched = job;
         const searchApiHasFullDescription =
-          (job.metadata?.detailStatus === "full") ||
+          (job.metadata?.["detailStatus"] === "full") ||
           job.rawDescription.length >= 80 &&
           /(岗位职责|职位描述|工作内容|工作职责|岗位要求|任职要求|任职资格|职位要求|任职条件)/.test(
             job.rawDescription,
@@ -836,7 +836,7 @@ export class FiftyOneJobSourceAdapter {
             detailFetchedAt,
           };
 
-          if (detail.postedAt) detailMetadata.detailPostedAt = detail.postedAt;
+          if (detail.postedAt) detailMetadata["detailPostedAt"] = detail.postedAt;
 
           if (detail.status === "full" && detail.description) {
             enriched = {
@@ -923,11 +923,11 @@ export class FiftyOneJobSourceAdapter {
             );
           } else {
             const cards = await extractMainSearchCards(page);
-            currentPageSignature = cards.map((card) => card.jobId).filter(Boolean).join(",");
+            currentPageSignature = cards.map((card: SearchCard) => card.jobId).filter(Boolean).join(",");
 
             const pageFetchedAt = new Date().toISOString();
             const pageJobs = cards
-              .map((card) =>
+              .map((card: SearchCard) =>
                 searchCardToRawJob(
                   card,
                   task,
@@ -937,7 +937,7 @@ export class FiftyOneJobSourceAdapter {
                   capturedApi.descriptionByJobId,
                 ),
               )
-              .filter((job): job is RawJob => Boolean(job));
+              .filter((job: RawJob | null): job is RawJob => Boolean(job));
 
             searchReports.push(
               keyword + "/" + (task.jobArea ?? "all") +
@@ -962,8 +962,8 @@ export class FiftyOneJobSourceAdapter {
 
                 const apiCards = apiPage.payload.items
                   .map((item: Record<string, unknown>) => searchApiItemToCard(item))
-                  .filter((card): card is SearchCard => Boolean(card));
-                const apiSignature = apiCards.map((card) => card.jobId).filter(Boolean).join(",");
+                  .filter((card: SearchCard | null): card is SearchCard => Boolean(card));
+                const apiSignature = apiCards.map((card: SearchCard) => card.jobId).filter(Boolean).join(",");
 
                 if (!apiSignature || apiSignature === previousSignature) {
                   searchReports.push(
@@ -975,20 +975,20 @@ export class FiftyOneJobSourceAdapter {
                 previousSignature = apiSignature;
 
                 for (const item of apiPage.payload.items as Record<string, unknown>[]) {
-                  if (item.jobId && item.jobHref) {
-                    capturedApi.hrefByJobId.set(String(item.jobId), String(item.jobHref));
+                  if (item["jobId"] && item["jobHref"]) {
+                    capturedApi.hrefByJobId.set(String(item["jobId"]), String(item["jobHref"]));
                   }
-                  if (item.jobId && item.jobDescribe) {
-                    const description = clean51JobDetailText(String(item.jobDescribe));
+                  if (item["jobId"] && item["jobDescribe"]) {
+                    const description = clean51JobDetailText(String(item["jobDescribe"]));
                     if (description.length >= 30) {
-                      capturedApi.descriptionByJobId.set(String(item.jobId), description);
+                      capturedApi.descriptionByJobId.set(String(item["jobId"]), description);
                     }
                   }
                 }
 
                 const apiFetchedAt = new Date().toISOString();
                 const apiJobs = apiCards
-                  .map((card) =>
+                  .map((card: SearchCard) =>
                     searchCardToRawJob(
                       card,
                       task,
@@ -998,7 +998,7 @@ export class FiftyOneJobSourceAdapter {
                       capturedApi.descriptionByJobId,
                     ),
                   )
-                  .filter((job): job is RawJob => Boolean(job));
+                  .filter((job: RawJob | null): job is RawJob => Boolean(job));
 
                 searchReports.push(
                   keyword + "/" + (task.jobArea ?? "all") +
@@ -1047,7 +1047,7 @@ export class FiftyOneJobSourceAdapter {
                 }
 
                 const nextCards = await extractMainSearchCards(page);
-                const nextSignature = nextCards.map((card) => card.jobId).filter(Boolean).join(",");
+                const nextSignature = nextCards.map((card: SearchCard) => card.jobId).filter(Boolean).join(",");
                 if (!nextSignature || nextSignature === previousSignature) {
                   searchReports.push(
                     keyword + "/" + (task.jobArea ?? "all") +
@@ -1060,7 +1060,7 @@ export class FiftyOneJobSourceAdapter {
 
                 const nextFetchedAt = new Date().toISOString();
                 const nextJobs = nextCards
-                  .map((card) =>
+                  .map((card: SearchCard) =>
                     searchCardToRawJob(
                       card,
                       task,
@@ -1070,7 +1070,7 @@ export class FiftyOneJobSourceAdapter {
                       capturedApi.descriptionByJobId,
                     ),
                   )
-                  .filter((job): job is RawJob => Boolean(job));
+                  .filter((job: RawJob | null): job is RawJob => Boolean(job));
 
                 searchReports.push(
                   keyword + "/" + (task.jobArea ?? "all") +

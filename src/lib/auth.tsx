@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void supabase.auth.getSession().then(({ data }) => {
       if (!alive) return;
       const nextUser = data.session?.user ?? null;
-      setUser(nextUser ? { id: nextUser.id, email: nextUser.email } : null);
+      setUser(nextUser ? { id: nextUser.id, email: nextUser.email ?? null } : null);
       setLoading(false);
     });
 
@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       const nextUser = session?.user ?? null;
-      setUser(nextUser ? { id: nextUser.id, email: nextUser.email } : null);
+      setUser(nextUser ? { id: nextUser.id, email: nextUser.email ?? null } : null);
       if (!nextUser) setCloudProfile(null);
       setLoading(false);
     });
