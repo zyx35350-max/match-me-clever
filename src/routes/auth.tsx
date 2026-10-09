@@ -61,7 +61,6 @@ function AuthPage() {
             <div className="absolute -right-14 -top-16 size-48 rounded-full bg-ochre/20 blur-3xl" />
             <div className="relative">
               <div className="mb-10 flex items-center gap-3">
-                <img src="/solstice-mark.svg" alt="" className="size-11 object-contain" />
                 <div className="font-display text-xl font-extrabold">Solstice</div>
               </div>
               <div className="max-w-md">
