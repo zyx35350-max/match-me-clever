@@ -123,8 +123,8 @@ function OnboardingPage() {
 
         <div className="grid overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-[0_25px_90px_rgba(38,31,8,0.09)] lg:grid-cols-[0.74fr_1.26fr]">
           <section className="yellow-grain p-7 sm:p-9">
-            <div className="text-[10px] font-bold tracking-[0.24em] text-ochre uppercase">01 · 先建立最小可用画像</div>
-            <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight">先告诉我你是谁，<br />以及你想去哪里。</h1>
+            <div className="text-[10px] font-bold tracking-[0.24em] text-ochre uppercase">01 · 从你的求职目标开始</div>
+            <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight">先从你在意的事开始，<br />一步步明确求职方向。</h1>
             <p className="mt-4 text-sm leading-7 text-ink/55">这些信息会直接影响岗位理解、匹配分数和今日推荐。以后都可以在「我的资料」继续细化。</p>
             <div className="mt-8 space-y-2">
               {["姓名 / 显示名", "工作年限与职业阶段", "求职城市与工作方式", "期望月薪（税前）"].map((item, i) => (
