@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type CSSProperties } from "react";
+import { formatSalary } from "@/lib/matching";
 import { MapPin, Sparkles, Target } from "lucide-react";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
