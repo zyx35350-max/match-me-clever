@@ -17,3 +17,32 @@ export function createSearchCity(name: string, jobArea: string, id?: string): Jo
     jobArea: jobArea.trim(),
   };
 }
+
+/**
+ * True when a job is in one of the user's selected cities.
+ * Location matching is intentionally strict: unknown or unrelated cities
+ * should not leak into city-specific recommendations. Remote jobs remain
+ * eligible because they are not tied to a single office city.
+ */
+export function isJobInSelectedCities(
+  location: string | undefined,
+  selectedCities: JobSearchCity[],
+  workMode?: string,
+): boolean {
+  if (workMode === "remote") return true;
+  if (!location || !selectedCities.length) return false;
+
+  const normalize = (value: string) =>
+    value
+      .toLowerCase()
+      .replace(/\s+/g, "")
+      .replace(/[·•,，、/|_-]/g, "");
+
+  const normalizedLocation = normalize(location);
+  return selectedCities.some(({ name }) => {
+    const city = normalize(name).replace(/市$/, "");
+    if (!city) return false;
+    return normalizedLocation.includes(city) ||
+      normalizedLocation.includes(city + "市");
+  });
+}
