@@ -176,22 +176,52 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             .eq("user_id", user.id)
             .maybeSingle();
 
+          if (error) {
+            console.error("Failed to load cloud workspace:", error);
+          }
+
           if (!cancelled && !error && data?.workspace) {
             setState(migrate(JSON.stringify(data.workspace)));
             setHydrated(true);
             return;
           }
-        }
 
-        const accountSave = window.localStorage.getItem(accountKey);
-        if (accountSave) {
-          if (!cancelled) setState(migrate(accountSave));
+          // A profile may exist before the full workspace has been created in the cloud.
+          // Bootstrap from this account's cloud profile instead of reviving an old shared
+          // browser save, which could belong to a different session or user.
+          const { data: cloudProfile, error: profileError } = await supabase
+            .from("profiles")
+            .select("name, headline, min_salary, career_profile, search_cities")
+            .eq("id", user.id)
+            .maybeSingle();
+
+          if (!cancelled && !profileError && cloudProfile) {
+            setState({
+              ...initial,
+              identity: {
+                name: cloudProfile.name ?? defaultIdentity.name,
+                headline: cloudProfile.headline ?? defaultIdentity.headline,
+                minSalary: cloudProfile.min_salary ?? defaultIdentity.minSalary,
+              },
+              career: (cloudProfile.career_profile as CareerProfile) ?? defaultCareerProfile,
+              searchCities: Array.isArray(cloudProfile.search_cities)
+                ? cloudProfile.search_cities as JobSearchCity[]
+                : DEFAULT_SEARCH_CITIES,
+            });
+            setHydrated(true);
+            return;
+          }
+
+          if (profileError) {
+            console.error("Failed to load cloud profile for workspace:", profileError);
+          }
+
+          if (!cancelled) setState(initial);
         } else {
-          // One-time migration of the old shared browser save to the first signed-in account.
-          const legacySave = window.localStorage.getItem(KEY);
-          if (legacySave) {
-            if (!cancelled) setState(migrate(legacySave));
-            window.localStorage.removeItem(KEY);
+          // Local-only fallback is used only when Supabase is not configured.
+          const accountSave = window.localStorage.getItem(accountKey);
+          if (accountSave) {
+            if (!cancelled) setState(migrate(accountSave));
           } else if (!cancelled) {
             setState(initial);
           }
