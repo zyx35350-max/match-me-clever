@@ -178,15 +178,15 @@ function ProfilePage() {
               </div>
               <div>
                 <div className="mb-2 flex items-center justify-between text-[10px] font-bold tracking-widest text-ink/40 uppercase">
-                  <span>最低期望薪资</span>
-                  <span className="text-ink">{formatSalary(draft.minSalary)}</span>
+                  <span>最低期望月薪（税前）</span>
+                  <span className="text-ink">¥{(Math.round(draft.minSalary / 1200) * 100).toLocaleString("zh-CN")}/月</span>
                 </div>
                 <input
                   type="range"
-                  min={40000}
-                  max={220000}
-                  step={5000}
-                  value={draft.minSalary}
+                  min={48000}
+                  max={216000}
+                  step={6000}
+                  value={Math.max(48000, Math.min(216000, draft.minSalary))}
                   onChange={(e) => set("minSalary", Number(e.target.value))}
                   className="profile-range"
                   style={{ "--range-progress": `${((draft.minSalary - 40000) / 180000) * 100}%` } as CSSProperties}
