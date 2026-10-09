@@ -117,7 +117,7 @@ function OnboardingPage() {
           <div className="grid size-10 place-items-center rounded-xl bg-ink text-cream"><Sparkles className="size-4" /></div>
           <div>
             <div className="font-display text-lg font-extrabold">Solstice</div>
-            <div className="text-[9px] font-bold tracking-[0.2em] text-ink/35 uppercase">SET UP YOUR PROFILE</div>
+            <div className="text-[9px] font-bold tracking-[0.2em] text-ink/35 uppercase">建立你的求职画像</div>
           </div>
         </div>
 
