@@ -583,48 +583,63 @@
 }
 
 
-/* Solstice identity layer: the sun + orbit motif, shared by auth and workspace. */
-.solstice-brand-lockup { position: relative; z-index: 1; }
-.solstice-brand-mark {
+/* Solstice wordmark system — typography is the identity; no standalone logo mark. */
+.solstice-shell-brand { text-decoration: none; }
+.solstice-wordmark {
   position: relative;
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  flex: 0 0 auto;
-  border: 1px solid rgb(255 255 255 / 96%);
-  border-radius: 15px;
-  background: linear-gradient(145deg, #fff 0%, #fffdc2 50%, #faff93 100%);
-  box-shadow: 0 6px 18px rgb(41 41 35 / 8%), inset 0 1px 0 #fff;
+  display: inline-flex;
+  align-items: baseline;
+  width: fit-content;
+  color: #292923;
+  font-family: var(--font-display, inherit);
+  font-weight: 850;
+  letter-spacing: -.075em;
+  line-height: .95;
+  white-space: nowrap;
+  text-decoration: none;
 }
-.solstice-brand-mark::before {
-  content: "";
-  width: 17px;
-  height: 17px;
-  border: 2px solid #292923;
-  border-radius: 50%;
-  box-shadow: 0 0 0 4px rgb(255 243 74 / 34%);
+.solstice-wordmark__period {
+  display: inline-block;
+  margin-left: .015em;
+  color: #d7bd00;
+  letter-spacing: -.08em;
 }
-.solstice-brand-mark::after {
-  content: "";
-  position: absolute;
-  width: 28px;
-  height: 11px;
-  border: 1.5px solid #292923;
-  border-left-color: transparent;
-  border-right-color: transparent;
-  border-radius: 50%;
-  transform: rotate(-38deg);
+.solstice-wordmark__descriptor {
+  display: block;
+  margin-top: .62rem;
+  color: rgb(41 41 35 / 48%);
+  font-family: inherit;
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: .19em;
+  line-height: 1.4;
 }
-.solstice-brand-mark > span {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #292923;
-  box-shadow: 0 0 0 2px rgb(255 243 74 / 42%);
+.solstice-wordmark--sidebar {
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 29px;
+  padding: 7px 3px 8px;
+}
+.solstice-wordmark--mobile {
+  font-size: 24px;
+  padding: 5px 0;
+}
+.solstice-wordmark--hero {
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: clamp(2.1rem, 3.2vw, 2.75rem);
+  letter-spacing: -.085em;
+}
+.solstice-wordmark--hero .solstice-wordmark__descriptor {
+  margin-top: .75rem;
+  font-size: 9px;
+  letter-spacing: .22em;
+}
+.solstice-shell-brand:hover .solstice-wordmark { letter-spacing: -.065em; }
+.solstice-shell-brand:focus-visible {
+  border-radius: 12px;
+  outline: 3px solid rgb(255 243 74 / 70%);
+  outline-offset: 4px;
 }
 .solstice-auth {
   position: relative;
@@ -739,4 +754,40 @@
   .solstice-auth { padding-block: 1rem; }
   .solstice-auth__panel { border-radius: 1.5rem; }
   .solstice-auth__story, .solstice-auth__form { padding: 1.4rem; }
+}
+
+
+/* Final coherence pass: readable frosted surfaces + wordmark prominence. */
+.solstice-auth__panel,
+.solstice-onboarding__panel {
+  -webkit-backdrop-filter: blur(26px) saturate(1.18);
+  backdrop-filter: blur(26px) saturate(1.18);
+}
+.solstice-auth__story,
+.solstice-onboarding__story {
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  backdrop-filter: blur(18px) saturate(1.1);
+}
+.solstice-auth__form input,
+.solstice-onboarding__form input:not([type="checkbox"]),
+.solstice-onboarding__form select {
+  color: #292923;
+}
+.solstice-auth__form input::placeholder,
+.solstice-onboarding__form input::placeholder {
+  color: rgb(41 41 35 / 42%);
+}
+.solstice-shell-brand { min-width: 0; }
+.solstice-shell-brand .solstice-wordmark--sidebar { font-size: 30px; }
+@media (max-width: 1023px) {
+  .solstice-wordmark--mobile { font-size: 23px; }
+  .app-shell header { min-height: 64px; }
+}
+@media (max-width: 640px) {
+  .solstice-auth__panel,
+  .solstice-onboarding__panel { backdrop-filter: blur(20px) saturate(1.12); }
+  .solstice-wordmark--hero { font-size: 2.2rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .solstice-shell-brand .solstice-wordmark { transition: none; }
 }
