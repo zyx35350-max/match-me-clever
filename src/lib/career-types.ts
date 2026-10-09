@@ -37,6 +37,10 @@ export interface BasicProfile {
   relocation: string;
   workMode: WorkMode | "any";
   languages: string[];
+  /** Optional salary preferences collected during onboarding; monthly CNY, before tax. */
+  salaryMinMonthly?: number;
+  salaryMaxMonthly?: number;
+  salaryPreference?: "range" | "negotiable" | "unlimited";
 }
 
 export interface WorkContentPreference {
