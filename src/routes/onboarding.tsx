@@ -253,7 +253,7 @@ function OnboardingPage() {
 
               <button disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3.5 text-sm font-extrabold text-cream shadow-sm transition hover:-translate-y-0.5 hover:bg-ink/90 disabled:opacity-50">
                 {busy ? "正在保存…" : "保存职业画像并进入 Solstice"}
-                <ArrowRight className="size-4 text-ink/50" />
+                <ArrowRight className="size-4 text-ochre" />
               </button>
             </form>
           </section>
