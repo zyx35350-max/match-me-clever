@@ -48,17 +48,24 @@ function OnboardingPage() {
     ...defaultCareerProfile,
     basics: {
       ...defaultCareerProfile.basics,
-      education,
+      education: education.trim() || "暂未填写",
       yearsExperience: Math.max(0, Number(years) || 0),
       careerStage: stage.trim() || "正在探索适合自己的职业方向",
       preferredLocations: cities.split(/[,，、]/).map((v) => v.trim()).filter(Boolean),
       workMode,
+      salaryMinMonthly: salaryPreference === "range" ? Math.max(0, Number(salaryMin) || 0) : undefined,
+      salaryMaxMonthly: salaryPreference === "range" ? Math.max(0, Number(salaryMax) || 0) : undefined,
+      salaryPreference,
     },
-  }), [education, years, stage, cities, workMode]);
+  }), [education, years, stage, cities, workMode, salaryMin, salaryMax, salaryPreference]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    if (salaryPreference === "range" && Number(salaryMin) > Number(salaryMax)) {
+      setError("最高月薪应大于或等于最低月薪。");
+      return;
+    }
 
     const identity = {
       name: name.trim() || "我的资料",
