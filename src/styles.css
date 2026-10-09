@@ -1013,7 +1013,7 @@
 .solstice-onboarding__form,
 .solstice-onboarding__form input:not([type="checkbox"]),
 .solstice-onboarding__form select,
-.solstice-onboarding__form .flex.items-center.rounded-xl,
+.solstice-onboarding__form .flex.items-center.rounded-xl:not(button),
 .solstice-onboarding__form button[type="button"]:not(.border-ink):not([class*="bg-ink"]) {
   background: #fff !important;
   background-image: none !important;
