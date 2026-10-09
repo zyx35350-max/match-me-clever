@@ -798,11 +798,17 @@ export class FiftyOneJobSourceAdapter {
     let stopAll = false;
 
     const uniqueCount = () => deduplicateJobs([], rawJobs).uniqueJobs.length;
+    // Spread a requested batch across the selected keyword/city combinations.
+    // Without a per-task quota, the first search can fill the whole target and
+    // all other selected cities/keywords are never visited.
+    const taskQuota = Math.max(1, Math.ceil(targetCount / searches.length));
+    let currentTaskAdded = 0;
+    let taskQuotaReached = false;
 
     const enrichPageJobs = async (pageJobs: RawJob[], taskLabel: string) => {
       for (const job of pageJobs) {
-        if (stopAll || uniqueCount() >= targetCount) {
-          stopAll = true;
+        if (stopAll || taskQuotaReached || uniqueCount() >= targetCount) {
+          if (uniqueCount() >= targetCount) stopAll = true;
           break;
         }
 
@@ -860,8 +866,13 @@ export class FiftyOneJobSourceAdapter {
         }
 
         rawJobs.push(enriched);
+        currentTaskAdded += 1;
         if (uniqueCount() >= targetCount) {
           stopAll = true;
+          break;
+        }
+        if (currentTaskAdded >= taskQuota) {
+          taskQuotaReached = true;
           break;
         }
       }
@@ -876,6 +887,8 @@ export class FiftyOneJobSourceAdapter {
 
       for (const task of searches) {
         if (stopAll) break;
+        currentTaskAdded = 0;
+        taskQuotaReached = false;
 
         const keyword = task.keyword.trim();
         if (!keyword) continue;
@@ -932,10 +945,10 @@ export class FiftyOneJobSourceAdapter {
             );
             await enrichPageJobs(pageJobs, keyword + "/" + (task.jobArea ?? "all") + " page 1");
 
-            if (!stopAll && maxPages > 1 && firstApiUrl) {
+            if (!stopAll && !taskQuotaReached && maxPages > 1 && firstApiUrl) {
               let previousSignature = currentPageSignature;
 
-              for (let nextPageNumber = 2; nextPageNumber <= maxPages; nextPageNumber += 1) {
+              for (let nextPageNumber = 2; nextPageNumber <= maxPages && !taskQuotaReached; nextPageNumber += 1) {
                 await new Promise((resolve) => setTimeout(resolve, delayMs));
 
                 const apiPage = await fetchSearchApiPage(page, firstApiUrl, nextPageNumber);
@@ -998,11 +1011,11 @@ export class FiftyOneJobSourceAdapter {
                 );
                 if (stopAll) break;
               }
-            } else if (!stopAll) {
+            } else if (!stopAll && !taskQuotaReached) {
               let pageNumber = 1;
               let previousSignature = currentPageSignature;
 
-              while (pageNumber < maxPages && !stopAll) {
+              while (pageNumber < maxPages && !stopAll && !taskQuotaReached) {
                 const nextPageNumber = pageNumber + 1;
                 const next = await findNextPageControl(page, nextPageNumber);
                 if (!next) {
