@@ -51,6 +51,13 @@ function ProfilePage() {
     setDraft((d) => ({ ...d, [key]: value }));
 
   const topDirections = directions.slice(0, 3);
+  const salaryPreference = career.basics.salaryPreference;
+  const salaryDisplay =
+    salaryPreference === "unlimited" ? "暂不限定" :
+    salaryPreference === "negotiable" ? "可协商" :
+    career.basics.salaryMinMonthly != null && career.basics.salaryMaxMonthly != null
+      ? "¥" + career.basics.salaryMinMonthly.toLocaleString("zh-CN") + "–" + career.basics.salaryMaxMonthly.toLocaleString("zh-CN")
+      : "¥" + (Math.round(draft.minSalary / 1200) * 100).toLocaleString("zh-CN");
   const [savingBasic, setSavingBasic] = useState(false);
   const [savedBasicAt, setSavedBasicAt] = useState<string | null>(null);
 
@@ -98,7 +105,7 @@ function ProfilePage() {
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-2">
               <Signal label="核心技能" value={String(profile.skills.length)} note="进入匹配" />
               <Signal label="探索方向" value={String(profile.targetTitles.length)} note="保持开放" />
-              <Signal label="最低薪资" value={formatSalary(draft.minSalary)} note="期望起点" />
+              <Signal label="期望月薪" value={salaryDisplay} note={salaryPreference === "unlimited" ? "不设薪资门槛" : salaryPreference === "negotiable" ? "可进一步沟通" : "税前 / 元每月"} />
               <Signal label="工作方式" value={modeLabel[draft.workModePreference]} note="当前偏好" />
             </div>
           </div>
