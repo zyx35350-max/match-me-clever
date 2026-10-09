@@ -1041,11 +1041,16 @@
   background: #fff !important;
 }
 .solstice-onboarding__form form > button[type="submit"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-color: #211f18 !important;
   background: #211f18 !important;
   background-image: none !important;
-  border: 1px solid #211f18 !important;
+  border: 0 !important;
   color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
   box-shadow: 0 2px 5px rgb(33 31 24 / 12%) !important;
+  opacity: 1 !important;
 }
 .solstice-onboarding__form form > button[type="submit"] svg {
   color: #f2c900 !important;
