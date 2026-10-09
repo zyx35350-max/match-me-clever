@@ -76,19 +76,17 @@ function Dashboard() {
     <AppShell>
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12 space-y-6 lg:col-span-8">
-          <div className="animate-fade-up relative overflow-hidden rounded-2xl bg-sand p-7">
+          <div className="solstice-hero animate-fade-up relative overflow-hidden rounded-[28px] bg-sand p-7 md:p-9">
             <div className="relative z-10 flex flex-wrap items-end justify-between gap-6">
               <div>
                 <div className="mb-2 text-[11px] font-semibold tracking-[0.3em] text-azure uppercase">
-                  {today}
+                  今日 · {today}
                 </div>
                 <h1 className="font-display text-4xl leading-none font-extrabold">
-                  Your career workspace
+                  你的 AI 求职工作台
                 </h1>
                 <p className="mt-3 max-w-md text-ink/70">
-                  {fresh} roles posted in the last two days were scored against your profile. Your
-                  strongest fit right now is {top.immediateFit}, with growth value{" "}
-                  {top.careerGrowthValue}.
+                  最近两天有 {fresh} 个新岗位完成匹配分析。当前岗位适配度为 {top.immediateFit}，职业成长价值为 {top.careerGrowthValue}。
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -96,13 +94,13 @@ function Dashboard() {
                   to="/today"
                   className="rounded-xl bg-azure px-5 py-3 font-display font-bold text-cream transition-colors hover:bg-azure-deep"
                 >
-                  Review today's matches
+                  查看今日推荐
                 </Link>
                 <Link
                   to="/profile"
                   className="rounded-xl border border-ink/20 px-5 py-3 font-semibold transition-colors hover:bg-card/60"
                 >
-                  Update profile
+                  完善我的资料
                 </Link>
               </div>
             </div>
@@ -110,15 +108,15 @@ function Dashboard() {
             <div className="absolute right-16 -bottom-16 h-40 w-40 rounded-full bg-azure/15" />
           </div>
 
-          <div className="rounded-2xl border border-ink/10 bg-card p-6">
+          <div className="solstice-feature-card rounded-[24px] border border-ink/10 bg-card p-6">
             <div className="mb-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">
-                  Today's top match
+                  当前优先推荐
                 </span>
                 <span className="h-1.5 w-1.5 rounded-full bg-ochre" />
               </div>
-              <div className="text-xs font-semibold text-azure">{top.overall} overall</div>
+              <div className="text-xs font-semibold text-azure">综合匹配 {top.overall}%</div>
             </div>
             <div className="flex flex-col gap-5 sm:flex-row">
               <img
@@ -150,7 +148,7 @@ function Dashboard() {
                   <div>
                     <div className="mb-1 flex justify-between text-xs font-medium">
                       <span className="text-ink/60">
-                        Immediate fit {top.immediateFit} · growth value {top.careerGrowthValue}
+                        岗位适配 {top.immediateFit} · 成长价值 {top.careerGrowthValue}
                       </span>
                       <span className="font-semibold text-azure">{top.overall}%</span>
                     </div>
@@ -169,29 +167,29 @@ function Dashboard() {
               AI
             </div>
             <div className="flex-1">
-              <div className="text-sm font-semibold">AI Career Matching</div>
+              <div className="text-sm font-semibold">AI 岗位匹配分析</div>
               <div className="text-xs text-ink/55">
-                Scored {jobs.length} open roles against {profile.skills.length} weighted skills
+                已分析 {jobs.length} 个岗位，结合 {profile.skills.length} 项个人能力
               </div>
             </div>
             <Link to="/matching" className="text-sm font-semibold text-azure hover:text-azure-deep">
-              Open matching
+              查看岗位匹配
             </Link>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
             <StatCard
-              label="Applications"
+              label="已投递"
               value={applications.length}
-              note={`${inReview} in review`}
+              note={`${inReview} 个等待反馈`}
             />
-            <StatCard label="Interviews" value={interviews} note="Scheduled" tone="azure" />
-            <StatCard label="Offers" value={offers} note="In hand" tone="ochre" />
+            <StatCard label="面试中" value={interviews} note="正在推进" tone="azure" />
+            <StatCard label="已获 Offer" value={offers} note="收获结果" tone="ochre" />
           </div>
 
           <div className="rounded-2xl border border-ink/10 bg-card p-6">
             <div className="text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">
-              AI insight
+              AI 职业洞察
             </div>
             <p className="mt-2 text-sm leading-relaxed text-ink/75">
               Your strongest current advantage is the combination of e-commerce operations, product
@@ -199,7 +197,7 @@ function Dashboard() {
               roles, but formal AI project evidence is currently a gap.
             </p>
             <p className="mt-3 text-sm text-ink/65">
-              <span className="font-semibold">Best current direction:</span>{" "}
+              <span className="font-semibold">当前值得探索的方向：</span>{" "}
               {topDirection
                 ? `${topDirection.direction.name} (${topDirection.score}/100 AI assessment)`
                 : "—"}
@@ -210,13 +208,13 @@ function Dashboard() {
                 to="/directions"
                 className="rounded-lg bg-ink px-3 py-1.5 text-xs font-semibold text-cream hover:bg-azure-deep"
               >
-                Explore directions
+                探索职业方向
               </Link>
               <Link
                 to="/matching"
                 className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold hover:bg-sand"
               >
-                Open AI career profile
+                查看能力画像
               </Link>
             </div>
           </div>
@@ -231,13 +229,13 @@ function Dashboard() {
                       onClick={() => acceptSuggestion(s)}
                       className="rounded-lg bg-azure px-3 py-1.5 text-xs font-semibold text-cream"
                     >
-                      Yes, update
+                      采纳建议
                     </button>
                     <button
                       onClick={() => dismissSuggestion(s.id)}
                       className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold"
                     >
-                      Keep as is
+                      暂时保留
                     </button>
                   </div>
                 </div>
@@ -247,9 +245,9 @@ function Dashboard() {
 
           <div className="space-y-3">
             <div className="mb-1 flex items-center justify-between">
-              <h2 className="font-display text-xl font-bold">Today's recommended jobs</h2>
+              <h2 className="font-display text-xl font-bold">今日推荐岗位</h2>
               <Link to="/today" className="text-sm font-semibold text-azure">
-                Open today
+                查看全部
               </Link>
             </div>
             {todayPicks.map((m) => (
@@ -292,12 +290,11 @@ function Dashboard() {
 
           <div className="rounded-2xl bg-sand p-5">
             <div className="text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">
-              Recent feedback
+              最近的反馈
             </div>
             {feedback.length === 0 ? (
               <p className="mt-2 text-sm text-ink/60">
-                No feedback yet — save, apply or mark “not for me” and the assistant starts
-                learning.
+                还没有反馈。收藏、投递或标记“不适合”，AI 会逐步了解你的偏好。
               </p>
             ) : (
               <ul className="mt-2 space-y-1 text-sm text-ink/70">
@@ -312,9 +309,9 @@ function Dashboard() {
 
           <div className="space-y-3">
             <div className="mb-1 flex items-center justify-between">
-              <h2 className="font-display text-xl font-bold">More matches for you</h2>
+              <h2 className="font-display text-xl font-bold">更多匹配岗位</h2>
               <Link to="/matching" className="text-sm font-semibold text-azure">
-                View all {ranked.length}
+                查看全部 {ranked.length} 个
               </Link>
             </div>
             {next.map((match) => (
@@ -327,7 +324,7 @@ function Dashboard() {
           <div className="relative overflow-hidden rounded-2xl bg-ink p-6 text-cream">
             <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-ochre/30" />
             <div className="mb-4 text-[11px] font-semibold tracking-[0.25em] text-cream/60 uppercase">
-              Activity log
+              最近动态
             </div>
             <div className="relative space-y-4 pl-5">
               <div className="absolute top-1 bottom-1 left-1.5 w-px bg-cream/20" />
@@ -347,24 +344,24 @@ function Dashboard() {
               to="/activity"
               className="mt-5 inline-block text-xs font-semibold text-ochre-soft hover:text-ochre"
             >
-              Full log →
+              查看全部记录 →
             </Link>
           </div>
 
           <div className="rounded-2xl border border-ink/10 bg-card p-6">
             <div className="mb-4 text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">
-              Score breakdown — top match
+              首选岗位 · 匹配度拆解
             </div>
             <BreakdownGrid match={top} />
           </div>
 
           <div className="rounded-2xl bg-sand p-6">
             <div className="mb-3 text-[11px] font-semibold tracking-[0.25em] text-ink/50 uppercase">
-              Saved jobs
+              已收藏岗位
             </div>
             <div className="space-y-3 text-sm">
               {savedJobs.length === 0 ? (
-                <p className="text-ink/55">Nothing saved yet.</p>
+                <p className="text-ink/55">暂时还没有收藏岗位。</p>
               ) : (
                 savedJobs.map((job) => (
                   <div key={job.id} className="flex items-center justify-between gap-3">
@@ -384,7 +381,7 @@ function Dashboard() {
               to="/saved"
               className="mt-4 block rounded-lg border border-ink/20 py-2 text-center text-xs font-semibold transition-colors hover:bg-card/60"
             >
-              View all saved
+              查看收藏列表
             </Link>
           </div>
         </aside>
@@ -419,9 +416,9 @@ function StatCard({
 export function relative(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const hours = Math.round(diff / 3_600_000);
-  if (hours < 1) return "Just now";
+  if (hours < 1) return "刚刚";
   if (hours < 24)
-    return `Today · ${new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
-  if (hours < 48) return "Yesterday";
+    return `今天 · ${new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
+  if (hours < 48) return "昨天";
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
