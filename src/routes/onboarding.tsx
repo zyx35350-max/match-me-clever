@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowRight, BriefcaseBusiness, MapPin, Sparkles, ChevronDown } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, MapPin, ChevronDown } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/store";
@@ -113,12 +113,9 @@ function OnboardingPage() {
   return (
     <main className="min-h-screen bg-white px-4 py-8 text-ink sm:px-6">
       <div className="mx-auto max-w-5xl">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="grid size-10 place-items-center rounded-xl bg-ink text-cream"><Sparkles className="size-4" /></div>
-          <div>
-            <div className="font-display text-lg font-extrabold">Solstice</div>
-            <div className="text-[9px] font-bold tracking-[0.2em] text-ink/35 uppercase">建立你的求职画像</div>
-          </div>
+        <div className="mb-6 flex items-center justify-between border-b border-ink/8 pb-4">
+          <div className="font-display text-base font-bold tracking-[0.08em] text-ink/75">Solstice</div>
+          <div className="text-[10px] font-semibold tracking-[0.12em] text-ink/35">建立你的求职画像</div>
         </div>
 
         <div className="grid overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-[0_25px_90px_rgba(38,31,8,0.09)] lg:grid-cols-[0.74fr_1.26fr]">
