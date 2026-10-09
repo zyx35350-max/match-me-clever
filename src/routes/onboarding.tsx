@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowRight, BriefcaseBusiness, MapPin, ChevronDown } from "lucide-react";
+import { ArrowLeft, ArrowRight, BriefcaseBusiness, MapPin, ChevronDown } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/store";
@@ -28,7 +28,7 @@ const modeLabels: Record<WorkMode | "any", string> = {
 
 function OnboardingPage() {
   const navigate = useNavigate();
-  const { user, loading, saveProfile, refreshProfile, profileComplete } = useAuth();
+  const { user, loading, saveProfile, refreshProfile, profileComplete, signOut } = useAuth();
   const { updateProfile, updateCareer, replaceSearchCities } = useWorkspace();
 
   const [name, setName] = useState("");
@@ -113,9 +113,22 @@ function OnboardingPage() {
   return (
     <main className="min-h-screen bg-white px-4 py-8 text-ink sm:px-6">
       <div className="mx-auto max-w-5xl">
-        <div className="mb-6 flex items-center justify-between border-b border-ink/8 pb-4">
-          <div className="font-display text-base font-bold tracking-[0.08em] text-ink/75">Solstice</div>
-          <div className="text-[10px] font-semibold tracking-[0.12em] text-ink/35">建立你的求职画像</div>
+        <div className="mb-6 flex items-center justify-between gap-3 border-b border-ink/8 pb-4">
+          <button
+            type="button"
+            onClick={async () => {
+              await signOut();
+              void navigate({ to: "/auth", replace: true });
+            }}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-ink/50 transition hover:bg-ink/5 hover:text-ink"
+          >
+            <ArrowLeft className="size-3.5" />
+            返回登录 / 注册
+          </button>
+          <div className="text-right">
+            <div className="font-display text-sm font-bold tracking-[0.08em] text-ink/70">Solstice</div>
+            <div className="mt-0.5 text-[10px] font-semibold text-ink/35">建立你的求职画像</div>
+          </div>
         </div>
 
         <div className="grid overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-[0_25px_90px_rgba(38,31,8,0.09)] lg:grid-cols-[0.74fr_1.26fr]">
