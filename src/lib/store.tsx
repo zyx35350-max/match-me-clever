@@ -9,6 +9,8 @@ import {
 } from "react";
 
 import { defaultCareerProfile } from "./career-data";
+import { useAuth } from "./auth";
+import { getSupabaseClient } from "./supabase";
 import { allJobs } from "./career-jobs";
 import type {
   CareerProfile,
@@ -148,23 +150,81 @@ function migrate(raw: string): Persisted {
 }
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
+  const { user, loading: authLoading } = useAuth();
   const [state, setState] = useState<Persisted>(initial);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(KEY);
-      if (raw) setState(migrate(raw));
-    } catch {
-      /* ignore malformed storage */
-    }
-    setHydrated(true);
-  }, []);
+    if (authLoading) return;
+    let cancelled = false;
+
+    const loadWorkspace = async () => {
+      setHydrated(false);
+      if (!user) {
+        setState(initial);
+        setHydrated(true);
+        return;
+      }
+
+      const accountKey = `${KEY}:user:${user.id}`;
+      try {
+        const supabase = getSupabaseClient();
+        if (supabase) {
+          const { data, error } = await supabase
+            .from("user_workspace_data")
+            .select("workspace")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+          if (!cancelled && !error && data?.workspace) {
+            setState(migrate(JSON.stringify(data.workspace)));
+            setHydrated(true);
+            return;
+          }
+        }
+
+        const accountSave = window.localStorage.getItem(accountKey);
+        if (accountSave) {
+          if (!cancelled) setState(migrate(accountSave));
+        } else {
+          // One-time migration of the old shared browser save to the first signed-in account.
+          const legacySave = window.localStorage.getItem(KEY);
+          if (legacySave) {
+            if (!cancelled) setState(migrate(legacySave));
+            window.localStorage.removeItem(KEY);
+          } else if (!cancelled) {
+            setState(initial);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load account workspace:", error);
+        if (!cancelled) setState(initial);
+      }
+      if (!cancelled) setHydrated(true);
+    };
+
+    void loadWorkspace();
+    return () => { cancelled = true; };
+  }, [user?.id, authLoading]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    window.localStorage.setItem(KEY, JSON.stringify(state));
-  }, [state, hydrated]);
+    if (!hydrated || authLoading || !user) return;
+    const serialized = JSON.stringify(state);
+    const accountKey = `${KEY}:user:${user.id}`;
+    window.localStorage.setItem(accountKey, serialized);
+
+    const timer = window.setTimeout(async () => {
+      const supabase = getSupabaseClient();
+      if (!supabase) return;
+      const { error } = await supabase.from("user_workspace_data").upsert({
+        user_id: user.id,
+        workspace: state,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+      if (error) console.error("Failed to sync workspace to cloud:", error);
+    }, 700);
+    return () => window.clearTimeout(timer);
+  }, [state, hydrated, authLoading, user?.id]);
 
   const log = useCallback((entry: Omit<ActivityEntry, "id" | "at">) => {
     setState((prev) => ({
