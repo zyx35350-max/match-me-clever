@@ -111,9 +111,9 @@ function OnboardingPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white px-4 py-8 text-ink sm:px-6">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-6 flex items-center justify-between gap-3 border-b border-ink/8 pb-4">
+    <main className="solstice-onboarding min-h-screen px-4 py-8 text-ink sm:px-6">
+      <div className="solstice-onboarding__frame mx-auto max-w-6xl">
+        <div className="solstice-onboarding__top mb-6 flex items-center justify-between gap-3 pb-4">
           <button
             type="button"
             onClick={async () => {
@@ -131,8 +131,8 @@ function OnboardingPage() {
           </div>
         </div>
 
-        <div className="grid overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-[0_25px_90px_rgba(38,31,8,0.09)] lg:grid-cols-[0.74fr_1.26fr]">
-          <section className="yellow-grain p-7 sm:p-9">
+        <div className="solstice-onboarding__panel grid overflow-hidden rounded-[2rem] lg:grid-cols-[0.74fr_1.26fr]">
+          <section className="solstice-onboarding__story yellow-grain p-7 sm:p-9">
             <div className="text-[10px] font-bold tracking-[0.24em] text-ochre uppercase">开始之前 · 建立你的求职画像</div>
             <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight">从你现在的情况出发，找到更适合你的工作机会。</h1>
             <p className="mt-4 text-sm leading-7 text-ink/55">告诉我们目前你的职业方向、求职偏好和期待。Solstice 会结合这些信息理解岗位、分析匹配度，帮助你探索机会。</p>
@@ -149,7 +149,7 @@ function OnboardingPage() {
             <p className="mt-4 text-xs leading-6 text-ink/40">不必一开始就想清楚所有答案。先填写目前确定的信息，之后可以随时调整。</p>
           </section>
 
-          <section className="p-7 sm:p-9">
+          <section className="solstice-onboarding__form p-7 sm:p-9">
             <form onSubmit={submit} className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="你的名字 / 显示名" icon={<BriefcaseBusiness className="size-3.5 text-ochre" />}>
