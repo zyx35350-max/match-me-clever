@@ -795,3 +795,78 @@
 @media (prefers-reduced-motion: reduce) {
   .solstice-shell-brand .solstice-wordmark { transition: none; }
 }
+
+
+/* Auth refinement: a clean white form side and restrained, inline wordmark. */
+.solstice-wordmark--hero {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 1rem;
+  letter-spacing: -.075em;
+}
+.solstice-wordmark--hero .solstice-wordmark__descriptor {
+  display: inline-block;
+  margin-top: 0;
+  margin-left: .15rem;
+  font-size: 9px;
+  letter-spacing: .18em;
+  white-space: nowrap;
+}
+.solstice-auth {
+  background: #f7f7f3;
+}
+.solstice-auth::before,
+.solstice-auth::after {
+  opacity: .35;
+  box-shadow: none;
+  background: none;
+}
+.solstice-auth__panel {
+  background: #fff;
+  border: 1px solid rgb(41 41 35 / 8%);
+  box-shadow: 0 20px 70px rgb(41 41 35 / 7%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.solstice-auth__story {
+  background: #fff;
+  border-right: 1px solid rgb(41 41 35 / 7%);
+}
+.solstice-auth__story::before {
+  display: none;
+}
+.solstice-auth__form {
+  background: #fff;
+}
+.solstice-auth__form > div > div:first-child {
+  background: #f5f5f1;
+  border-color: rgb(41 41 35 / 9%);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.solstice-auth__form input {
+  background: #fff;
+  border-color: rgb(41 41 35 / 13%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.solstice-auth__form input:focus {
+  background: #fff;
+  box-shadow: 0 0 0 3px rgb(231 189 39 / 16%);
+}
+.solstice-auth__form .rounded-xl.border {
+  background: #fff;
+  border-color: rgb(41 41 35 / 10%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (max-width: 640px) {
+  .solstice-wordmark--hero {
+    flex-wrap: wrap;
+    gap: .5rem .75rem;
+  }
+  .solstice-wordmark--hero .solstice-wordmark__descriptor {
+    font-size: 8px;
+  }
+}
