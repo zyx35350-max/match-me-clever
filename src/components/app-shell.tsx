@@ -52,15 +52,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="app-shell min-h-screen text-ink">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] border-r border-ink/8 bg-white/90 px-4 py-5 backdrop-blur-2xl lg:flex lg:flex-col">
-        <Link to="/" className="mb-7 flex items-center gap-3 rounded-2xl px-2 py-1.5">
-          <div className="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-ink text-cream shadow-sm">
-            <Sparkles className="size-4" />
-            <span className="absolute -right-1 -top-1 size-5 rounded-full bg-ochre blur-[2px]" />
-          </div>
-          <div className="leading-none">
-            <div className="font-display text-[18px] font-extrabold tracking-tight">Solstice</div>
-            <div className="mt-1 text-[9px] font-bold tracking-[0.2em] text-ink/45 uppercase">AI Job OS</div>
-          </div>
+        <Link to="/" className="mb-7 flex items-center rounded-2xl px-2 py-1.5">
+          <span className="font-display text-[20px] font-extrabold tracking-tight">Solstice</span>
         </Link>
 
         <nav className="space-y-4">
@@ -109,9 +102,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="lg:pl-[248px]">
         <header className="sticky top-0 z-30 border-b border-ink/8 bg-white/80 backdrop-blur-2xl">
           <div className="mx-auto flex min-h-16 max-w-[1380px] items-center gap-3 px-4 sm:px-6">
-            <Link to="/" className="flex items-center gap-2 lg:hidden">
-              <div className="grid size-8 place-items-center rounded-lg bg-ink text-cream"><Sparkles className="size-4" /></div>
-              <span className="font-display font-extrabold">Solstice</span>
+            <Link to="/" className="flex items-center lg:hidden">
+              <span className="font-display text-lg font-extrabold tracking-tight">Solstice</span>
             </Link>
             <div className="hidden lg:block">
               <div className="text-[10px] font-bold tracking-[0.2em] text-ink/35 uppercase">AI Job Search Workspace</div>
