@@ -5,16 +5,16 @@ import { useAuth } from "@/lib/auth";
 import type {
   CareerProfile,
   DealBreaker,
-  经历证据Item,
+  EvidenceItem,
   ProvenSkill,
   Rating,
-  Skill等级,
+  SkillLevel,
 } from "@/lib/career-types";
 
 const inputClass =
   "w-full rounded-lg border border-ink/10 bg-white px-3 py-2 text-sm text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/10";
 
-const levels: Skill等级[] = ["learning", "working", "proficient", "advanced"];
+const levels: SkillLevel[] = ["learning", "working", "proficient", "advanced"];
 
 function Panel({
   number,
@@ -140,7 +140,7 @@ export function CareerProfileEditor() {
   const setSkill = (i: number, patch: Partial<ProvenSkill>) =>
     set("skills", draft.skills.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
 
-  const setEvidence = (i: number, patch: Partial<经历证据Item>) =>
+  const setEvidence = (i: number, patch: Partial<EvidenceItem>) =>
     set("evidence", draft.evidence.map((e, idx) => (idx === i ? { ...e, ...patch } : e)));
 
   const setBreaker = (i: number, patch: Partial<DealBreaker>) =>
@@ -202,7 +202,7 @@ export function CareerProfileEditor() {
               <div className="grid gap-2 md:grid-cols-[minmax(150px,1.5fr)_130px_70px_minmax(100px,1fr)_auto] md:items-end">
                 <Field label="技能"><input value={skill.name} onChange={(e) => setSkill(i, { name: e.target.value })} className={inputClass} /></Field>
                 <Field label="等级">
-                  <select value={skill.level} onChange={(e) => setSkill(i, { level: e.target.value as Skill等级 })} className={inputClass}>
+                  <select value={skill.level} onChange={(e) => setSkill(i, { level: e.target.value as SkillLevel })} className={inputClass}>
                     {levels.map((l) => <option key={l} value={l}>{{ learning: "学习中", working: "能独立工作", proficient: "熟练", advanced: "高级" }[l]}</option>)}
                   </select>
                 </Field>

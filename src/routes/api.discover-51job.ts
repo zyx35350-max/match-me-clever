@@ -13,11 +13,11 @@ export const Route = createFileRoute("/api/discover-51job")({
           };
 
           const keywords = Array.isArray(body.keywords)
-            ? body.keywords.filter((value): value is string => typeof value === "string" && value.trim())
+            ? body.keywords.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
             : ["AI产品助理", "AI产品运营"];
 
           const cities = Array.isArray(body.cities)
-            ? body.cities.filter((value): value is string => typeof value === "string" && value.trim())
+            ? body.cities.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
             : ["040000", "020000"];
 
           const targetCount =

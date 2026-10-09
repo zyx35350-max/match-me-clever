@@ -64,7 +64,7 @@ export function effectiveJobLifecycle(
   raw?: RawJob,
   now = Date.now(),
 ): JobLifecycleStatus {
-  const detailStatus = raw?.metadata?.detailStatus;
+  const detailStatus = raw?.metadata?.["detailStatus"];
   if (detailStatus === "not_found") return "closed";
   if (!lifecycle) return "active";
   if (lifecycle.status === "closed" || lifecycle.status === "expired") return lifecycle.status;
