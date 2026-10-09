@@ -7,6 +7,7 @@ import { CareerMatchCard } from "@/components/career-match-card";
 import { useCareer } from "@/lib/use-career";
 import { useWorkspace } from "@/lib/store";
 import type { EmploymentType } from "@/lib/types";
+import { canonical51JobArea, isJobInSelectedCities } from "@/lib/job-search-preferences";
 
 export const Route = createFileRoute("/matching")({
   head: () => ({
@@ -48,12 +49,12 @@ function MatchingPage() {
   const [discovering, setDiscovering] = useState(false);
   const [discoveryMessage, setDiscoveryMessage] = useState<string | null>(null);
   const [keywordInput, setKeywordInput] = useState("AI产品经理, AI产品助理");
-  const [selectedCities, setSelectedCities] = useState<string[]>(() => searchCities.map((city) => city.jobArea));
+  const [selectedCities, setSelectedCities] = useState<string[]>(() => searchCities.map((city) => city.id));
   const [targetCountInput, setTargetCountInput] = useState("10");
 
   useEffect(() => {
-    const availableCodes = new Set(searchCities.map((city) => city.jobArea));
-    setSelectedCities((current) => current.filter((code) => availableCodes.has(code)));
+    const availableIds = new Set(searchCities.map((city) => city.id));
+    setSelectedCities((current) => current.filter((id) => availableIds.has(id)));
   }, [searchCities]);
 
   useEffect(() => setPage(1), [filter, track]);
@@ -72,15 +73,22 @@ function MatchingPage() {
       const response = await fetch("/api/discover-51job", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ keywords, cities: selectedCities, targetCount }),
+        body: JSON.stringify({ keywords, cities: searchCities.filter((city) => selectedCities.includes(city.id)).map(canonical51JobArea), targetCount }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error ?? "51Job discovery failed.");
-      const summary = importDiscoveredJobs(payload.jobs ?? [], "51Job");
+      const selectedCityPreferences = searchCities.filter((city) => selectedCities.includes(city.id));
+      const fetchedJobs = Array.isArray(payload.jobs) ? payload.jobs : [];
+      const cityMatchedJobs = fetchedJobs.filter((job) =>
+        isJobInSelectedCities(job.locationText, selectedCityPreferences),
+      );
+      const rejectedByCity = fetchedJobs.length - cityMatchedJobs.length;
+      const summary = importDiscoveredJobs(cityMatchedJobs, "51Job");
       const sourceReport = typeof payload.message === "string" && payload.message.trim()
         ? "。抓取日志：" + payload.message
         : "";
-      setDiscoveryMessage("抓取 " + summary.fetched + " 个 · 新增 " + summary.added + " 个 · 更新 " + summary.updated + " 个 · 重复 " + summary.duplicates + sourceReport);
+      setDiscoveryMessage("抓取 " + fetchedJobs.length + " 个 · 实际地点不符排除 " + rejectedByCity +
+        " 个 · 新增 " + summary.added + " 个 · 更新 " + summary.updated + " 个 · 重复 " + summary.duplicates + sourceReport);
     } catch (error) {
       setDiscoveryMessage(error instanceof Error ? error.message : "51Job discovery failed.");
     } finally {
@@ -151,8 +159,8 @@ function MatchingPage() {
                 <span className="mb-1.5 block text-xs font-semibold text-ink/60">Cities</span>
                 <div className="flex flex-wrap gap-1.5">
                   {searchCities.map((city) => {
-                    const checked = selectedCities.includes(city.jobArea);
-                    return <button key={city.id} type="button" onClick={() => setSelectedCities((current) => checked ? current.filter((code) => code !== city.jobArea) : [...current, city.jobArea])} className={checked ? "rounded-full bg-ink px-3 py-2 text-xs font-semibold text-cream" : "rounded-full border border-ink/15 px-3 py-2 text-xs font-medium hover:bg-sand"}>{city.name}</button>;
+                    const checked = selectedCities.includes(city.id);
+                    return <button key={city.id} type="button" onClick={() => setSelectedCities((current) => checked ? current.filter((id) => id !== city.id) : [...current, city.id])} className={checked ? "rounded-full bg-ink px-3 py-2 text-xs font-semibold text-cream" : "rounded-full border border-ink/15 px-3 py-2 text-xs font-medium hover:bg-sand"}>{city.name}</button>;
                   })}
                 </div>
               </div>
