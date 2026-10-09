@@ -251,7 +251,7 @@ function OnboardingPage() {
 
               {error ? <div className="rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-xs font-semibold text-destructive">{error}</div> : null}
 
-              <button disabled={busy} style={{ backgroundColor: "#211f18", color: "#ffffff", border: "1px solid #211f18" }} className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-extrabold shadow-sm transition hover:-translate-y-0.5 disabled:opacity-50">
+              <button type="submit" disabled={busy} className="solstice-onboarding__submit flex w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3.5 text-sm font-extrabold text-white shadow-sm transition hover:-translate-y-0.5 disabled:opacity-50">
                 {busy ? "正在保存…" : "保存职业画像并进入 Solstice"}
                 <ArrowRight className="size-4 text-ochre" />
               </button>
