@@ -124,8 +124,8 @@ function OnboardingPage() {
         <div className="grid overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-[0_25px_90px_rgba(38,31,8,0.09)] lg:grid-cols-[0.74fr_1.26fr]">
           <section className="yellow-grain p-7 sm:p-9">
             <div className="text-[10px] font-bold tracking-[0.24em] text-ochre uppercase">开始之前 · 建立你的求职画像</div>
-            <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight">从你现在的情况出发，<br />找到更适合你的工作机会。</h1>
-            <p className="mt-4 text-sm leading-7 text-ink/55">告诉我们你目前的职业方向、求职偏好和期待。Solstice 会结合这些信息理解岗位、分析匹配度，帮你更有方向地探索机会。</p>
+            <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight">从你现在的情况出发，找到更适合你的工作机会。</h1>
+            <p className="mt-4 text-sm leading-7 text-ink/55">告诉我们目前你的职业方向、求职偏好和期待。Solstice 会结合这些信息理解岗位、分析匹配度，帮助你探索机会。</p>
             <div className="mt-8 rounded-2xl border border-ink/8 bg-white/70 p-4">
               <div className="text-xs font-bold text-ink/65">你将完善以下信息</div>
               <div className="mt-3 space-y-3">
