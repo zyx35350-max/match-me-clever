@@ -32,14 +32,14 @@ function OnboardingPage() {
   const { updateProfile, updateCareer, replaceSearchCities } = useWorkspace();
 
   const [name, setName] = useState("");
-  const [headline, setHeadline] = useState("AI 视觉 / AI 内容创作探索中");
-  const [years, setYears] = useState("1");
-  const [stage, setStage] = useState("初入职场，正在转换方向");
-  const [education, setEducation] = useState("大专");
-  const [cities, setCities] = useState("深圳");
+  const [headline, setHeadline] = useState("");
+  const [years, setYears] = useState("");
+  const [stage, setStage] = useState("");
+  const [education, setEducation] = useState("");
+  const [cities, setCities] = useState("");
   const [workMode, setWorkMode] = useState<WorkMode | "any">("any");
-  const [salaryMin, setSalaryMin] = useState("8000");
-  const [salaryMax, setSalaryMax] = useState("12000");
+  const [salaryMin, setSalaryMin] = useState("");
+  const [salaryMax, setSalaryMax] = useState("");
   const [salaryPreference, setSalaryPreference] = useState<"range" | "negotiable" | "unlimited">("range");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -50,7 +50,7 @@ function OnboardingPage() {
       ...defaultCareerProfile.basics,
       education,
       yearsExperience: Math.max(0, Number(years) || 0),
-      careerStage: stage,
+      careerStage: stage.trim() || "正在探索适合自己的职业方向",
       preferredLocations: cities.split(/[,，、]/).map((v) => v.trim()).filter(Boolean),
       workMode,
     },
@@ -63,7 +63,7 @@ function OnboardingPage() {
     const identity = {
       name: name.trim() || "我的资料",
       headline: headline.trim() || "正在探索新的职业方向",
-      minSalary: salaryPreference === "unlimited" ? 0 : Math.max(0, Number(salaryMin) || 0) * 12,
+      minSalary: salaryPreference !== "range" ? 0 : Math.max(0, Number(salaryMin) || 0) * 12,
     };
     const searchCities = career.basics.preferredLocations.map((city, i) =>
       createSearchCity(city, i === 0 ? "主要求职城市" : "求职城市", "onboard-" + (i + 1)),
@@ -132,27 +132,27 @@ function OnboardingPage() {
             <form onSubmit={submit} className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="你的名字 / 显示名" icon={<BriefcaseBusiness className="size-3.5 text-ochre" />}>
-                  <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="例如：YX" className={fieldClass} />
+                  <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="例如：小林（仅用于显示）" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
                 </Field>
                 <Field label="一句话职业定位">
-                  <input value={headline} onChange={(e) => setHeadline(e.target.value)} className={fieldClass} />
+                  <input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="例如：希望从事产品、设计或内容相关工作" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
                 </Field>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="工作年限">
-                  <input type="number" min={0} max={40} step={0.5} value={years} onChange={(e) => setYears(e.target.value)} className={fieldClass} />
+                  <input type="number" min={0} max={40} step={0.5} value={years} onChange={(e) => setYears(e.target.value)} placeholder="例如：1 或 3.5" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
                 </Field>
                 <Field label="职业阶段">
-                  <input value={stage} onChange={(e) => setStage(e.target.value)} className={fieldClass} />
+                  <input value={stage} onChange={(e) => setStage(e.target.value)} placeholder="例如：应届毕业 / 转行中 / 寻求进阶" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
                 </Field>
                 <Field label="学历">
-                  <input value={education} onChange={(e) => setEducation(e.target.value)} className={fieldClass} />
+                  <input value={education} onChange={(e) => setEducation(e.target.value)} placeholder="例如：本科 / 大专 / 硕士" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
                 </Field>
               </div>
 
               <Field label="求职城市（可以填多个，用逗号分隔）" icon={<MapPin className="size-3.5 text-ochre" />}>
-                <input value={cities} onChange={(e) => setCities(e.target.value)} placeholder="深圳，珠海，惠州" className={fieldClass} />
+                <input value={cities} onChange={(e) => setCities(e.target.value)} placeholder="例如：深圳、广州；也可填多个城市" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
               </Field>
 
               <div>
@@ -184,13 +184,13 @@ function OnboardingPage() {
                       <Field label="最低月薪">
                         <div className="flex items-center rounded-xl border border-ink/10 bg-white px-3 focus-within:border-ochre">
                           <span className="text-sm text-ink/40">¥</span>
-                          <input aria-label="最低月薪（税前）" type="number" min={0} step={500} required value={salaryMin} onChange={(e) => setSalaryMin(e.target.value)} className="w-full min-w-0 bg-transparent px-2 py-3 text-sm font-semibold outline-none" />
+                          <input aria-label="最低月薪（税前）" type="number" min={0} step={500} required value={salaryMin} onChange={(e) => setSalaryMin(e.target.value)} placeholder="8000" className="w-full min-w-0 bg-transparent px-2 py-3 text-sm font-semibold outline-none placeholder:font-normal placeholder:text-ink/30" />
                         </div>
                       </Field>
                       <Field label="最高月薪">
                         <div className="flex items-center rounded-xl border border-ink/10 bg-white px-3 focus-within:border-ochre">
                           <span className="text-sm text-ink/40">¥</span>
-                          <input aria-label="最高月薪（税前）" type="number" min={0} step={500} required value={salaryMax} onChange={(e) => setSalaryMax(e.target.value)} className="w-full min-w-0 bg-transparent px-2 py-3 text-sm font-semibold outline-none" />
+                          <input aria-label="最高月薪（税前）" type="number" min={0} step={500} required value={salaryMax} onChange={(e) => setSalaryMax(e.target.value)} placeholder="12000" className="w-full min-w-0 bg-transparent px-2 py-3 text-sm font-semibold outline-none placeholder:font-normal placeholder:text-ink/30" />
                         </div>
                       </Field>
                     </div>
