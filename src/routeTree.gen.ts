@@ -11,13 +11,17 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActivityRouteImport } from './routes/activity'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DirectionsRouteImport } from './routes/directions'
+import { Route as HiddenRouteImport } from './routes/hidden'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as MatchingRouteImport } from './routes/matching'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as TodayRouteImport } from './routes/today'
 import { Route as ApiAnalyzeJobRouteImport } from './routes/api.analyze-job'
+import { Route as ApiDiscover51jobRouteImport } from './routes/api.discover-51job'
 import { Route as ApiImportJobUrlRouteImport } from './routes/api.import-job-url'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
 
@@ -31,9 +35,19 @@ const ActivityRoute = ActivityRouteImport.update({
   path: '/activity',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DirectionsRoute = DirectionsRouteImport.update({
   id: '/directions',
   path: '/directions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HiddenRoute = HiddenRouteImport.update({
+  id: '/hidden',
+  path: '/hidden',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImportRoute = ImportRouteImport.update({
@@ -44,6 +58,11 @@ const ImportRoute = ImportRouteImport.update({
 const MatchingRoute = MatchingRouteImport.update({
   id: '/matching',
   path: '/matching',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -66,6 +85,11 @@ const ApiAnalyzeJobRoute = ApiAnalyzeJobRouteImport.update({
   path: '/api/analyze-job',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDiscover51jobRoute = ApiDiscover51jobRouteImport.update({
+  id: '/api/discover-51job',
+  path: '/api/discover-51job',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiImportJobUrlRoute = ApiImportJobUrlRouteImport.update({
   id: '/api/import-job-url',
   path: '/api/import-job-url',
@@ -80,26 +104,34 @@ const JobsJobIdRoute = JobsJobIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
+  '/auth': typeof AuthRoute
   '/directions': typeof DirectionsRoute
+  '/hidden': typeof HiddenRoute
   '/import': typeof ImportRoute
   '/matching': typeof MatchingRoute
+  '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/saved': typeof SavedRoute
   '/today': typeof TodayRoute
   '/api/analyze-job': typeof ApiAnalyzeJobRoute
+  '/api/discover-51job': typeof ApiDiscover51jobRoute
   '/api/import-job-url': typeof ApiImportJobUrlRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
+  '/auth': typeof AuthRoute
   '/directions': typeof DirectionsRoute
+  '/hidden': typeof HiddenRoute
   '/import': typeof ImportRoute
   '/matching': typeof MatchingRoute
+  '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/saved': typeof SavedRoute
   '/today': typeof TodayRoute
   '/api/analyze-job': typeof ApiAnalyzeJobRoute
+  '/api/discover-51job': typeof ApiDiscover51jobRoute
   '/api/import-job-url': typeof ApiImportJobUrlRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
 }
@@ -107,13 +139,17 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
+  '/auth': typeof AuthRoute
   '/directions': typeof DirectionsRoute
+  '/hidden': typeof HiddenRoute
   '/import': typeof ImportRoute
   '/matching': typeof MatchingRoute
+  '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/saved': typeof SavedRoute
   '/today': typeof TodayRoute
   '/api/analyze-job': typeof ApiAnalyzeJobRoute
+  '/api/discover-51job': typeof ApiDiscover51jobRoute
   '/api/import-job-url': typeof ApiImportJobUrlRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
 }
@@ -122,39 +158,51 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/activity'
+    | '/auth'
     | '/directions'
+    | '/hidden'
     | '/import'
     | '/matching'
+    | '/onboarding'
     | '/profile'
     | '/saved'
     | '/today'
     | '/api/analyze-job'
+    | '/api/discover-51job'
     | '/api/import-job-url'
     | '/jobs/$jobId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/activity'
+    | '/auth'
     | '/directions'
+    | '/hidden'
     | '/import'
     | '/matching'
+    | '/onboarding'
     | '/profile'
     | '/saved'
     | '/today'
     | '/api/analyze-job'
+    | '/api/discover-51job'
     | '/api/import-job-url'
     | '/jobs/$jobId'
   id:
     | '__root__'
     | '/'
     | '/activity'
+    | '/auth'
     | '/directions'
+    | '/hidden'
     | '/import'
     | '/matching'
+    | '/onboarding'
     | '/profile'
     | '/saved'
     | '/today'
     | '/api/analyze-job'
+    | '/api/discover-51job'
     | '/api/import-job-url'
     | '/jobs/$jobId'
   fileRoutesById: FileRoutesById
@@ -162,13 +210,17 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivityRoute: typeof ActivityRoute
+  AuthRoute: typeof AuthRoute
   DirectionsRoute: typeof DirectionsRoute
+  HiddenRoute: typeof HiddenRoute
   ImportRoute: typeof ImportRoute
   MatchingRoute: typeof MatchingRoute
+  OnboardingRoute: typeof OnboardingRoute
   ProfileRoute: typeof ProfileRoute
   SavedRoute: typeof SavedRoute
   TodayRoute: typeof TodayRoute
   ApiAnalyzeJobRoute: typeof ApiAnalyzeJobRoute
+  ApiDiscover51jobRoute: typeof ApiDiscover51jobRoute
   ApiImportJobUrlRoute: typeof ApiImportJobUrlRoute
   JobsJobIdRoute: typeof JobsJobIdRoute
 }
@@ -189,11 +241,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ActivityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/directions': {
       id: '/directions'
       path: '/directions'
       fullPath: '/directions'
       preLoaderRoute: typeof DirectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hidden': {
+      id: '/hidden'
+      path: '/hidden'
+      fullPath: '/hidden'
+      preLoaderRoute: typeof HiddenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/import': {
@@ -208,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/matching'
       fullPath: '/matching'
       preLoaderRoute: typeof MatchingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -238,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAnalyzeJobRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/discover-51job': {
+      id: '/api/discover-51job'
+      path: '/api/discover-51job'
+      fullPath: '/api/discover-51job'
+      preLoaderRoute: typeof ApiDiscover51jobRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/import-job-url': {
       id: '/api/import-job-url'
       path: '/api/import-job-url'
@@ -258,13 +338,17 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
+  AuthRoute: AuthRoute,
   DirectionsRoute: DirectionsRoute,
+  HiddenRoute: HiddenRoute,
   ImportRoute: ImportRoute,
   MatchingRoute: MatchingRoute,
+  OnboardingRoute: OnboardingRoute,
   ProfileRoute: ProfileRoute,
   SavedRoute: SavedRoute,
   TodayRoute: TodayRoute,
   ApiAnalyzeJobRoute: ApiAnalyzeJobRoute,
+  ApiDiscover51jobRoute: ApiDiscover51jobRoute,
   ApiImportJobUrlRoute: ApiImportJobUrlRoute,
   JobsJobIdRoute: JobsJobIdRoute,
 }

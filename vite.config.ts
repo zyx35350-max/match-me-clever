@@ -12,4 +12,13 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // Playwright is a dev-only tool and cannot be bundled for the edge runtime.
+    ssr: { external: ["playwright", "playwright-core", "chromium-bidi"] },
+    build: {
+      rolldownOptions: {
+        external: [/^playwright(-core)?(\/.*)?$/, /^chromium-bidi(\/.*)?$/],
+      },
+    },
+  },
 });
