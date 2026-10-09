@@ -38,7 +38,7 @@ function OnboardingPage() {
   const [education, setEducation] = useState("大专");
   const [cities, setCities] = useState("深圳");
   const [workMode, setWorkMode] = useState<WorkMode | "any">("any");
-  const [salary, setSalary] = useState(80000);
+  const [salary, setSalary] = useState(96000); // 年化保存；界面按月薪展示
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -118,7 +118,7 @@ function OnboardingPage() {
             <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight">先告诉我你是谁，<br />以及你想去哪里。</h1>
             <p className="mt-4 text-sm leading-7 text-ink/55">这些信息会直接影响岗位理解、匹配分数和今日推荐。以后都可以在「我的资料」继续细化。</p>
             <div className="mt-8 space-y-2">
-              {["姓名 / 显示名", "工作年限与职业阶段", "求职城市与工作方式", "最低薪资预期"].map((item, i) => (
+              {["姓名 / 显示名", "工作年限与职业阶段", "求职城市与工作方式", "期望月薪（税前）"].map((item, i) => (
                 <div key={item} className="rounded-xl border border-ink/8 bg-white/70 px-3 py-2.5 text-xs font-semibold">
                   <span className="mr-2 text-ochre">0{i + 1}</span>{item}
                 </div>
@@ -166,9 +166,9 @@ function OnboardingPage() {
 
               <div>
                 <div className="mb-2 flex items-center justify-between text-xs font-bold text-ink/50">
-                  <span>最低期望年薪</span><strong className="text-ink">¥{Math.round(salary / 1000)}k</strong>
+                  <span>期望月薪（税前）</span><strong className="text-ink">¥{(Math.round(salary / 1200) * 100).toLocaleString("zh-CN")}/月</strong>
                 </div>
-                <input type="range" min={40000} max={220000} step={5000} value={salary} onChange={(e) => setSalary(Number(e.target.value))} className="profile-range" style={{ "--range-progress": String(((salary - 40000) / 180000) * 100) + "%" } as React.CSSProperties} />
+                <input type="range" min={48000} max={216000} step={6000} value={salary} onChange={(e) => setSalary(Number(e.target.value))} className="profile-range" style={{ "--range-progress": String(((salary - 48000) / 168000) * 100) + "%" } as React.CSSProperties} />
               </div>
 
               {error ? <div className="rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-xs font-semibold text-destructive">{error}</div> : null}
