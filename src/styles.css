@@ -1040,17 +1040,37 @@
 .solstice-onboarding__form {
   background: #fff !important;
 }
-.solstice-onboarding__form form > button[type="submit"] {
+.solstice-onboarding__form form > button.solstice-onboarding__submit {
   appearance: none !important;
   -webkit-appearance: none !important;
-  background-color: #211f18 !important;
-  background: #211f18 !important;
+  display: flex !important;
+  width: 100% !important;
+  min-height: 60px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  background-color: #292923 !important;
+  background: #292923 !important;
   background-image: none !important;
   border: 0 !important;
+  border-radius: 0.75rem !important;
   color: #fff !important;
   -webkit-text-fill-color: #fff !important;
-  box-shadow: 0 2px 5px rgb(33 31 24 / 12%) !important;
+  font-weight: 800 !important;
   opacity: 1 !important;
+  box-shadow: 0 5px 14px rgb(41 41 35 / 14%) !important;
+}
+.solstice-onboarding__form form > button.solstice-onboarding__submit svg {
+  color: #f2c900 !important;
+  stroke: #f2c900 !important;
+}
+.solstice-onboarding__form form > button.solstice-onboarding__submit:hover {
+  background-color: #34342d !important;
+  background: #34342d !important;
+}
+.solstice-onboarding__form form > button.solstice-onboarding__submit:disabled {
+  opacity: .55 !important;
+  cursor: wait !important;
 }
 .solstice-onboarding__form form > button[type="submit"] svg {
   color: #f2c900 !important;
