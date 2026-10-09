@@ -210,3 +210,97 @@
     transition: none;
   }
 }
+
+
+/* Dashboard-focused v1.1: make the refresh visible at a glance. */
+.solstice-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 248px;
+  border: 1px solid rgb(245 190 25 / 24%);
+  background:
+    radial-gradient(ellipse at 86% 16%, rgb(255 221 87 / 45%), transparent 18rem),
+    radial-gradient(ellipse at 100% 100%, rgb(255 239 174 / 45%), transparent 24rem),
+    linear-gradient(125deg, #fffdf5 0%, #fff 46%, #fff9df 100%);
+  box-shadow: 0 24px 60px rgb(40 33 10 / 7%), inset 0 1px 0 #fff, inset 0 -1px 0 rgb(245 190 25 / 8%);
+}
+.solstice-hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 290px;
+  height: 290px;
+  right: -52px;
+  top: -118px;
+  border-radius: 50%;
+  border: 1px solid rgb(255 255 255 / 85%);
+  background: radial-gradient(circle at 32% 28%, rgb(255 255 255 / 82%), rgb(255 225 105 / 28%) 34%, rgb(255 255 255 / 8%) 66%, transparent 70%);
+  box-shadow: inset -10px -12px 28px rgb(216 169 15 / 8%), 0 16px 40px rgb(216 169 15 / 7%);
+  backdrop-filter: blur(2px);
+}
+.solstice-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 180px;
+  height: 180px;
+  right: 115px;
+  bottom: -128px;
+  border-radius: 50%;
+  border: 1px solid rgb(255 255 255 / 80%);
+  background: radial-gradient(circle at 30% 25%, rgb(255 255 255 / 78%), rgb(255 229 125 / 24%) 46%, transparent 72%);
+}
+.solstice-hero h1 {
+  max-width: 620px;
+  letter-spacing: -.045em;
+  line-height: 1.08;
+  font-size: clamp(2rem, 3.2vw, 3.25rem);
+}
+.solstice-hero p {
+  max-width: 520px;
+  color: rgb(37 34 27 / 68%);
+  line-height: 1.85;
+}
+.solstice-hero a:first-child,
+.solstice-hero a[class*="bg-azure"] {
+  border: 1px solid rgb(255 255 255 / 35%);
+  background: linear-gradient(135deg, #24231f, #080808);
+  box-shadow: 0 8px 18px rgb(20 18 12 / 16%), inset 0 1px 0 rgb(255 255 255 / 18%);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.solstice-hero a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgb(20 18 12 / 17%);
+}
+.solstice-feature-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, #fff 0%, rgb(255 255 255 / 96%) 58%, #fffdf4 100%);
+  box-shadow: 0 18px 42px rgb(25 23 18 / 6%), inset 0 1px 0 #fff;
+}
+.solstice-feature-card::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 95%), transparent);
+}
+.app-content .grid.grid-cols-12 > div > .rounded-2xl.border,
+.app-content .grid.grid-cols-12 > aside > .rounded-2xl.border {
+  border-radius: 22px;
+}
+.app-content .grid.grid-cols-12 > div > .rounded-2xl.border:hover,
+.app-content .grid.grid-cols-12 > aside > .rounded-2xl.border:hover {
+  transform: translateY(-2px);
+}
+.app-content a[class*="rounded-lg"][class*="bg-ink"],
+.app-content a[class*="rounded-xl"][class*="bg-azure"] {
+  box-shadow: 0 5px 14px rgb(20 18 12 / 12%), inset 0 1px 0 rgb(255 255 255 / 12%);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.app-content a[class*="rounded-lg"][class*="bg-ink"]:hover,
+.app-content a[class*="rounded-xl"][class*="bg-azure"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 9px 20px rgb(20 18 12 / 15%);
+}
