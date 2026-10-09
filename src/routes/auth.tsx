@@ -105,7 +105,7 @@ function AuthPage() {
 
               <h2 className="font-display text-2xl font-extrabold">{mode === "signup" ? "创建你的 Solstice 账号" : "欢迎回来"}</h2>
               <p className="mt-2 text-sm leading-relaxed text-ink/50">
-                {mode === "signup" ? "先用邮箱和密码创建账号，下一步再填写你的职业资料。" : "登录后，你的职业资料和求职状态会在不同设备间保持一致。"}
+                {mode === "signup" ? "先用邮箱和密码创建账号，下一步再填写你的职业资料。" : null}
               </p>
 
               <form onSubmit={submit} className="mt-7 space-y-4">
