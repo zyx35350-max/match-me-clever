@@ -38,7 +38,9 @@ function OnboardingPage() {
   const [education, setEducation] = useState("大专");
   const [cities, setCities] = useState("深圳");
   const [workMode, setWorkMode] = useState<WorkMode | "any">("any");
-  const [salary, setSalary] = useState(96000); // 年化保存；界面按月薪展示
+  const [salaryMin, setSalaryMin] = useState("8000");
+  const [salaryMax, setSalaryMax] = useState("12000");
+  const [salaryPreference, setSalaryPreference] = useState<"range" | "negotiable" | "unlimited">("range");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -61,7 +63,7 @@ function OnboardingPage() {
     const identity = {
       name: name.trim() || "我的资料",
       headline: headline.trim() || "正在探索新的职业方向",
-      minSalary: salary,
+      minSalary: salaryPreference === "unlimited" ? 0 : Math.max(0, Number(salaryMin) || 0) * 12,
     };
     const searchCities = career.basics.preferredLocations.map((city, i) =>
       createSearchCity(city, i === 0 ? "主要求职城市" : "求职城市", "onboard-" + (i + 1)),
@@ -164,11 +166,42 @@ function OnboardingPage() {
                 </div>
               </div>
 
-              <div>
-                <div className="mb-2 flex items-center justify-between text-xs font-bold text-ink/50">
-                  <span>期望月薪（税前）</span><strong className="text-ink">¥{(Math.round(salary / 1200) * 100).toLocaleString("zh-CN")}/月</strong>
+              <div className="rounded-2xl border border-ink/10 p-4">
+                <div className="mb-3">
+                  <div className="text-sm font-bold text-ink">期望月薪 <span className="ml-1 text-xs font-medium text-ink/45">税前 · 人民币</span></div>
+                  <p className="mt-1 text-xs leading-5 text-ink/45">可以填写一个范围，也可以暂时不设限制。</p>
                 </div>
-                <input type="range" min={48000} max={216000} step={6000} value={salary} onChange={(e) => setSalary(Number(e.target.value))} className="profile-range" style={{ "--range-progress": String(((salary - 48000) / 168000) * 100) + "%" } as React.CSSProperties} />
+                <div className="mb-3 grid grid-cols-3 gap-2">
+                  {([{value:"range",label:"填写范围"},{value:"negotiable",label:"薪资可协商"},{value:"unlimited",label:"暂不限定"}] as const).map((option) => (
+                    <button key={option.value} type="button" onClick={() => setSalaryPreference(option.value)} className={"rounded-xl border px-2 py-2.5 text-xs font-bold transition " + (salaryPreference === option.value ? "border-ink bg-ink text-white" : "border-ink/10 bg-white text-ink/60 hover:border-ink/25")}>
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+                {salaryPreference === "range" ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="最低月薪">
+                        <div className="flex items-center rounded-xl border border-ink/10 bg-white px-3 focus-within:border-ochre">
+                          <span className="text-sm text-ink/40">¥</span>
+                          <input aria-label="最低月薪（税前）" type="number" min={0} step={500} required value={salaryMin} onChange={(e) => setSalaryMin(e.target.value)} className="w-full min-w-0 bg-transparent px-2 py-3 text-sm font-semibold outline-none" />
+                        </div>
+                      </Field>
+                      <Field label="最高月薪">
+                        <div className="flex items-center rounded-xl border border-ink/10 bg-white px-3 focus-within:border-ochre">
+                          <span className="text-sm text-ink/40">¥</span>
+                          <input aria-label="最高月薪（税前）" type="number" min={0} step={500} required value={salaryMax} onChange={(e) => setSalaryMax(e.target.value)} className="w-full min-w-0 bg-transparent px-2 py-3 text-sm font-semibold outline-none" />
+                        </div>
+                      </Field>
+                    </div>
+                    <p className="mt-2 text-[11px] text-ink/40">示例：¥8,000–12,000 元/月</p>
+                  </>
+                ) : (
+                  <p className="rounded-xl bg-[#F8F8F5] px-3 py-2.5 text-xs leading-5 text-ink/55">
+                    {salaryPreference === "negotiable" ? "薪资可根据岗位职责、成长空间和整体待遇进一步沟通。" : "暂时不以薪资范围筛选，优先了解岗位内容与发展机会。"}
+                  </p>
+                )}
+                {salaryPreference === "range" && Number(salaryMin) > Number(salaryMax) ? <p className="mt-2 text-xs text-red-600">最高月薪应大于或等于最低月薪。</p> : null}
               </div>
 
               {error ? <div className="rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-xs font-semibold text-destructive">{error}</div> : null}
