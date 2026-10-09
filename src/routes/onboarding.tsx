@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowRight, BriefcaseBusiness, MapPin, Sparkles } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, MapPin, Sparkles, ChevronDown } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/store";
@@ -155,7 +155,31 @@ function OnboardingPage() {
                   <input type="number" min={0} max={40} step={0.5} value={years} onChange={(e) => setYears(e.target.value)} placeholder="例如：1 或 3.5" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
                 </Field>
                 <Field label="职业阶段">
-                  <input value={stage} onChange={(e) => setStage(e.target.value)} placeholder="例如：应届毕业 / 转行中 / 寻求进阶" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
+                  <div className="relative">
+                    <select
+                      value={stage}
+                      onChange={(e) => setStage(e.target.value)}
+                      className={fieldClass + " appearance-none cursor-pointer pr-10"}
+                      aria-label="选择职业阶段"
+                    >
+                      <option value="" disabled>请选择职业阶段</option>
+                      {[
+                        "在校 / 即将毕业",
+                        "应届毕业 / 初入职场",
+                        "有工作经验 / 继续发展",
+                        "在职 / 考虑新机会",
+                        "已离职 / 正在求职",
+                        "转行 / 探索新方向",
+                        "自由职业 / 项目工作",
+                        "暂不确定",
+                      ].map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-ink/45">
+                      <ChevronDown size={16} />
+                    </span>
+                  </div>
                 </Field>
                 <Field label="学历">
                   <input value={education} onChange={(e) => setEducation(e.target.value)} placeholder="例如：本科 / 大专 / 硕士" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
