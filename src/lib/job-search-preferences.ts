@@ -29,8 +29,8 @@ export function isJobInSelectedCities(
   selectedCities: JobSearchCity[],
   workMode?: string,
 ): boolean {
-  if (workMode === "remote") return true;
   if (!location || !selectedCities.length) return false;
+  if (workMode === "remote" || /远程|居家办公|全国可远程|remote/i.test(location)) return true;
 
   const normalize = (value: string) =>
     value
