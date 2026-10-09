@@ -85,11 +85,21 @@ function MatchingPage() {
       const cityMatchedJobs = fetchedJobs.filter((job) =>
         isJobInSelectedCities(job.locationText, selectedCityPreferences),
       );
-      const rejectedByCity = fetchedJobs.length - cityMatchedJobs.length;
+      const rejectedJobs = fetchedJobs.filter((job) =>
+        !isJobInSelectedCities(job.locationText, selectedCityPreferences),
+      );
+      const missingLocation = rejectedJobs.filter((job) => !job.locationText?.trim());
+      const rejectedWithLocation = rejectedJobs.filter((job) => Boolean(job.locationText?.trim()));
       const summary = importDiscoveredJobs(cityMatchedJobs, "51Job");
+      const rejectedExamples = rejectedJobs
+        .slice(0, 5)
+        .map((job) => (job.rawTitle || "未识别岗位") + "（" + (job.locationText?.trim() || "地点为空") + "）")
+        .join("；");
       setDiscoveryMessage(
-        "抓取 " + fetchedJobs.length + " 个 · 城市筛选排除 " + rejectedByCity +
-        " 个 · 新增 " + summary.added + " 个 · 更新 " + summary.updated + " 个 · 重复 " + summary.duplicates + " 个",
+        "抓取 " + fetchedJobs.length + " 个 · 城市筛选排除 " + rejectedJobs.length +
+        " 个（地点为空 " + missingLocation.length + " 个，地点不匹配 " + rejectedWithLocation.length +
+        " 个）· 新增 " + summary.added + " 个 · 更新 " + summary.updated + " 个 · 重复 " + summary.duplicates +
+        (rejectedExamples ? "。排除示例：" + rejectedExamples : ""),
       );
     } catch (error) {
       setDiscoveryMessage(error instanceof Error ? error.message : "51Job discovery failed.");
