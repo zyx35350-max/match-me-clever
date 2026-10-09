@@ -8,7 +8,6 @@ import {
 } from "./career-engine";
 import { matchJobsWithUnderstanding } from "./job-understanding-matcher";
 import { effectiveJobLifecycle } from "./job-lifecycle";
-import { isJobInSelectedCities } from "./job-search-preferences";
 import { useWorkspace } from "./store";
 import type { EmploymentType } from "./types";
 
@@ -17,7 +16,7 @@ import type { EmploymentType } from "./types";
  * Every page reads matches from here, so a job scores the same everywhere.
  */
 export function useCareer(track?: EmploymentType) {
-  const { career, profile, jobs, hiddenJobIds, importedJobRecords, searchCities } = useWorkspace();
+  const { career, profile, jobs, hiddenJobIds, importedJobRecords } = useWorkspace();
   const [refreshedAt, setRefreshedAt] = useState(0);
 
   const directions = useMemo(() => assessAllDirections(career), [career]);
@@ -29,10 +28,9 @@ export function useCareer(track?: EmploymentType) {
       jobs.filter((job) => {
         const record = importedJobRecords.find((item) => item.raw.id === job.id);
         const status = effectiveJobLifecycle(record?.lifecycle, record?.raw);
-        const locationAllowed = isJobInSelectedCities(job.location, searchCities, job.workMode);
-        return status !== "closed" && status !== "expired" && locationAllowed && !(hiddenJobIds ?? []).includes(job.id);
+        return status !== "closed" && status !== "expired" && !(hiddenJobIds ?? []).includes(job.id);
       }),
-    [jobs, importedJobRecords, hiddenJobIds, searchCities],
+    [jobs, importedJobRecords, hiddenJobIds],
   );
 
   const matches = useMemo(
