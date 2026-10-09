@@ -61,7 +61,7 @@ function AuthPage() {
             <div className="absolute -right-14 -top-16 size-48 rounded-full bg-ochre/20 blur-3xl" />
             <div className="relative">
               <div className="solstice-brand-lockup mb-10 flex items-center gap-3">
-                <div className="solstice-wordmark solstice-wordmark--hero" aria-label="Solstice">Solstice<span className="solstice-wordmark__period">.</span><span className="solstice-wordmark__descriptor">FIND YOUR NEXT DIRECTION</span></div>
+                <div className="solstice-wordmark solstice-wordmark--hero" aria-label="Solstice">Solstice<span className="solstice-wordmark__descriptor">FIND YOUR NEXT DIRECTION</span></div>
               </div>
               <div className="max-w-md">
                 <div className="text-[10px] font-bold tracking-[0.24em] text-ochre uppercase">YOUR NEXT MOVE</div>
