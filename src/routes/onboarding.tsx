@@ -149,10 +149,10 @@ function OnboardingPage() {
             <p className="mt-4 text-xs leading-6 text-ink/40">不必一开始就想清楚所有答案。先填写目前确定的信息，之后可以随时调整。</p>
           </section>
 
-          <section className="solstice-onboarding__form p-7 sm:p-9">
+          <section className="solstice-onboarding__form bg-white p-7 sm:p-9">
             <form onSubmit={submit} className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="你的名字 / 显示名" icon={<BriefcaseBusiness className="size-3.5 text-ochre" />}>
+                <Field label="你的名字 / 显示名" icon={<BriefcaseBusiness className="size-3.5 text-ink/50" />}>
                   <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="例如：小林（仅用于显示）" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
                 </Field>
                 <Field label="一句话职业定位">
@@ -196,7 +196,7 @@ function OnboardingPage() {
                 </Field>
               </div>
 
-              <Field label="求职城市（可以填多个，用逗号分隔）" icon={<MapPin className="size-3.5 text-ochre" />}>
+              <Field label="求职城市（可以填多个，用逗号分隔）" icon={<MapPin className="size-3.5 text-ink/50" />}>
                 <input value={cities} onChange={(e) => setCities(e.target.value)} placeholder="例如：深圳、广州；也可填多个城市" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
               </Field>
 
@@ -204,7 +204,7 @@ function OnboardingPage() {
                 <div className="mb-2 text-xs font-bold text-ink/50">工作方式</div>
                 <div className="grid grid-cols-4 gap-2">
                   {(Object.keys(modeLabels) as Array<WorkMode | "any">).map((mode) => (
-                    <button key={mode} type="button" onClick={() => setWorkMode(mode)} className={"rounded-xl border px-2 py-2.5 text-xs font-extrabold transition " + (workMode === mode ? "border-ink bg-ink text-cream" : "border-ink/10 bg-white text-ink/50 hover:border-ochre/40 hover:bg-ochre/8")}>
+                    <button key={mode} type="button" onClick={() => setWorkMode(mode)} className={"rounded-xl border px-2 py-2.5 text-xs font-extrabold transition " + (workMode === mode ? "border-ink bg-ink text-cream" : "border-ink/10 bg-white text-ink/50 hover:border-ink/20/40 hover:bg-ink/8")}>
                       {modeLabels[mode]}
                     </button>
                   ))}
@@ -227,13 +227,13 @@ function OnboardingPage() {
                   <>
                     <div className="grid grid-cols-2 gap-3">
                       <Field label="最低月薪">
-                        <div className="flex items-center rounded-xl border border-ink/10 bg-white px-3 focus-within:border-ochre">
+                        <div className="flex items-center rounded-xl border border-ink/10 bg-white px-3 focus-within:border-ink/20">
                           <span className="text-sm text-ink/40">¥</span>
                           <input aria-label="最低月薪（税前）" type="number" min={0} step={500} required value={salaryMin} onChange={(e) => setSalaryMin(e.target.value)} placeholder="8000" className="w-full min-w-0 bg-transparent px-2 py-3 text-sm font-semibold outline-none placeholder:font-normal placeholder:text-ink/30" />
                         </div>
                       </Field>
                       <Field label="最高月薪">
-                        <div className="flex items-center rounded-xl border border-ink/10 bg-white px-3 focus-within:border-ochre">
+                        <div className="flex items-center rounded-xl border border-ink/10 bg-white px-3 focus-within:border-ink/20">
                           <span className="text-sm text-ink/40">¥</span>
                           <input aria-label="最高月薪（税前）" type="number" min={0} step={500} required value={salaryMax} onChange={(e) => setSalaryMax(e.target.value)} placeholder="12000" className="w-full min-w-0 bg-transparent px-2 py-3 text-sm font-semibold outline-none placeholder:font-normal placeholder:text-ink/30" />
                         </div>
@@ -253,7 +253,7 @@ function OnboardingPage() {
 
               <button disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3.5 text-sm font-extrabold text-cream shadow-sm transition hover:-translate-y-0.5 hover:bg-ink/90 disabled:opacity-50">
                 {busy ? "正在保存…" : "保存职业画像并进入 Solstice"}
-                <ArrowRight className="size-4 text-ochre" />
+                <ArrowRight className="size-4 text-ink/50" />
               </button>
             </form>
           </section>
