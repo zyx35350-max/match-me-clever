@@ -870,3 +870,88 @@
     font-size: 8px;
   }
 }
+
+
+/* Onboarding refresh: soft glass surfaces with a solid, calm form panel. */
+.solstice-onboarding {
+  --solstice-yellow: #e9c93a;
+  --solstice-pastel: #d8eee7;
+  --solstice-light: #f7f7f2;
+  background:
+    radial-gradient(ellipse at 10% 10%, rgb(221 242 235 / 72%), transparent 28rem),
+    radial-gradient(ellipse at 88% 75%, rgb(248 225 221 / 55%), transparent 30rem),
+    #f8f8f4;
+}
+.solstice-onboarding::before {
+  background: radial-gradient(circle at 34% 32%, rgb(255 255 255 / 88%), rgb(221 242 235 / 32%) 42%, rgb(248 225 221 / 12%) 65%, transparent 72%);
+  box-shadow: inset 0 0 35px rgb(255 255 255 / 85%), 0 30px 90px rgb(41 41 35 / 4%);
+}
+.solstice-onboarding::after {
+  background: radial-gradient(circle at 60% 25%, rgb(255 255 255 / 88%), rgb(221 242 235 / 25%) 48%, transparent 72%);
+}
+.solstice-onboarding__panel {
+  border: 1px solid rgb(255 255 255 / 92%);
+  background: rgb(255 255 255 / 56%);
+  box-shadow: 0 26px 80px rgb(41 41 35 / 7%), inset 0 1px 0 rgb(255 255 255 / 96%);
+  -webkit-backdrop-filter: blur(24px) saturate(1.18);
+  backdrop-filter: blur(24px) saturate(1.18);
+}
+.solstice-onboarding__story {
+  background:
+    radial-gradient(ellipse at 8% 8%, rgb(221 242 235 / 65%), transparent 22rem),
+    radial-gradient(ellipse at 100% 90%, rgb(248 225 221 / 42%), transparent 23rem),
+    linear-gradient(145deg, rgb(255 255 255 / 76%), rgb(242 249 246 / 72%) 55%, rgb(255 255 255 / 56%));
+  border-right: 1px solid rgb(255 255 255 / 86%);
+}
+.solstice-onboarding__story::before {
+  background: radial-gradient(circle at 32% 28%, rgb(255 255 255 / 72%), rgb(221 242 235 / 24%) 44%, transparent 70%);
+  box-shadow: 0 12px 42px rgb(41 41 35 / 4%), inset 0 0 26px rgb(255 255 255 / 85%);
+}
+.solstice-onboarding__story .rounded-2xl {
+  background: rgb(255 255 255 / 64%);
+  border-color: rgb(255 255 255 / 94%);
+  box-shadow: 0 8px 26px rgb(41 41 35 / 4%), inset 0 1px 0 rgb(255 255 255 / 95%);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.solstice-onboarding__story .rounded-lg {
+  background: linear-gradient(145deg, #e9c93a, #f3df78);
+}
+.solstice-onboarding__form {
+  background: #fff;
+}
+.solstice-onboarding__form input:not([type="checkbox"]),
+.solstice-onboarding__form select,
+.solstice-onboarding__form .flex.items-center.rounded-xl {
+  background: #fff;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.solstice-onboarding__form input:focus,
+.solstice-onboarding__form select:focus,
+.solstice-onboarding__form .flex.items-center.rounded-xl:focus-within {
+  border-color: rgb(115 173 157 / 75%);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgb(221 242 235 / 85%);
+}
+.solstice-onboarding__form button[type="button"] {
+  background: #f8f9f7;
+  box-shadow: inset 0 1px 0 #fff;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.solstice-onboarding__form button[type="button"]:hover {
+  border-color: rgb(115 173 157 / 55%);
+  background: #eff7f3;
+}
+.solstice-onboarding__form button[type="button"].border-ink,
+.solstice-onboarding__form button[type="button"][class*="bg-ink"] {
+  background: #292923;
+  border-color: #292923;
+  color: #fff;
+}
+@media (max-width: 640px) {
+  .solstice-onboarding__panel { border-radius: 1.4rem; }
+  .solstice-onboarding__form { background: #fff; }
+}
