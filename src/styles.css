@@ -1028,3 +1028,39 @@
   background: #f7f7f5 !important;
   border-color: rgb(41 41 35 / 18%) !important;
 }
+
+
+/* Onboarding shell aligned with the auth screen: clear divider and readable CTA. */
+.solstice-onboarding__panel {
+  border: 1px solid rgb(41 41 35 / 9%) !important;
+}
+.solstice-onboarding__story {
+  border-right: 1px solid rgb(41 41 35 / 10%) !important;
+}
+.solstice-onboarding__form {
+  background: #fff !important;
+}
+.solstice-onboarding__form form > button[type="submit"] {
+  background: #211f18 !important;
+  background-image: none !important;
+  border: 1px solid #211f18 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 5px rgb(33 31 24 / 12%) !important;
+}
+.solstice-onboarding__form form > button[type="submit"] svg {
+  color: #f2c900 !important;
+}
+.solstice-onboarding__form form > button[type="submit"]:hover {
+  background: #343128 !important;
+  border-color: #343128 !important;
+}
+.solstice-onboarding__form form > button[type="submit"]:disabled {
+  opacity: .55 !important;
+  cursor: wait !important;
+}
+@media (max-width: 1023px) {
+  .solstice-onboarding__story {
+    border-right: 0 !important;
+    border-bottom: 1px solid rgb(41 41 35 / 10%) !important;
+  }
+}
