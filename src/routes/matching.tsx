@@ -7,7 +7,6 @@ import { CareerMatchCard } from "@/components/career-match-card";
 import { useCareer } from "@/lib/use-career";
 import { useWorkspace } from "@/lib/store";
 import type { EmploymentType } from "@/lib/types";
-import { isJobInSelectedCities } from "@/lib/job-search-preferences";
 
 export const Route = createFileRoute("/matching")({
   head: () => ({
@@ -80,27 +79,8 @@ function MatchingPage() {
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error ?? "51Job discovery failed.");
-      const selectedCityPreferences = searchCities.filter((city) => selectedCities.includes(city.jobArea));
-      const fetchedJobs = Array.isArray(payload.jobs) ? payload.jobs : [];
-      const cityMatchedJobs = fetchedJobs.filter((job) =>
-        isJobInSelectedCities(job.locationText, selectedCityPreferences),
-      );
-      const rejectedJobs = fetchedJobs.filter((job) =>
-        !isJobInSelectedCities(job.locationText, selectedCityPreferences),
-      );
-      const missingLocation = rejectedJobs.filter((job) => !job.locationText?.trim());
-      const rejectedWithLocation = rejectedJobs.filter((job) => Boolean(job.locationText?.trim()));
-      const summary = importDiscoveredJobs(cityMatchedJobs, "51Job");
-      const rejectedExamples = rejectedJobs
-        .slice(0, 5)
-        .map((job) => (job.rawTitle || "未识别岗位") + "（" + (job.locationText?.trim() || "地点为空") + "）")
-        .join("；");
-      setDiscoveryMessage(
-        "抓取 " + fetchedJobs.length + " 个 · 城市筛选排除 " + rejectedJobs.length +
-        " 个（地点为空 " + missingLocation.length + " 个，地点不匹配 " + rejectedWithLocation.length +
-        " 个）· 新增 " + summary.added + " 个 · 更新 " + summary.updated + " 个 · 重复 " + summary.duplicates +
-        (rejectedExamples ? "。排除示例：" + rejectedExamples : ""),
-      );
+      const summary = importDiscoveredJobs(payload.jobs ?? [], "51Job");
+      setDiscoveryMessage("抓取 " + summary.fetched + " 个 · 新增 " + summary.added + " 个 · 更新 " + summary.updated + " 个 · 重复 " + summary.duplicates);
     } catch (error) {
       setDiscoveryMessage(error instanceof Error ? error.message : "51Job discovery failed.");
     } finally {
