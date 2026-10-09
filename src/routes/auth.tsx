@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, LockKeyhole, Mail, Sparkles } from "lucide-react";
+import { ArrowRight, LockKeyhole, Mail } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 
@@ -61,13 +61,8 @@ function AuthPage() {
             <div className="absolute -right-14 -top-16 size-48 rounded-full bg-ochre/20 blur-3xl" />
             <div className="relative">
               <div className="mb-10 flex items-center gap-3">
-                <div className="grid size-11 place-items-center rounded-xl bg-ink text-cream">
-                  <Sparkles className="size-4" />
-                </div>
-                <div>
-                  <div className="font-display text-xl font-extrabold">Solstice</div>
-                  <div className="text-[9px] font-bold tracking-[0.22em] text-ink/40 uppercase">AI Job OS</div>
-                </div>
+                <img src="/solstice-mark.svg" alt="" className="size-11 object-contain" />
+                <div className="font-display text-xl font-extrabold">Solstice</div>
               </div>
               <div className="max-w-md">
                 <div className="text-[10px] font-bold tracking-[0.24em] text-ochre uppercase">YOUR NEXT MOVE</div>
