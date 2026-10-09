@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type CSSProperties } from "react";
-import { formatSalary } from "@/lib/matching";
 import { MapPin, Sparkles, Target } from "lucide-react";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
@@ -189,7 +188,7 @@ function ProfilePage() {
                   value={Math.max(48000, Math.min(216000, draft.minSalary))}
                   onChange={(e) => set("minSalary", Number(e.target.value))}
                   className="profile-range"
-                  style={{ "--range-progress": `${((draft.minSalary - 40000) / 180000) * 100}%` } as CSSProperties}
+                  style={{ "--range-progress": `${((Math.max(48000, Math.min(216000, draft.minSalary)) - 48000) / 168000) * 100}%` } as CSSProperties}
                 />
               </div>
             </div>
