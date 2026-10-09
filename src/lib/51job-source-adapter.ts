@@ -821,7 +821,7 @@ export class FiftyOneJobSourceAdapter {
 
         let enriched = job;
         const searchApiHasFullDescription =
-          (job.metadata?["detailStatus"] === "full") ||
+          (job.metadata?.["detailStatus"] === "full") ||
           job.rawDescription.length >= 80 &&
           /(岗位职责|职位描述|工作内容|工作职责|岗位要求|任职要求|任职资格|职位要求|任职条件)/.test(
             job.rawDescription,
@@ -836,7 +836,7 @@ export class FiftyOneJobSourceAdapter {
             detailFetchedAt,
           };
 
-          if (detail.postedAt) detailMetadata.detailPostedAt = detail.postedAt;
+          if (detail.postedAt) detailMetadata["detailPostedAt"] = detail.postedAt;
 
           if (detail.status === "full" && detail.description) {
             enriched = {
