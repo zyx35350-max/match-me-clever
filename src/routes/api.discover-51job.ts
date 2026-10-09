@@ -66,9 +66,9 @@ export const Route = createFileRoute("/api/discover-51job")({
           const adapter = createFiftyOneJobSourceAdapter();
           const result = await adapter.discover({
             searches,
-            // City filtering happens after collection in the UI, so over-fetch
-            // to avoid returning only a handful after out-of-city listings are removed.
-            targetCount: Math.min(500, targetCount * 4),
+            // Respect the count requested in the UI. Do not silently multiply
+            // the user's target; report any shortfall after city filtering.
+            targetCount,
             maxPagesPerSearch: 50,
             delayMs: 1500,
             detailDelayMs: 1500,
