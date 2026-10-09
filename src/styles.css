@@ -872,84 +872,90 @@
 }
 
 
-/* Onboarding refresh: soft glass surfaces with a solid, calm form panel. */
+/* Onboarding: preserve Solstice's yellow, warm-white and charcoal palette;
+   borrow only the dimensional, softly blurred glass material from the reference. */
 .solstice-onboarding {
-  --solstice-yellow: #e9c93a;
-  --solstice-pastel: #d8eee7;
-  --solstice-light: #f7f7f2;
+  --solstice-yellow: #fff34a;
+  --solstice-pastel: #faff93;
+  --solstice-light: #fffdc2;
   background:
-    radial-gradient(ellipse at 10% 10%, rgb(221 242 235 / 72%), transparent 28rem),
-    radial-gradient(ellipse at 88% 75%, rgb(248 225 221 / 55%), transparent 30rem),
-    #f8f8f4;
+    radial-gradient(ellipse at 10% 12%, rgb(255 253 194 / 72%), transparent 28rem),
+    radial-gradient(ellipse at 88% 72%, rgb(250 255 147 / 28%), transparent 30rem),
+    linear-gradient(135deg, #faf9f5 0%, #fffef9 48%, #f8f7ed 100%);
 }
 .solstice-onboarding::before {
-  background: radial-gradient(circle at 34% 32%, rgb(255 255 255 / 88%), rgb(221 242 235 / 32%) 42%, rgb(248 225 221 / 12%) 65%, transparent 72%);
-  box-shadow: inset 0 0 35px rgb(255 255 255 / 85%), 0 30px 90px rgb(41 41 35 / 4%);
+  background: radial-gradient(circle at 34% 32%, rgb(255 255 255 / 88%), rgb(255 253 194 / 35%) 42%, rgb(250 255 147 / 12%) 65%, transparent 72%);
+  box-shadow: inset 0 0 35px rgb(255 255 255 / 85%), 0 30px 90px rgb(41 41 35 / 5%);
 }
 .solstice-onboarding::after {
-  background: radial-gradient(circle at 60% 25%, rgb(255 255 255 / 88%), rgb(221 242 235 / 25%) 48%, transparent 72%);
+  background: radial-gradient(circle at 60% 25%, rgb(255 255 255 / 88%), rgb(250 255 147 / 25%) 48%, transparent 72%);
 }
 .solstice-onboarding__panel {
-  border: 1px solid rgb(255 255 255 / 92%);
-  background: rgb(255 255 255 / 56%);
-  box-shadow: 0 26px 80px rgb(41 41 35 / 7%), inset 0 1px 0 rgb(255 255 255 / 96%);
-  -webkit-backdrop-filter: blur(24px) saturate(1.18);
-  backdrop-filter: blur(24px) saturate(1.18);
+  border: 1px solid rgb(255 255 255 / 94%);
+  background: rgb(255 255 255 / 38%);
+  box-shadow: 0 28px 90px rgb(41 41 35 / 9%), 0 4px 16px rgb(41 41 35 / 4%), inset 0 1px 0 rgb(255 255 255 / 96%);
+  -webkit-backdrop-filter: blur(26px) saturate(1.25);
+  backdrop-filter: blur(26px) saturate(1.25);
 }
 .solstice-onboarding__story {
   background:
-    radial-gradient(ellipse at 8% 8%, rgb(221 242 235 / 65%), transparent 22rem),
-    radial-gradient(ellipse at 100% 90%, rgb(248 225 221 / 42%), transparent 23rem),
-    linear-gradient(145deg, rgb(255 255 255 / 76%), rgb(242 249 246 / 72%) 55%, rgb(255 255 255 / 56%));
-  border-right: 1px solid rgb(255 255 255 / 86%);
+    radial-gradient(ellipse at 4% 0%, rgb(255 243 74 / 40%), transparent 22rem),
+    radial-gradient(ellipse at 100% 90%, rgb(250 255 147 / 33%), transparent 23rem),
+    linear-gradient(145deg, rgb(255 253 194 / 68%), rgb(255 255 255 / 48%) 55%, rgb(250 255 147 / 20%));
+  border-right: 1px solid rgb(255 255 255 / 75%);
 }
 .solstice-onboarding__story::before {
-  background: radial-gradient(circle at 32% 28%, rgb(255 255 255 / 72%), rgb(221 242 235 / 24%) 44%, transparent 70%);
-  box-shadow: 0 12px 42px rgb(41 41 35 / 4%), inset 0 0 26px rgb(255 255 255 / 85%);
+  background: radial-gradient(circle at 32% 28%, rgb(255 255 255 / 65%), rgb(255 243 74 / 18%) 44%, transparent 70%);
+  box-shadow: 0 12px 42px rgb(41 41 35 / 5%), inset 0 0 26px rgb(255 255 255 / 80%);
 }
 .solstice-onboarding__story .rounded-2xl {
-  background: rgb(255 255 255 / 64%);
-  border-color: rgb(255 255 255 / 94%);
-  box-shadow: 0 8px 26px rgb(41 41 35 / 4%), inset 0 1px 0 rgb(255 255 255 / 95%);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  border: 1px solid rgb(255 255 255 / 88%);
+  background: rgb(255 255 255 / 48%);
+  box-shadow: 0 10px 28px rgb(41 41 35 / 4%), inset 0 1px 0 rgb(255 255 255 / 90%);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
 }
 .solstice-onboarding__story .rounded-lg {
-  background: linear-gradient(145deg, #e9c93a, #f3df78);
+  background: linear-gradient(145deg, #fff34a, #faff93);
+  box-shadow: 0 3px 10px rgb(41 41 35 / 7%), inset 0 1px 0 rgb(255 255 255 / 90%);
 }
+/* Keep the form column solid, but give controls a subtle raised-glass finish. */
 .solstice-onboarding__form {
   background: #fff;
 }
 .solstice-onboarding__form input:not([type="checkbox"]),
 .solstice-onboarding__form select,
 .solstice-onboarding__form .flex.items-center.rounded-xl {
-  background: #fff;
-  box-shadow: none;
+  border-color: rgb(41 41 35 / 12%);
+  background: linear-gradient(145deg, #fff 0%, #fffef8 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 98%), 0 3px 9px rgb(41 41 35 / 4%);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
 .solstice-onboarding__form input:focus,
 .solstice-onboarding__form select:focus,
 .solstice-onboarding__form .flex.items-center.rounded-xl:focus-within {
-  border-color: rgb(115 173 157 / 75%);
+  border-color: rgb(214 190 0 / 72%);
   background: #fff;
-  box-shadow: 0 0 0 3px rgb(221 242 235 / 85%);
+  box-shadow: 0 0 0 3px rgb(255 243 74 / 28%), inset 0 1px 0 #fff;
 }
 .solstice-onboarding__form button[type="button"] {
-  background: #f8f9f7;
-  box-shadow: inset 0 1px 0 #fff;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  border-color: rgb(41 41 35 / 12%);
+  background: linear-gradient(145deg, rgb(255 255 255 / 98%), rgb(248 247 238 / 95%));
+  box-shadow: 0 3px 8px rgb(41 41 35 / 5%), inset 0 1px 0 #fff;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
 .solstice-onboarding__form button[type="button"]:hover {
-  border-color: rgb(115 173 157 / 55%);
-  background: #eff7f3;
+  border-color: rgb(214 190 0 / 45%);
+  background: linear-gradient(145deg, #fffef2, #fff9c9);
 }
 .solstice-onboarding__form button[type="button"].border-ink,
 .solstice-onboarding__form button[type="button"][class*="bg-ink"] {
-  background: #292923;
   border-color: #292923;
+  background: linear-gradient(145deg, #34342d, #22221d);
   color: #fff;
+  box-shadow: 0 5px 14px rgb(41 41 35 / 14%), inset 0 1px 0 rgb(255 255 255 / 12%);
 }
 @media (max-width: 640px) {
   .solstice-onboarding__panel { border-radius: 1.4rem; }
