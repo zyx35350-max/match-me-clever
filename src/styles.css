@@ -581,3 +581,162 @@
   .solstice-onboarding__form select,
   .solstice-onboarding__form form > button[type="submit"] { transition: none; }
 }
+
+
+/* Solstice identity layer: the sun + orbit motif, shared by auth and workspace. */
+.solstice-brand-lockup { position: relative; z-index: 1; }
+.solstice-brand-mark {
+  position: relative;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid rgb(255 255 255 / 96%);
+  border-radius: 15px;
+  background: linear-gradient(145deg, #fff 0%, #fffdc2 50%, #faff93 100%);
+  box-shadow: 0 6px 18px rgb(41 41 35 / 8%), inset 0 1px 0 #fff;
+}
+.solstice-brand-mark::before {
+  content: "";
+  width: 17px;
+  height: 17px;
+  border: 2px solid #292923;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgb(255 243 74 / 34%);
+}
+.solstice-brand-mark::after {
+  content: "";
+  position: absolute;
+  width: 28px;
+  height: 11px;
+  border: 1.5px solid #292923;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-radius: 50%;
+  transform: rotate(-38deg);
+}
+.solstice-brand-mark > span {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #292923;
+  box-shadow: 0 0 0 2px rgb(255 243 74 / 42%);
+}
+.solstice-auth {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 8% 10%, rgb(255 253 194 / 76%), transparent 30rem),
+    radial-gradient(ellipse at 90% 85%, rgb(250 255 147 / 30%), transparent 30rem),
+    linear-gradient(135deg, #faf9f5, #fffef9 52%, #f7f6eb);
+}
+.solstice-auth::before,
+.solstice-auth::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  border: 1px solid rgb(255 255 255 / 94%);
+  border-radius: 50%;
+}
+.solstice-auth::before {
+  width: min(58vw, 680px);
+  aspect-ratio: 1;
+  right: -210px;
+  top: -320px;
+  background: radial-gradient(circle at 35% 32%, rgb(255 255 255 / 88%), rgb(255 243 74 / 18%) 40%, rgb(250 255 147 / 12%) 60%, transparent 72%);
+  box-shadow: 0 28px 80px rgb(41 41 35 / 5%), inset 0 0 32px rgb(255 255 255 / 80%);
+}
+.solstice-auth::after {
+  width: min(40vw, 460px);
+  aspect-ratio: 1;
+  left: -180px;
+  bottom: -280px;
+  background: radial-gradient(circle at 60% 25%, rgb(255 255 255 / 86%), rgb(255 253 194 / 40%) 48%, transparent 72%);
+}
+.solstice-auth__frame { position: relative; z-index: 1; }
+.solstice-auth__panel {
+  border: 1px solid rgb(255 255 255 / 94%);
+  background: rgb(255 255 255 / 34%);
+  box-shadow: 0 30px 100px rgb(41 41 35 / 10%), 0 4px 18px rgb(41 41 35 / 4%), inset 0 1px 0 #fff;
+  backdrop-filter: blur(28px) saturate(1.25);
+}
+.solstice-auth__story {
+  background:
+    radial-gradient(ellipse at 10% 0%, rgb(255 243 74 / 36%), transparent 23rem),
+    radial-gradient(ellipse at 95% 95%, rgb(250 255 147 / 32%), transparent 24rem),
+    linear-gradient(145deg, rgb(255 253 194 / 68%), rgb(255 255 255 / 40%) 56%, rgb(250 255 147 / 20%));
+  border-right: 1px solid rgb(255 255 255 / 80%);
+}
+.solstice-auth__story > .absolute {
+  display: none;
+}
+.solstice-auth__story h1 { max-width: 520px; letter-spacing: -.05em; }
+.solstice-auth__story h1 span { text-decoration-color: #d7c600; }
+.solstice-auth__story .rounded-xl.border {
+  border-color: rgb(255 255 255 / 88%);
+  background: rgb(255 255 255 / 45%);
+  box-shadow: 0 6px 20px rgb(41 41 35 / 4%), inset 0 1px 0 #fff;
+  backdrop-filter: blur(14px);
+}
+.solstice-auth__story .rounded-xl.border span:first-child {
+  display: inline-grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 90%);
+  border-radius: 8px;
+  background: linear-gradient(145deg, #fff34a, #faff93);
+  color: #292923;
+}
+.solstice-auth__form { background: rgb(255 255 255 / 42%); }
+.solstice-auth__form > div { width: 100%; }
+.solstice-auth__form > div > div:first-child {
+  border-color: rgb(255 255 255 / 90%);
+  background: rgb(255 255 255 / 38%);
+  box-shadow: inset 0 1px 0 #fff;
+  backdrop-filter: blur(16px);
+}
+.solstice-auth__form input {
+  border-color: rgb(41 41 35 / 12%);
+  background: rgb(255 255 255 / 52%);
+  box-shadow: inset 0 1px 2px rgb(41 41 35 / 2%), 0 1px 0 #fff;
+  backdrop-filter: blur(12px);
+}
+.solstice-auth__form input:focus {
+  border-color: rgb(214 190 0 / 75%);
+  background: rgb(255 255 255 / 82%);
+  box-shadow: 0 0 0 3px rgb(255 243 74 / 28%), inset 0 1px 0 #fff;
+}
+.solstice-auth__form button[type="button"] { border-radius: 10px; }
+.solstice-auth__form button[type="button"].bg-white {
+  border: 1px solid rgb(255 255 255 / 95%);
+  background: rgb(255 255 255 / 78%);
+  box-shadow: 0 4px 14px rgb(41 41 35 / 5%);
+}
+.solstice-auth__form button[type="submit"] {
+  border: 1px solid rgb(255 255 255 / 45%);
+  background: linear-gradient(115deg, #292923, #171713);
+  box-shadow: 0 10px 24px rgb(41 41 35 / 16%), inset 0 1px 0 rgb(255 255 255 / 14%);
+}
+.solstice-auth__form button[type="submit"]:hover {
+  box-shadow: 0 14px 30px rgb(41 41 35 / 20%), inset 0 1px 0 rgb(255 255 255 / 14%);
+}
+.solstice-auth__form .rounded-xl.border {
+  border-color: rgb(255 243 74 / 38%);
+  background: rgb(255 253 194 / 34%);
+  backdrop-filter: blur(14px);
+}
+@media (max-width: 1023px) {
+  .solstice-auth__story { border-right: 0; border-bottom: 1px solid rgb(255 255 255 / 80%); }
+}
+@media (max-width: 640px) {
+  .solstice-auth { padding-block: 1rem; }
+  .solstice-auth__panel { border-radius: 1.5rem; }
+  .solstice-auth__story, .solstice-auth__form { padding: 1.4rem; }
+}
