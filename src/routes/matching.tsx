@@ -41,7 +41,6 @@ function MatchingPage() {
   const [track, setTrack] = useState<EmploymentType>("fulltime");
   const [filter, setFilter] = useState<(typeof filters)[number]["key"]>("all");
   const [showProfile, setShowProfile] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const { matches, aiProfile, refreshAiProfile, topDirection } = useCareer(track);
@@ -208,19 +207,15 @@ function MatchingPage() {
             <div className="mt-1 text-xs text-ink/45">Liepin may open a browser for manual sign-in. Searches stop if the site shows a verification challenge.</div>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setShowSearch((value) => !value)} className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold hover:bg-sand">
-              {showSearch ? "Hide search settings" : "Search settings"}
-            </button>
             <button type="button" onClick={discover51Job} disabled={discovering} className="rounded-lg bg-azure px-3 py-1.5 text-xs font-semibold text-cream hover:bg-azure-deep disabled:opacity-50">
               {discovering ? "Searching…" : "Search 51Job"}
             </button>
-            <button type="button" onClick={discoverLiepin} disabled={discoveringLiepin} className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold hover:bg-sand disabled:opacity-50">
+            <button type="button" onClick={discoverLiepin} disabled={discoveringLiepin} className="rounded-lg bg-azure px-3 py-1.5 text-xs font-semibold text-cream hover:bg-azure-deep disabled:opacity-50">
               {discoveringLiepin ? "Searching…check browser" : "Search 猎聘"}
             </button>
           </div>
         </div>
-        {showSearch ? (
-          <div className="border-t border-ink/10 px-4 py-4">
+        <div className="border-t border-ink/10 px-4 py-4">
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
               <label className="block">
                 <span className="mb-1.5 block text-xs font-semibold text-ink/60">Keywords</span>
@@ -243,12 +238,6 @@ function MatchingPage() {
             {discoveryMessage ? <div className="mt-3 rounded-xl bg-sand px-3.5 py-2.5 text-xs text-ink/70">{discoveryMessage}</div> : null}
             {liepinDiscoveryMessage ? <div className="mt-3 whitespace-pre-wrap rounded-xl bg-sand px-3.5 py-2.5 text-xs text-ink/70">{liepinDiscoveryMessage}</div> : null}
           </div>
-        ) : (discoveryMessage || liepinDiscoveryMessage) ? (
-          <div className="border-t border-ink/10 px-4 py-3 text-xs text-ink/60">
-            {discoveryMessage ? <div>{discoveryMessage}</div> : null}
-            {liepinDiscoveryMessage ? <div className="mt-2 whitespace-pre-wrap">{liepinDiscoveryMessage}</div> : null}
-          </div>
-        ) : null}
       </div>
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
