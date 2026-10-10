@@ -39,11 +39,14 @@ export const Route = createFileRoute("/api/discover-liepin")({
                   typeof item.rawTitle !== "string" ||
                   typeof item.rawDescription !== "string"
                 ) return [];
-                const metadata = item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata)
-                  ? (Object.fromEntries(Object.entries(item.metadata as Record<string, unknown>)
-                      .filter(([, field]) => field === null || ["string", "number", "boolean"].includes(typeof field)))
-                    as Record<string, string | number | boolean | null>)
-                  : undefined;
+                const metadata: Record<string, string | number | boolean | null> = {};
+                if (item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata)) {
+                  for (const [key, field] of Object.entries(item.metadata as Record<string, unknown>)) {
+                    if (field === null || ["string", "number", "boolean"].includes(typeof field)) {
+                      metadata[key] = field as string | number | boolean | null;
+                    }
+                  }
+                }
                 return [{
                   externalId: item.externalId,
                   sourceUrl: item.sourceUrl,
@@ -51,7 +54,7 @@ export const Route = createFileRoute("/api/discover-liepin")({
                   rawDescription: item.rawDescription,
                   ...(typeof item.companyName === "string" ? { companyName: item.companyName } : {}),
                   ...(typeof item.locationText === "string" ? { locationText: item.locationText } : {}),
-                  ...(metadata ? { metadata } : {}),
+                  ...(Object.keys(metadata).length ? { metadata } : {}),
                 }];
               }).slice(0, 20)
             : [];
