@@ -131,39 +131,130 @@ function cleanLiepinDescription(value: string): string {
   return deduped.join("\n");
 }
 
+const LIEPIN_DETAIL_SELECTORS = [
+  '[data-selector="job-intro-content"]',
+  ".job-intro-content",
+  ".job-intro",
+  ".job-description",
+  ".job-desc",
+  '[class*="job-intro-content"]',
+  '[class*="job-description"]',
+  '[class*="jobIntro"]',
+  '[class*="jobDetail"]',
+];
+
+const LIEPIN_DESCRIPTION_HEADING = /(?:职位介绍|职位描述|岗位职责|工作职责|工作内容|任职要求|岗位要求)/;
+
 async function fetchLiepinDetail(page: Page, sourceUrl: string): Promise<{ status: "full" | "summary_only" | "blocked"; description?: string; message: string }> {
   try {
     const url = new URL(sourceUrl);
-    if (url.protocol !== "https:" || !(url.hostname === "liepin.com" || url.hostname.endsWith(".liepin.com"))) {
+    if (!/^https:$/.test(url.protocol) || !(url.hostname === "liepin.com" || url.hostname.endsWith(".liepin.com"))) {
       return { status: "summary_only", message: "Skipped non-Liepin detail URL." };
     }
+
     await page.goto(url.toString(), { waitUntil: "domcontentloaded", timeout: 25000 });
     await page.waitForTimeout(900);
-    const state = await accessState(page);
+    let state = await accessState(page);
     if (state) return { status: "blocked", message: `Detail page requires ${state === "login" ? "login" : "verification"}; stopped.` };
 
-    const extracted = await page.evaluate(() => {
-      const target = document.querySelector('[data-selector="job-intro-content"]');
-      const text = (element: Element | null) =>
-        ((element as HTMLElement | null)?.innerText ?? element?.textContent ?? "").trim();
-      const targetText = text(target);
-      if (targetText.length >= 80) return targetText;
-      const body = (document.body?.innerText ?? "").replace(/\r/g, "");
-      const heading = body.search(/(?:职位介绍|职位描述|岗位职责|工作职责|工作内容|任职要求|岗位要求)/);
+    // Liepin renders job detail content asynchronously. Wait for the actual
+    // description area or a visible JD heading instead of sampling the page
+    // after a fixed sub-second delay.
+    await page.waitForFunction((selectors: string[]) => {
+      const hasDescription = selectors.some((selector) =>
+        Array.from(document.querySelectorAll(selector)).some((element) =>
+          (((element as HTMLElement).innerText ?? element.textContent ?? "").trim().length >= 80),
+        ),
+      );
+      return hasDescription || /职位介绍|职位描述|岗位职责|工作职责|工作内容|任职要求|岗位要求/.test(document.body?.innerText ?? "");
+    }, LIEPIN_DETAIL_SELECTORS, { timeout: 10000 }).catch(() => undefined);
+
+    state = await accessState(page);
+    if (state) return { status: "blocked", message: `Detail page requires ${state === "login" ? "login" : "verification"}; stopped.` };
+
+    // Some public detail pages collapse the remainder of the description.
+    // Expand only controls adjacent to a detected job-description container.
+    await page.evaluate((selectors: string[]) => {
+      const roots = selectors.flatMap((selector) => Array.from(document.querySelectorAll(selector)));
+      const visible = (element: Element) => {
+        const rect = element.getBoundingClientRect();
+        const style = window.getComputedStyle(element);
+        return rect.width > 0 && rect.height > 0 && style.display !== "none" && style.visibility !== "hidden";
+      };
+      for (const root of roots) {
+        const scope = root.parentElement?.parentElement ?? root.parentElement ?? root;
+        const expand = Array.from(scope.querySelectorAll("button, a, [role='button']"))
+          .find((element) => visible(element) && /^(展开|展开全部|查看更多|显示更多|查看全部|查看完整职位描述)$/.test((element as HTMLElement).innerText?.trim() ?? element.textContent?.trim() ?? ""));
+        if (expand) {
+          (expand as HTMLElement).click();
+          return true;
+        }
+      }
+      return false;
+    }, LIEPIN_DETAIL_SELECTORS).catch(() => false);
+    await page.waitForTimeout(500);
+
+    const extracted = await page.evaluate((selectors: string[]) => {
+      const cleanText = (value: string) => value
+        .replace(/\u00a0/g, " ")
+        .replace(/\r/g, "")
+        .replace(/[ \t]+\n/g, "\n")
+        .replace(/\n[ \t]+/g, "\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+      const elementText = (element: Element) =>
+        cleanText((element as HTMLElement).innerText ?? element.textContent ?? "");
+
+      // Prefer platform detail containers, choosing the fullest candidate so
+      // nested wrappers do not truncate the responsibilities or requirements.
+      let best = "";
+      for (const selector of selectors) {
+        for (const element of Array.from(document.querySelectorAll(selector))) {
+          const value = elementText(element);
+          if (value.length > best.length) best = value;
+        }
+      }
+      if (best.length >= 80) return best;
+
+      // Public JobPosting structured data is another source of the full JD.
+      const jsonDescriptions: string[] = [];
+      const visit = (node: unknown) => {
+        if (Array.isArray(node)) {
+          node.forEach(visit);
+          return;
+        }
+        if (!node || typeof node !== "object") return;
+        const record = node as Record<string, unknown>;
+        const types = Array.isArray(record["@type"]) ? record["@type"].join(" ") : String(record["@type"] ?? "");
+        if (/JobPosting/i.test(types) && typeof record.description === "string") {
+          const parsed = new DOMParser().parseFromString(record.description, "text/html");
+          const value = cleanText(parsed.body.innerText || parsed.body.textContent || "");
+          if (value.length >= 80) jsonDescriptions.push(value);
+        }
+        Object.values(record).forEach(visit);
+      };
+      for (const script of Array.from(document.querySelectorAll('script[type="application/ld+json"]'))) {
+        try { visit(JSON.parse(script.textContent ?? "")); } catch { /* Ignore malformed structured data. */ }
+      }
+      if (jsonDescriptions.length) return jsonDescriptions.sort((a, b) => b.length - a.length)[0];
+
+      // Last resort: keep the JD section from the rendered page and stop before
+      // unrelated company, recommendation, and site-footer content.
+      const body = cleanText(document.body?.innerText ?? "");
+      const heading = body.search(/职位介绍|职位描述|岗位职责|工作职责|工作内容|任职要求|岗位要求/);
       if (heading < 0) return "";
       const trailing = body.slice(heading);
-      const stop = trailing.search(/\n(?:公司介绍|公司简介|相似职位|推荐职位|职位推荐|猎聘温馨提示|工商信息)/);
-      return (stop > 100 ? trailing.slice(0, stop) : trailing).trim();
-    }).catch(() => "");
+      const stop = trailing.search(/\n(?:公司介绍|公司简介|相似职位|推荐职位|职位推荐|猎聘温馨提示|工商信息|相关职位)/);
+      return cleanText(stop > 100 ? trailing.slice(0, stop) : trailing);
+    }, LIEPIN_DETAIL_SELECTORS).catch(() => "");
     const description = cleanLiepinDescription(extracted);
     return description.length >= 80
-      ? { status: "full", description, message: "Full Liepin job description extracted." }
+      ? { status: "full", description, message: `Full Liepin job description extracted (${description.length} characters).` }
       : { status: "summary_only", message: "No reliable full description found; retained search-card summary." };
   } catch (error) {
     return { status: "summary_only", message: error instanceof Error ? `Detail request failed: ${error.message}` : "Detail request failed." };
   }
 }
-
 function getRecords(payload: unknown): Record<string, unknown>[] {
   if (!payload || typeof payload !== "object") return [];
   const root = payload as Record<string, unknown>;
@@ -277,6 +368,7 @@ export class LiepinJobSourceAdapter {
     const knownSignatures = new Set(savedSignatures);
     let duplicateCardsRemoved = 0;
     let previouslySavedSkipped = 0;
+    let detailIncomplete = false;
     let browser: Browser | undefined;
     let stopOnRestriction = false;
 
@@ -434,9 +526,10 @@ export class LiepinJobSourceAdapter {
       let detailBlocked = false;
       for (let index = 0; index < jobs.length; index += 1) {
         const raw = jobs[index]!;
-        if (!raw.sourceUrl) continue;
+        if (!raw.sourceUrl) { detailIncomplete = true; continue; }
         const detail = await fetchLiepinDetail(page, raw.sourceUrl);
         reports.push(`${raw.rawTitle}: ${detail.message}`);
+        if (detail.status !== "full") detailIncomplete = true;
         if (detail.status === "full" && detail.description) {
           jobs[index] = {
             ...raw,
@@ -459,7 +552,7 @@ export class LiepinJobSourceAdapter {
       const unique = deduplicateJobs([], jobs).uniqueJobs.slice(0, targetCount);
       if (previouslySavedSkipped) reports.push(`${previouslySavedSkipped} previously saved Liepin result(s) skipped while searching for new unique jobs.`);
       return {
-        status: unique.length >= targetCount ? "success" : unique.length ? "partial" : "failed",
+        status: unique.length >= targetCount && !detailIncomplete ? "success" : unique.length ? "partial" : "failed",
         sourceId: this.source.id,
         fetchedAt,
         jobs: unique,
