@@ -1,4 +1,5 @@
 import { careerDirections, getDirection, normalizeConcept } from "./career-data";
+import { concepts, resolveConcept } from "./concepts";
 import type {
   AICareerProfile,
   CareerDirection,
@@ -14,6 +15,11 @@ import type {
   UserFeedback,
 } from "./career-types";
 import type { EmploymentType, Job, NegativeTag, Profile } from "./types";
+
+function displaySkill(term: string) {
+  const id = resolveConcept(term);
+  return id ? concepts.find((concept) => concept.id === id)?.zh[0] ?? term : term;
+}
 
 const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
 
