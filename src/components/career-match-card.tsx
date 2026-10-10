@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 import { formatSalary } from "@/lib/matching";
-import { useWorkspace } from "@/lib/store";
+import { statusLabel, useWorkspace } from "@/lib/store";
 import type { JobMatch } from "@/lib/career-types";
 
 function DualScore({ label, value, tone }: { label: string; value: number; tone: "azure" | "ochre" }) {
@@ -50,7 +50,9 @@ export function CareerMatchCard({ match, compact = false }: { match: JobMatch; c
   const { job } = match;
   const { isSaved, toggleSaved, apply, recordFeedback, feedbackFor, statusFor, hideJob } = useWorkspace();
   const feedback = feedbackFor(job.id);
-  const applied = Boolean(statusFor(job.id));
+  const feedbackLabels: Record<string, string> = { viewed: "查看过", saved: "已收藏", applied: "已申请" };
+  const applicationStatus = statusFor(job.id);
+  const applied = Boolean(applicationStatus);
 
   return (
     <div className={`${"rounded-xl border bg-card px-4 py-3.5 " + (match.notRecommended ? "border-ochre/35" : "border-ink/10")}`}>
@@ -63,7 +65,7 @@ export function CareerMatchCard({ match, compact = false }: { match: JobMatch; c
             {job.titleOriginal ? <span className="hidden text-[11px] text-ink/35 xl:inline">({job.title})</span> : null}
             {match.direction ? <span className="rounded-full bg-azure/10 px-2 py-0.5 text-[10px] font-semibold text-azure">{match.direction.name}</span> : null}
             {match.notRecommended ? <span className="rounded-full bg-ochre/15 px-2 py-0.5 text-[10px] font-semibold text-ochre">不推荐</span> : null}
-            {statusFor(job.id) ? <span className="rounded-full bg-sand px-2 py-0.5 text-[10px] font-semibold text-ink/50">{statusFor(job.id)}</span> : null}
+            {applicationStatus ? <span className="rounded-full bg-sand px-2 py-0.5 text-[10px] font-semibold text-ink/50">{statusLabel(applicationStatus)}</span> : null}
           </div>
           <div className="mt-0.5 truncate text-[11px] text-ink/50">
             {job.company} · {job.location} · {job.salaryNote ?? formatSalary(job.salaryMin) + "–" + formatSalary(job.salaryMax)}
@@ -101,7 +103,7 @@ export function CareerMatchCard({ match, compact = false }: { match: JobMatch; c
           </div>
         </div>
       </div>
-      {feedback ? <div className="mt-1.5 text-[10px] font-semibold text-sage">记录：{feedback.replace("_", " ")}</div> : null}
+      {feedback ? <div className="mt-1.5 text-[10px] font-semibold text-sage">记录：{feedbackLabels[feedback] ?? feedback.replace("_", " ")}</div> : null}
     </div>
   );
 }
