@@ -146,7 +146,7 @@ function OnboardingPage() {
               <div className="mt-3 space-y-3">
                 {["基本信息与职业方向", "工作经验与当前阶段", "求职城市与工作方式", "期望月薪与薪资偏好"].map((item, i) => (
                   <div key={item} className="flex items-center gap-3 text-xs font-semibold text-ink/70">
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-ochre text-ink">0{i + 1}</span>{item}
+                    <span className="solstice-onboarding__step-number flex size-7 shrink-0 items-center justify-center rounded-full text-ink">0{i + 1}</span>{item}
                   </div>
                 ))}
               </div>
