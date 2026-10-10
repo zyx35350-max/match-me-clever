@@ -120,10 +120,26 @@ function MatchingPage() {
           .map((part) => String(part ?? "").toLowerCase().replace(/\s+/g, ""))
           .join("|"))
         .filter((signature) => signature.split("|").filter(Boolean).length >= 3);
+      const refreshJobs = importedJobRecords
+        .filter(({ raw }) =>
+          raw.sourceId === "liepin" &&
+          raw.metadata?.["detailStatus"] !== "full" &&
+          Boolean(raw.externalId && raw.sourceUrl),
+        )
+        .slice(0, targetCount)
+        .map(({ raw }) => ({
+          externalId: raw.externalId!,
+          sourceUrl: raw.sourceUrl!,
+          rawTitle: raw.rawTitle,
+          rawDescription: raw.rawDescription,
+          ...(raw.companyName ? { companyName: raw.companyName } : {}),
+          ...(raw.locationText ? { locationText: raw.locationText } : {}),
+          ...(raw.metadata ? { metadata: raw.metadata } : {}),
+        }));
       const response = await fetch("/api/discover-liepin", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ keywords, cities, targetCount, excludeExternalIds: existingLiepinIds, excludeSignatures: existingLiepinSignatures }),
+        body: JSON.stringify({ keywords, cities, targetCount, excludeExternalIds: existingLiepinIds, excludeSignatures: existingLiepinSignatures, refreshJobs }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error ?? "Liepin discovery failed.");
@@ -132,12 +148,13 @@ function MatchingPage() {
       const cityMatchedJobs = fetchedJobs.filter((job) =>
         isJobInSelectedCities(job.locationText, selectedCityPreferences),
       );
+      const enrichedJobs = Array.isArray(payload.enrichedJobs) ? payload.enrichedJobs : [];
       const rejectedByCity = fetchedJobs.length - cityMatchedJobs.length;
-      const summary = importDiscoveredJobs(cityMatchedJobs, "Liepin");
+      const summary = importDiscoveredJobs([...cityMatchedJobs, ...enrichedJobs], "Liepin");
       const sourceReport = typeof payload.message === "string" && payload.message.trim()
         ? "。抓取日志：" + payload.message
         : "";
-      setLiepinDiscoveryMessage("猎聘抓取 " + fetchedJobs.length + " 个 · 地点不符排除 " + rejectedByCity +
+      setLiepinDiscoveryMessage("猎聘抓取 " + cityMatchedJobs.length + " 个 · 已保存职位补全介绍 " + enrichedJobs.length + " 个 · 地点不符排除 " + rejectedByCity +
         " 个 · 新增 " + summary.added + " 个 · 更新 " + summary.updated + " 个 · 重复 " + summary.duplicates + sourceReport);
     } catch (error) {
       setLiepinDiscoveryMessage(error instanceof Error ? error.message : "Liepin discovery failed.");
