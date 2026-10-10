@@ -596,24 +596,24 @@ function explain(args: {
   const fits: string[] = [];
   if (matchedSkills.length) {
     fits.push(
-      `Your ${matchedSkills.slice(0, 3).join(", ")} experience maps onto what this role actually does day to day.`,
+      `你在${matchedSkills.slice(0, 3).map(displaySkill).join("、")}方面的经验，与这个岗位的日常工作内容相契合。`,
     );
   } else {
     fits.push("你的已验证技能与这个岗位的要求暂时没有明显重合。");
   }
-  if (direction) fits.push(`Sits in ${direction.name}, one of the directions you're testing.`);
+  if (direction) fits.push(`这个岗位属于${direction.name}方向，是你正在探索的职业方向之一。`);
 
   const bring = matchedSkills.length
     ? [
-        `${matchedSkills.slice(0, 4).join(", ")} — with numbers behind them, not just exposure.`,
-        "An operator's habit of watching data daily rather than at review time.",
+        `${matchedSkills.slice(0, 4).map(displaySkill).join("、")}，并有实际数据成果支撑，而不只是接触过。`,
+        "具备日常关注数据的运营习惯，而不是只在复盘时查看。",
       ]
-    : ["Transferable research and data habits, but no direct skill overlap here."];
+    : ["具备可迁移的调研和数据分析习惯，但与该岗位的技能要求没有直接重合。"];
 
   const learn = [
     ...(direction ? direction.learnable.slice(0, 2) : []),
     ...(missingSkills.length
-      ? [`On-the-job exposure to ${missingSkills.slice(0, 3).join(", ")}.`]
+      ? [`可以在工作中积累${missingSkills.slice(0, 3).map(displaySkill).join("、")}方面的经验。`]
       : []),
   ];
   if (!learn.length) learn.push("新增能力有限，主要是在重复你已经会的事情。");
@@ -623,10 +623,10 @@ function explain(args: {
   );
   if (missingSkills.length >= 3)
     concerns.push(
-      `Asks for ${missingSkills.slice(0, 2).join(" and ")}, currently gaps on your profile.`,
+      `该岗位要求${missingSkills.slice(0, 2).map(displaySkill).join("、")}，这些目前是你职业资料中的能力差距。`,
     );
   if (track === "parttime" && (job.salaryMax ?? 0) < 5000)
-    concerns.push("Pay is low; it only makes sense for the evidence it creates.");
+    concerns.push("薪资偏低，只有在能积累有价值的项目成果时才值得考虑。");
   if (!concerns.length) concerns.push("暂未发现明显风险。");
 
   const careerValue =
@@ -650,7 +650,7 @@ function explain(args: {
       ? "即时匹配与长期成长比较接近，没有明显取舍。"
       : gap > 0
         ? `目前较难拿到（${immediateFit}），但长期成长价值更高（${careerGrowthValue}）。如果能补足差距，值得挑战。`
-        : `Easy for you today (${immediateFit}) but it adds less to where you're heading (${careerGrowthValue}). Comfortable, not developmental.`;
+        : `当前上手难度较低（${immediateFit}），但对长期职业方向的帮助有限（${careerGrowthValue}）。较为稳妥，成长性不足。`;
 
   const recommendation = notRecommended
     ? "不推荐 — 保留展示，方便你了解原因，不会自动隐藏。"
