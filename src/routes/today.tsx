@@ -33,7 +33,7 @@ function 今日推荐Page() {
   return (
     <AppShell>
       <PageHeading
-        eyebrow="今日推荐"
+        eyebrow="Today"
         title="今日推荐's opportunities worth your attention"
         description="精选近期值得关注的岗位，综合评估获得机会的难度以及对职业发展的帮助。"
       />
