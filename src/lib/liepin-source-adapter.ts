@@ -143,7 +143,6 @@ const LIEPIN_DETAIL_SELECTORS = [
   '[class*="jobDetail"]',
 ];
 
-const LIEPIN_DESCRIPTION_HEADING = /(?:职位介绍|职位描述|岗位职责|工作职责|工作内容|任职要求|岗位要求)/;
 
 async function fetchLiepinDetail(page: Page, sourceUrl: string): Promise<{ status: "full" | "summary_only" | "blocked"; description?: string; message: string }> {
   try {
