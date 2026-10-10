@@ -5,6 +5,7 @@ import { AppShell, PageHeading } from "@/components/app-shell";
 import { parseUserJobText, type UserJobImportResult } from "@/lib/user-job-import";
 import { useWorkspace } from "@/lib/store";
 import { primaryCareerDirection } from "@/lib/job-role-direction-mapping";
+import { detectJobPlatform } from "@/lib/job-platform";
 
 export const Route = createFileRoute("/import")({
   head: () => ({
@@ -20,12 +21,37 @@ function ImportJobPage() {
   const { importRawJob } = useWorkspace();
   const [text, setText] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
+  const detectedPlatform = detectJobPlatform(sourceUrl);
   const [inputMode, setInputMode] = useState<"url" | "paste">("url");
   const [status, setStatus] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [result, setResult] = useState<UserJobImportResult | null>(null);
   const [analysisSource, setAnalysisSource] = useState<"gemini" | "deterministic" | null>(null);
   const [analysisWarning, setAnalysisWarning] = useState<string | null>(null);
+
+  async function importFromUrl(url: string) {
+    setStatus(null);
+    setWarnings([]);
+    setResult(null);
+    try {
+      const response = await fetch("/api/import-job-url", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        const platformName = payload.platform?.name ?? detectJobPlatform(url)?.name;
+        throw new Error(platformName ? `${platformName}链接已识别。 ${payload.error ?? "网页暂时无法读取。"}` : payload.error ?? "无法读取这个岗位链接。");
+      }
+      const stored = importRawJob(payload.raw);
+      setWarnings(stored.warnings);
+      setResult(payload);
+      setStatus(`${payload.platform?.name ? `已识别为${payload.platform.name}。` : "链接读取成功。"}岗位已进入 Matching。`);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "无法读取这个岗位链接。");
+    }
+  }
 
   async function submit() {
     setStatus(null);
@@ -113,29 +139,12 @@ function ImportJobPage() {
           )}
 
           <button
-            onClick={async () => {
+            onClick={() => {
               if (inputMode === "paste") {
                 submit();
                 return;
               }
-              setStatus(null);
-              setWarnings([]);
-              setResult(null);
-              try {
-                const response = await fetch("/api/import-job-url", {
-                  method: "POST",
-                  headers: { "content-type": "application/json" },
-                  body: JSON.stringify({ url: sourceUrl }),
-                });
-                const payload = await response.json();
-                if (!response.ok) throw new Error(payload.error ?? "无法读取这个岗位链接。");
-                const stored = importRawJob(payload.raw);
-                setWarnings(stored.warnings);
-                setResult(payload);
-                setStatus("链接读取成功，岗位已经进入 Matching。");
-              } catch (error) {
-                setStatus(error instanceof Error ? error.message : "无法读取这个岗位链接。");
-              }
+              void importFromUrl(sourceUrl);
             }}
             className="mt-4 rounded-xl bg-azure px-5 py-2.5 text-sm font-semibold text-cream hover:bg-azure-deep"
           >
