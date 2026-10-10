@@ -556,6 +556,7 @@ export class LiepinJobSourceAdapter {
         .slice(0, targetCount)
         .map((candidate) => ({
           existing: true,
+          index: -1,
           raw: createRawJob({
             source: this.source,
             externalId: candidate.externalId,
