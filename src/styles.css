@@ -502,6 +502,11 @@
 }
 .solstice-onboarding__story > * { position: relative; z-index: 1; }
 .solstice-onboarding__story h1 { max-width: 440px; letter-spacing: -.045em; }
+.solstice-onboarding__step-number {
+  background: linear-gradient(145deg, #fff34a, #faff93);
+  border: 1px solid rgb(255 255 255 / 90%);
+  color: #292923;
+}
 .solstice-onboarding__story .rounded-2xl {
   border: 1px solid rgb(255 255 255 / 88%);
   background: rgb(255 255 255 / 48%);
