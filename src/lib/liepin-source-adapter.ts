@@ -16,14 +16,29 @@ export interface LiepinSearchTask {
   city?: string;
 }
 
+export interface LiepinRefreshJob {
+  externalId: string;
+  sourceUrl: string;
+  rawTitle: string;
+  rawDescription: string;
+  companyName?: string;
+  locationText?: string;
+  metadata?: RawJob["metadata"];
+}
+
 export interface LiepinDiscoverOptions {
   searches: LiepinSearchTask[];
+  refreshJobs?: LiepinRefreshJob[];
   targetCount?: number;
   maxPagesPerSearch?: number;
   delayMs?: number;
   headless?: boolean;
   excludeExternalIds?: string[];
   excludeSignatures?: string[];
+}
+
+export interface LiepinDiscoverResult extends FetchResult {
+  enrichedJobs: RawJob[];
 }
 
 export const LIEPIN_SOURCE: JobSource = {
@@ -363,16 +378,17 @@ async function waitForManualLogin(page: Page, timeoutMs = 120_000): Promise<"cha
 export class LiepinJobSourceAdapter {
   readonly source = LIEPIN_SOURCE;
 
-  async discover(input: unknown = {}): Promise<FetchResult> {
+  async discover(input: unknown = {}): Promise<LiepinDiscoverResult> {
     const options = input as LiepinDiscoverOptions;
     const searches = Array.isArray(options?.searches) ? options.searches : [];
     const fetchedAt = new Date().toISOString();
-    if (!searches.length) return { status: "failed", sourceId: this.source.id, fetchedAt, jobs: [], message: "No Liepin search tasks were supplied." };
+    if (!searches.length) return { status: "failed", sourceId: this.source.id, fetchedAt, jobs: [], enrichedJobs: [], message: "No Liepin search tasks were supplied." };
 
     const targetCount = Math.max(1, Math.min(100, Math.floor(options.targetCount ?? 10)));
     const maxPages = Math.max(1, Math.min(10, Math.floor(options.maxPagesPerSearch ?? 10)));
     const delayMs = Math.max(1500, Math.min(5000, Math.floor(options.delayMs ?? 2000)));
     const jobs: RawJob[] = [];
+    const enrichedJobs: RawJob[] = [];
     const reports: string[] = [];
     const knownIds = new Set((options.excludeExternalIds ?? []).map((id) => id.trim()).filter(Boolean));
     const savedSignatures = new Set(options.excludeSignatures ?? []);
@@ -535,20 +551,46 @@ export class LiepinJobSourceAdapter {
       }
       }
       let detailBlocked = false;
-      for (let index = 0; index < jobs.length; index += 1) {
-        const raw = jobs[index]!;
+      const refreshTargets = (options.refreshJobs ?? [])
+        .filter((candidate) => candidate.externalId && candidate.sourceUrl && candidate.rawTitle)
+        .slice(0, targetCount)
+        .map((candidate) => ({
+          existing: true,
+          raw: createRawJob({
+            source: this.source,
+            externalId: candidate.externalId,
+            sourceUrl: candidate.sourceUrl,
+            rawTitle: candidate.rawTitle,
+            rawDescription: candidate.rawDescription,
+            ...(candidate.companyName ? { companyName: candidate.companyName } : {}),
+            ...(candidate.locationText ? { locationText: candidate.locationText } : {}),
+            ...(candidate.metadata ? { metadata: candidate.metadata } : {}),
+          }),
+        }));
+      const detailTargets = [
+        ...refreshTargets,
+        ...jobs.map((raw, index) => ({ existing: false, raw, index })),
+      ];
+
+      // Retry incomplete saved jobs first. A successful full description is
+      // returned separately so it updates that saved record without counting
+      // toward the requested number of new discovery results.
+      for (const target of detailTargets) {
+        const raw = target.raw;
         if (!raw.sourceUrl) { detailIncomplete = true; continue; }
         const detail = await fetchLiepinDetail(page, raw.sourceUrl);
         reports.push(`${raw.rawTitle}: ${detail.message}`);
         if (detail.status !== "full") detailIncomplete = true;
         if (detail.status === "full" && detail.description) {
-          jobs[index] = {
+          const completed: RawJob = {
             ...raw,
             rawDescription: detail.description,
             metadata: { ...(raw.metadata ?? {}), detailStatus: "full" },
           };
-        } else {
-          jobs[index] = {
+          if (target.existing) enrichedJobs.push(completed);
+          else jobs[target.index] = completed;
+        } else if (!target.existing) {
+          jobs[target.index] = {
             ...raw,
             metadata: { ...(raw.metadata ?? {}), detailStatus: detail.status },
           };
@@ -557,7 +599,7 @@ export class LiepinJobSourceAdapter {
           detailBlocked = true;
           break;
         }
-        if (index < jobs.length - 1) await page.waitForTimeout(delayMs);
+        if (detailTargets.indexOf(target) < detailTargets.length - 1) await page.waitForTimeout(delayMs);
       }
       if (detailBlocked) reports.push("Liepin detail fetching stopped after a login or verification page; remaining jobs keep their search summaries. Search collection had already finished.");
       const unique = deduplicateJobs([], jobs).uniqueJobs.slice(0, targetCount);
@@ -567,6 +609,7 @@ export class LiepinJobSourceAdapter {
         sourceId: this.source.id,
         fetchedAt,
         jobs: unique,
+        enrichedJobs,
         message: `Liepin discovery: ${unique.length}/${targetCount} requested unique job(s).\n${reports.join("\n")}`,
       };
     } catch (error) {
@@ -576,6 +619,7 @@ export class LiepinJobSourceAdapter {
         sourceId: this.source.id,
         fetchedAt,
         jobs: unique,
+        enrichedJobs,
         message: `Liepin adapter failed after ${unique.length} job(s): ${error instanceof Error ? error.message : "unknown error"}`,
       };
     } finally {
