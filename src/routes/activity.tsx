@@ -31,7 +31,7 @@ function 求职记录Page() {
   return (
     <AppShell>
       <PageHeading
-        eyebrow="求职记录"
+        eyebrow="Activity"
         title="申请进度与动态"
         description="随着求职进展更新申请状态，所有变化都会记录在下方。"
       />
