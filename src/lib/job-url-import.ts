@@ -170,8 +170,13 @@ export async function fetchJobUrl(input: string): Promise<JobUrlFetchResult> {
 
 export async function importJobFromUrl(url: string): Promise<UserJobImportResult & { platform: JobPlatform | null }> {
   const fetched = await fetchJobUrl(url);
+  const parsed = parseUserJobText({ text: fetched.text, sourceUrl: fetched.sourceUrl });
   return {
-    ...parseUserJobText({ text: fetched.text, sourceUrl: fetched.sourceUrl }),
+    ...parsed,
+    raw: {
+      ...parsed.raw,
+      metadata: { ...parsed.raw.metadata, sourcePlatform: fetched.platform?.id ?? "unknown" },
+    },
     platform: fetched.platform,
   };
 }
