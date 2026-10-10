@@ -40,9 +40,9 @@ export const Route = createFileRoute("/api/discover-liepin")({
                   typeof item.rawDescription !== "string"
                 ) return [];
                 const metadata = item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata)
-                  ? Object.fromEntries(Object.entries(item.metadata as Record<string, unknown>)
+                  ? (Object.fromEntries(Object.entries(item.metadata as Record<string, unknown>)
                       .filter(([, field]) => field === null || ["string", "number", "boolean"].includes(typeof field)))
-                    as Record<string, string | number | boolean | null>
+                    as Record<string, string | number | boolean | null>)
                   : undefined;
                 return [{
                   externalId: item.externalId,
