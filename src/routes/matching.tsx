@@ -45,9 +45,11 @@ function MatchingPage() {
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const { matches, aiProfile, refreshAiProfile, topDirection } = useCareer(track);
-  const { suggestions, acceptSuggestion, dismissSuggestion, importDiscoveredJobs, discovery, searchCities } = useWorkspace();
+  const { suggestions, acceptSuggestion, dismissSuggestion, importDiscoveredJobs, discovery, searchCities, importedJobRecords } = useWorkspace();
   const [discovering, setDiscovering] = useState(false);
+  const [discoveringLiepin, setDiscoveringLiepin] = useState(false);
   const [discoveryMessage, setDiscoveryMessage] = useState<string | null>(null);
+  const [liepinDiscoveryMessage, setLiepinDiscoveryMessage] = useState<string | null>(null);
   const [keywordInput, setKeywordInput] = useState("AI产品经理, AI产品助理");
   const [selectedCities, setSelectedCities] = useState<string[]>(() => searchCities.map((city) => city.id));
   const [targetCountInput, setTargetCountInput] = useState("10");
@@ -96,6 +98,54 @@ function MatchingPage() {
     }
   }
 
+  async function discoverLiepin() {
+    const keywords = keywordInput.split(/[，,、\n]+/).map((keyword) => keyword.trim()).filter(Boolean).slice(0, 8);
+    if (!keywords.length) return setLiepinDiscoveryMessage("Enter at least one keyword.");
+    if (!selectedCities.length) return setLiepinDiscoveryMessage("Select at least one city.");
+    const targetCount = Number.parseInt(targetCountInput, 10);
+    if (!Number.isInteger(targetCount) || targetCount < 1 || targetCount > 100) {
+      return setLiepinDiscoveryMessage("Liepin collection is limited to 100 jobs per run.");
+    }
+    setDiscoveringLiepin(true);
+    setLiepinDiscoveryMessage(null);
+    try {
+      const cities = searchCities.filter((city) => selectedCities.includes(city.id)).map((city) => city.name);
+      const existingLiepinIds = importedJobRecords
+        .filter((record) => record.raw.sourceId === "liepin")
+        .map((record) => record.raw.externalId)
+        .filter((id): id is string => Boolean(id));
+      const existingLiepinSignatures = importedJobRecords
+        .filter((record) => record.raw.sourceId === "liepin")
+        .map(({ raw }) => [raw.rawTitle, raw.companyName, raw.locationText, raw.metadata?.["salaryText"]]
+          .map((part) => String(part ?? "").toLowerCase().replace(/\s+/g, ""))
+          .join("|"))
+        .filter((signature) => signature.split("|").filter(Boolean).length >= 3);
+      const response = await fetch("/api/discover-liepin", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ keywords, cities, targetCount, excludeExternalIds: existingLiepinIds, excludeSignatures: existingLiepinSignatures }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error ?? "Liepin discovery failed.");
+      const selectedCityPreferences = searchCities.filter((city) => selectedCities.includes(city.id));
+      const fetchedJobs = Array.isArray(payload.jobs) ? payload.jobs : [];
+      const cityMatchedJobs = fetchedJobs.filter((job) =>
+        isJobInSelectedCities(job.locationText, selectedCityPreferences),
+      );
+      const rejectedByCity = fetchedJobs.length - cityMatchedJobs.length;
+      const summary = importDiscoveredJobs(cityMatchedJobs, "Liepin");
+      const sourceReport = typeof payload.message === "string" && payload.message.trim()
+        ? "。抓取日志：" + payload.message
+        : "";
+      setLiepinDiscoveryMessage("猎聘抓取 " + fetchedJobs.length + " 个 · 地点不符排除 " + rejectedByCity +
+        " 个 · 新增 " + summary.added + " 个 · 更新 " + summary.updated + " 个 · 重复 " + summary.duplicates + sourceReport);
+    } catch (error) {
+      setLiepinDiscoveryMessage(error instanceof Error ? error.message : "Liepin discovery failed.");
+    } finally {
+      setDiscoveringLiepin(false);
+    }
+  }
+
   const visible = matches.filter((m) => {
     if (filter === "new") return discovery.lastAddedJobIds.includes(m.job.id);
     if (filter === "recommended") return !m.notRecommended;
@@ -135,9 +185,10 @@ function MatchingPage() {
           <div>
             <div className="text-sm font-semibold">Job discovery</div>
             <div className="mt-0.5 text-xs text-ink/45">
-              51Job · {selectedCities.length} cities · {keywordInput.split(/[，,、\n]+/).filter(Boolean).length} keywords
+              51Job + Liepin · {selectedCities.length} cities · {keywordInput.split(/[，,、\n]+/).filter(Boolean).length} keywords
               {discovery.lastSyncedAt ? " · Last sync " + new Date(discovery.lastSyncedAt).toLocaleString() : ""}
             </div>
+            <div className="mt-1 text-xs text-ink/45">Liepin may open a browser for manual sign-in. Searches stop if the site shows a verification challenge.</div>
           </div>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setShowSearch((value) => !value)} className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold hover:bg-sand">
@@ -145,6 +196,9 @@ function MatchingPage() {
             </button>
             <button type="button" onClick={discover51Job} disabled={discovering} className="rounded-lg bg-azure px-3 py-1.5 text-xs font-semibold text-cream hover:bg-azure-deep disabled:opacity-50">
               {discovering ? "Searching…" : "Search 51Job"}
+            </button>
+            <button type="button" onClick={discoverLiepin} disabled={discoveringLiepin} className="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold hover:bg-sand disabled:opacity-50">
+              {discoveringLiepin ? "Searching…check browser" : "Search 猎聘"}
             </button>
           </div>
         </div>
@@ -170,8 +224,14 @@ function MatchingPage() {
               </label>
             </div>
             {discoveryMessage ? <div className="mt-3 rounded-xl bg-sand px-3.5 py-2.5 text-xs text-ink/70">{discoveryMessage}</div> : null}
+            {liepinDiscoveryMessage ? <div className="mt-3 whitespace-pre-wrap rounded-xl bg-sand px-3.5 py-2.5 text-xs text-ink/70">{liepinDiscoveryMessage}</div> : null}
           </div>
-        ) : discoveryMessage ? <div className="border-t border-ink/10 px-4 py-3 text-xs text-ink/60">{discoveryMessage}</div> : null}
+        ) : (discoveryMessage || liepinDiscoveryMessage) ? (
+          <div className="border-t border-ink/10 px-4 py-3 text-xs text-ink/60">
+            {discoveryMessage ? <div>{discoveryMessage}</div> : null}
+            {liepinDiscoveryMessage ? <div className="mt-2 whitespace-pre-wrap">{liepinDiscoveryMessage}</div> : null}
+          </div>
+        ) : null}
       </div>
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">

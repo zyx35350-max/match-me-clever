@@ -86,6 +86,83 @@ function extractJobPostingJsonLd(html: string) {
   return chunks.join("\n");
 }
 
+function readHtmlAttributes(source: string) {
+  const attributes: Record<string, string> = {};
+  for (const match of source.matchAll(/([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g)) {
+    attributes[match[1]!.toLowerCase()] = decodeHtml(match[2] ?? match[3] ?? match[4] ?? "");
+  }
+  return attributes;
+}
+
+function extractLiepinMetadata(html: string) {
+  const metadata = new Map<string, string>();
+  for (const match of html.matchAll(/<meta\b([^>]*)>/gi)) {
+    const attributes = readHtmlAttributes(match[1] ?? "");
+    const key = (attributes.property ?? attributes.name ?? attributes.itemprop ?? "").toLowerCase();
+    const content = attributes.content?.trim();
+    if (key && content && !metadata.has(key)) metadata.set(key, content);
+  }
+
+  const get = (...keys: string[]) => keys.map((key) => metadata.get(key)).find(Boolean);
+  const title = get("og:title", "twitter:title", "title")
+    ?.replace(/\s*[-|｜]\s*(?:猎聘(?:网)?|liepin(?:\.com)?)\s*$/i, "")
+    .trim();
+  const description = get("og:description", "description", "twitter:description")?.trim();
+  return { title, description };
+}
+
+function extractLiepinJobContent(html: string) {
+  const metadata = extractLiepinMetadata(html);
+  const sections: string[] = [];
+  const sectionPattern = /<(?:div|section|article)[^>]*(?:class|id)\s*=\s*["'][^"']*(?:job[-_ ]?(?:detail|description|content|duty|requirement)|职位(?:描述|详情|要求)|岗位职责)[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|section|article)>/gi;
+  for (const match of html.matchAll(sectionPattern)) {
+    const text = htmlToText(match[1] ?? "");
+    if (text.length >= 40) sections.push(text);
+  }
+
+  const fields = { title: "", company: "", location: "", salary: "" };
+  const classPatterns = {
+    title: /(?:^|[-_ ])(?:job[-_ ]?(?:title|name)|title)(?:$|[-_ ])/i,
+    company: /(?:company|comp)[-_ ]?(?:name|info)?/i,
+    location: /(?:job[-_ ]?)?(?:location|address|area|city)/i,
+    salary: /salary|compensation/i,
+  };
+  for (const match of html.matchAll(/<(h1|div|span|strong|p)\b([^>]*)>([\s\S]*?)<\/\1>/gi)) {
+    const attributes = readHtmlAttributes(match[2] ?? "");
+    const className = attributes.class ?? "";
+    const value = htmlToText(match[3] ?? "").trim();
+    if (!value || value.length > 180) continue;
+    for (const key of Object.keys(classPatterns) as Array<keyof typeof classPatterns>) {
+      if (!fields[key] && classPatterns[key].test(className)) fields[key] = value;
+    }
+  }
+
+  const title = [metadata.title, fields.title]
+    .map((candidate) => candidate?.trim())
+    .find((candidate) => candidate && !/^(校园|校园招聘|职位|职位详情|招聘信息|猎聘)$/i.test(candidate));
+  const company = /^(?:\d+[.、]|.*(?:负责|办理|岗位职责|职位描述))/.test(fields.company) ? "" : fields.company;
+  const visibleFacts = htmlToText(html)
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length < 80 && /(?:\d+(?:\.\d+)?\s*(?:千|k|万)\s*(?:-|–|—|~|～|至)\s*\d+(?:\.\d+)?\s*(?:千|k|万)|经验不限|无需经验|\d+(?:\.\d+)?年(?:及以上|以上)?(?:经验)?)/i.test(line));
+  const description = [metadata.description, ...sections]
+    .filter((value): value is string => Boolean(value && value.length >= 40))
+    .sort((left, right) => right.length - left.length)[0];
+
+  if (!title || !description) return { text: "", reliable: false };
+  const header = [
+    `职位名称：${title}`,
+    company ? `公司：${company}` : "",
+    fields.location ? `工作地点：${fields.location}` : "",
+    fields.salary ? `薪资：${fields.salary}` : "",
+    ...visibleFacts,
+  ].filter(Boolean);
+  return {
+    text: [...header, `职位描述：${description}`].join("\n"),
+    reliable: true,
+  };
+}
+
 export interface JobUrlFetchResult {
   text: string;
   sourceUrl: string;
@@ -144,14 +221,25 @@ export async function fetchJobUrl(input: string): Promise<JobUrlFetchResult> {
 
     const structured = extractJobPostingJsonLd(html);
     const visible = htmlToText(html);
-    const text = [structured, visible].filter(Boolean).join("\n\n").trim();
     const challengePage =
-      /(?:captcha|access verification|security verification|verify you are human|登录后查看|请先登录|扫码登录|安全验证|访问验证|人机验证|滑块验证)/i.test(text) &&
+      /(?:captcha|access verification|security verification|verify you are human|登录后查看|请先登录|扫码登录|安全验证|访问验证|人机验证|滑块验证)/i.test(visible) &&
       !structured;
-
     if (challengePage) {
       throw new JobUrlImportError("平台返回了登录或访问验证页面，链接已识别但职位内容不可读取。请粘贴职位全文导入。", "blocked", platform, 403);
     }
+
+    const liepin = platform?.id === "liepin" ? extractLiepinJobContent(html) : null;
+    if (liepin && !structured && !liepin.reliable) {
+      throw new JobUrlImportError(
+        "猎聘页面已识别，但没有读到可靠的职位标题和描述；为避免把导航文字误存成职位，请在猎聘页面复制职位全文后粘贴导入。",
+        "no_job_content",
+        platform,
+      );
+    }
+    const text = [structured, liepin?.reliable ? liepin.text : "", liepin ? "" : visible]
+      .filter(Boolean)
+      .join("\n\n")
+      .trim();
     if (text.length < 80) {
       throw new JobUrlImportError("链接已识别，但页面没有提取到足够的职位内容。页面可能需要登录、动态加载或阻止自动读取；请粘贴职位全文导入。", "no_job_content", platform);
     }
