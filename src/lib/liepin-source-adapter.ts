@@ -275,6 +275,18 @@ function asRawJob(item: Record<string, unknown>, keyword: string, city: string |
   const salaryParsed = parseLiepinSalary(salary);
   const experience = text(job.requireWorkYears);
   const education = text(job.requireEduLevel);
+  const cardDescription = [
+    job.description,
+    job.requirement,
+    job.jobDesc,
+    job.jobDescription,
+    job.jobContent,
+    job.positionDescription,
+    job.workContent,
+    item.description,
+    item.jobDesc,
+    item.jobDescription,
+  ].map(text).filter((value) => value.length >= 80).sort((a, b) => b.length - a.length)[0] ?? "";
   const description = [
     text(job.title) && `职位名称：${text(job.title)}`,
     companyName && `公司：${companyName}`,
@@ -283,7 +295,7 @@ function asRawJob(item: Record<string, unknown>, keyword: string, city: string |
     experience && `经验：${experience}`,
     education && `学历：${education}`,
     text(job.labels) && `标签：${text(job.labels)}`,
-    text(job.description ?? job.requirement ?? job.jobDesc),
+    cardDescription,
   ].filter(Boolean).join("\n");
 
   // Require a real title and stable platform identity; never import placeholder rows.
