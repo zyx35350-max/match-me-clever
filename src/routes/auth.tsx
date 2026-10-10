@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, LockKeyhole, Mail, Sparkles } from "lucide-react";
+import { ArrowRight, LockKeyhole, Mail } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 
@@ -54,20 +54,14 @@ function AuthPage() {
   };
 
   return (
-    <main className="min-h-screen bg-white px-4 py-8 text-ink sm:px-6">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-5xl items-center">
-        <div className="grid w-full overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-[0_25px_90px_rgba(38,31,8,0.10)] lg:grid-cols-[1.05fr_0.95fr]">
-          <section className="yellow-grain relative overflow-hidden p-7 sm:p-10 lg:p-12">
+    <main className="solstice-auth min-h-screen px-4 py-8 text-ink sm:px-6">
+      <div className="solstice-auth__frame mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center">
+        <div className="solstice-auth__panel grid w-full overflow-hidden rounded-[2rem] lg:grid-cols-[1.05fr_0.95fr]">
+          <section className="solstice-auth__story yellow-grain relative overflow-hidden p-7 sm:p-10 lg:p-12">
             <div className="absolute -right-14 -top-16 size-48 rounded-full bg-ochre/20 blur-3xl" />
             <div className="relative">
-              <div className="mb-10 flex items-center gap-3">
-                <div className="grid size-11 place-items-center rounded-xl bg-ink text-cream">
-                  <Sparkles className="size-4" />
-                </div>
-                <div>
-                  <div className="font-display text-xl font-extrabold">Solstice</div>
-                  <div className="text-[9px] font-bold tracking-[0.22em] text-ink/40 uppercase">AI Job OS</div>
-                </div>
+              <div className="solstice-brand-lockup mb-10 flex items-center gap-3">
+                <div className="solstice-wordmark solstice-wordmark--hero" aria-label="Solstice">Solstice<span className="solstice-wordmark__descriptor">FIND YOUR NEXT DIRECTION</span></div>
               </div>
               <div className="max-w-md">
                 <div className="text-[10px] font-bold tracking-[0.24em] text-ochre uppercase">YOUR NEXT MOVE</div>
@@ -92,7 +86,7 @@ function AuthPage() {
             </div>
           </section>
 
-          <section className="flex items-center p-7 sm:p-10 lg:p-12">
+          <section className="solstice-auth__form flex items-center p-7 sm:p-10 lg:p-12">
             <div className="mx-auto w-full max-w-md">
               <div className="mb-7 flex rounded-xl border border-ink/8 bg-ink/[0.025] p-1">
                 <button type="button" onClick={() => { setMode("signup"); setMessage(""); }} className={tabClass(mode === "signup")}>

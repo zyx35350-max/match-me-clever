@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { ArrowRight, BriefcaseBusiness, MapPin, Sparkles, ChevronDown } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, ArrowRight, BriefcaseBusiness, MapPin, ChevronDown } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/store";
@@ -28,7 +28,7 @@ const modeLabels: Record<WorkMode | "any", string> = {
 
 function OnboardingPage() {
   const navigate = useNavigate();
-  const { user, loading, saveProfile, refreshProfile, profileComplete } = useAuth();
+  const { user, loading, saveProfile, refreshProfile, profileComplete, signOut } = useAuth();
   const { updateProfile, updateCareer, replaceSearchCities } = useWorkspace();
 
   const [name, setName] = useState("");
@@ -105,24 +105,40 @@ function OnboardingPage() {
     return <div className="grid min-h-screen place-items-center bg-white text-sm text-ink/50">正在准备你的职业工作台…</div>;
   }
 
+  useEffect(() => {
+    if (!loading && user && profileComplete) {
+      void navigate({ to: "/", replace: true });
+    }
+  }, [loading, user, profileComplete, navigate]);
+
   if (profileComplete) {
-    void navigate({ to: "/", replace: true });
     return null;
   }
 
   return (
-    <main className="min-h-screen bg-white px-4 py-8 text-ink sm:px-6">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="grid size-10 place-items-center rounded-xl bg-ink text-cream"><Sparkles className="size-4" /></div>
-          <div>
-            <div className="font-display text-lg font-extrabold">Solstice</div>
-            <div className="text-[9px] font-bold tracking-[0.2em] text-ink/35 uppercase">建立你的求职画像</div>
+    <main className="solstice-onboarding min-h-screen px-4 py-8 text-ink sm:px-6">
+      <div className="solstice-onboarding__frame mx-auto max-w-6xl">
+        <div className="solstice-onboarding__top mb-6 flex items-center justify-between gap-3 pb-4">
+          <button
+            type="button"
+            onClick={async () => {
+              await signOut();
+              void navigate({ to: "/auth", replace: true });
+            }}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-ink/50 transition hover:bg-ink/5 hover:text-ink"
+          >
+            <ArrowLeft className="size-3.5" />
+            返回登录 / 注册
+          </button>
+
+          <div className="text-right">
+            <div className="solstice-wordmark solstice-wordmark--hero" aria-label="Solstice">Solstice<span className="solstice-wordmark__descriptor">FIND YOUR NEXT DIRECTION</span></div>
+            <div className="mt-0.5 text-[10px] font-semibold text-ink/35">建立你的求职画像</div>
           </div>
         </div>
 
-        <div className="grid overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-[0_25px_90px_rgba(38,31,8,0.09)] lg:grid-cols-[0.74fr_1.26fr]">
-          <section className="yellow-grain p-7 sm:p-9">
+        <div className="solstice-onboarding__panel grid overflow-hidden rounded-[2rem] lg:grid-cols-[0.74fr_1.26fr]">
+          <section className="solstice-onboarding__story yellow-grain p-7 sm:p-9">
             <div className="text-[10px] font-bold tracking-[0.24em] text-ochre uppercase">开始之前 · 建立你的求职画像</div>
             <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight">从你现在的情况出发，找到更适合你的工作机会。</h1>
             <p className="mt-4 text-sm leading-7 text-ink/55">告诉我们目前你的职业方向、求职偏好和期待。Solstice 会结合这些信息理解岗位、分析匹配度，帮助你探索机会。</p>
@@ -131,7 +147,7 @@ function OnboardingPage() {
               <div className="mt-3 space-y-3">
                 {["基本信息与职业方向", "工作经验与当前阶段", "求职城市与工作方式", "期望月薪与薪资偏好"].map((item, i) => (
                   <div key={item} className="flex items-center gap-3 text-xs font-semibold text-ink/70">
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[#F2EAD7] text-ochre">0{i + 1}</span>{item}
+                    <span className="solstice-onboarding__step-number flex size-7 shrink-0 items-center justify-center rounded-full text-ink">0{i + 1}</span>{item}
                   </div>
                 ))}
               </div>
@@ -139,10 +155,10 @@ function OnboardingPage() {
             <p className="mt-4 text-xs leading-6 text-ink/40">不必一开始就想清楚所有答案。先填写目前确定的信息，之后可以随时调整。</p>
           </section>
 
-          <section className="p-7 sm:p-9">
+          <section className="solstice-onboarding__form bg-white p-7 sm:p-9">
             <form onSubmit={submit} className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="你的名字 / 显示名" icon={<BriefcaseBusiness className="size-3.5 text-ochre" />}>
+                <Field label="你的名字 / 显示名" icon={<BriefcaseBusiness className="size-3.5 text-ink/50" />}>
                   <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="例如：小林（仅用于显示）" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
                 </Field>
                 <Field label="一句话职业定位">
@@ -186,7 +202,7 @@ function OnboardingPage() {
                 </Field>
               </div>
 
-              <Field label="求职城市（可以填多个，用逗号分隔）" icon={<MapPin className="size-3.5 text-ochre" />}>
+              <Field label="求职城市（可以填多个，用逗号分隔）" icon={<MapPin className="size-3.5 text-ink/50" />}>
                 <input value={cities} onChange={(e) => setCities(e.target.value)} placeholder="例如：深圳、广州；也可填多个城市" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
               </Field>
 
@@ -194,7 +210,7 @@ function OnboardingPage() {
                 <div className="mb-2 text-xs font-bold text-ink/50">工作方式</div>
                 <div className="grid grid-cols-4 gap-2">
                   {(Object.keys(modeLabels) as Array<WorkMode | "any">).map((mode) => (
-                    <button key={mode} type="button" onClick={() => setWorkMode(mode)} className={"rounded-xl border px-2 py-2.5 text-xs font-extrabold transition " + (workMode === mode ? "border-ink bg-ink text-cream" : "border-ink/10 bg-white text-ink/50 hover:border-ochre/40 hover:bg-ochre/8")}>
+                    <button key={mode} type="button" onClick={() => setWorkMode(mode)} className={"rounded-xl border px-2 py-2.5 text-xs font-extrabold transition " + (workMode === mode ? "border-ink bg-ink text-cream" : "border-ink/10 bg-white text-ink/50 hover:border-ink/20/40 hover:bg-ink/8")}>
                       {modeLabels[mode]}
                     </button>
                   ))}
@@ -217,13 +233,13 @@ function OnboardingPage() {
                   <>
                     <div className="grid grid-cols-2 gap-3">
                       <Field label="最低月薪">
-                        <div className="flex items-center rounded-xl border border-ink/10 bg-white px-3 focus-within:border-ochre">
+                        <div className="flex items-center rounded-xl border border-ink/10 bg-white px-3 focus-within:border-ink/20">
                           <span className="text-sm text-ink/40">¥</span>
                           <input aria-label="最低月薪（税前）" type="number" min={0} step={500} required value={salaryMin} onChange={(e) => setSalaryMin(e.target.value)} placeholder="8000" className="w-full min-w-0 bg-transparent px-2 py-3 text-sm font-semibold outline-none placeholder:font-normal placeholder:text-ink/30" />
                         </div>
                       </Field>
                       <Field label="最高月薪">
-                        <div className="flex items-center rounded-xl border border-ink/10 bg-white px-3 focus-within:border-ochre">
+                        <div className="flex items-center rounded-xl border border-ink/10 bg-white px-3 focus-within:border-ink/20">
                           <span className="text-sm text-ink/40">¥</span>
                           <input aria-label="最高月薪（税前）" type="number" min={0} step={500} required value={salaryMax} onChange={(e) => setSalaryMax(e.target.value)} placeholder="12000" className="w-full min-w-0 bg-transparent px-2 py-3 text-sm font-semibold outline-none placeholder:font-normal placeholder:text-ink/30" />
                         </div>
@@ -241,7 +257,7 @@ function OnboardingPage() {
 
               {error ? <div className="rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-xs font-semibold text-destructive">{error}</div> : null}
 
-              <button disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3.5 text-sm font-extrabold text-cream shadow-sm transition hover:-translate-y-0.5 hover:bg-ink/90 disabled:opacity-50">
+              <button type="submit" disabled={busy} className="solstice-onboarding__submit flex w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3.5 text-sm font-extrabold text-white shadow-sm transition hover:-translate-y-0.5 disabled:opacity-50">
                 {busy ? "正在保存…" : "保存职业画像并进入 Solstice"}
                 <ArrowRight className="size-4 text-ochre" />
               </button>
