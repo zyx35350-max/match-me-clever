@@ -82,7 +82,7 @@ function ImportJobPage() {
   return (
     <AppShell>
       <PageHeading
-        eyebrow="导入岗位"
+        eyebrow="User import"
         title="导入真实岗位信息"
         description="优先粘贴岗位链接，Solstice 会尝试读取页面；如果网站限制自动读取，请切换到粘贴文本。"
       />
