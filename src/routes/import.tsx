@@ -47,8 +47,12 @@ function ImportJobPage() {
       const stored = importRawJob(payload.raw);
       setWarnings(stored.warnings);
       setResult(payload);
+      setAnalysisSource(payload.analysisSource ?? "deterministic");
+      setAnalysisWarning(payload.analysisWarning ?? null);
       setStatus(`${payload.platform?.name ? `已识别为${payload.platform.name}。` : "链接读取成功。"}岗位已进入 Matching。`);
     } catch (error) {
+      setAnalysisSource(null);
+      setAnalysisWarning(null);
       setStatus(error instanceof Error ? error.message : "无法读取这个岗位链接。");
     }
   }
@@ -57,6 +61,8 @@ function ImportJobPage() {
     setStatus(null);
     setWarnings([]);
     setResult(null);
+    setAnalysisSource(null);
+    setAnalysisWarning(null);
     try {
       const parsed = parseUserJobText({ text, sourceUrl });
       const stored = importRawJob(parsed.raw);

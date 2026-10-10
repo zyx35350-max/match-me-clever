@@ -1,4 +1,4 @@
-import { parseUserJobText, type UserJobImportResult } from "./user-job-import";
+import { analyzeUserJobText, type AIJobPipelineResult } from "./ai-job-pipeline";
 import { normalizeJobUrlInput, type JobPlatform } from "./job-platform";
 
 export type JobUrlImportErrorCode =
@@ -168,9 +168,11 @@ export async function fetchJobUrl(input: string): Promise<JobUrlFetchResult> {
   }
 }
 
-export async function importJobFromUrl(url: string): Promise<UserJobImportResult & { platform: JobPlatform | null }> {
+export async function importJobFromUrl(
+  url: string,
+): Promise<AIJobPipelineResult & { platform: JobPlatform | null }> {
   const fetched = await fetchJobUrl(url);
-  const parsed = parseUserJobText({ text: fetched.text, sourceUrl: fetched.sourceUrl });
+  const parsed = await analyzeUserJobText({ text: fetched.text, sourceUrl: fetched.sourceUrl });
   return {
     ...parsed,
     raw: {
