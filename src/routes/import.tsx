@@ -115,9 +115,10 @@ function ImportJobPage() {
                 placeholder="https://…"
                 className="mt-2 w-full rounded-xl border border-ink/15 bg-cream px-4 py-3 text-sm outline-none focus:border-azure"
               />
-              <p className="mt-2 text-xs text-ink/50">
-                Solstice reads the public page on the server and preserves the original source URL.
-              </p>
+              <div className="mt-2 text-xs text-ink/55" role="status" aria-live="polite">
+                {detectedPlatform ? `已识别岗位平台：${detectedPlatform.name}` : sourceUrl.trim() ? "暂未识别为支持的招聘平台；仍会尝试读取公开网页。" : "支持 BOSS直聘、前程无忧、智联招聘、猎聘和拉勾链接。"}
+              </div>
+              <p className="mt-1 text-xs text-ink/45">平台识别不代表平台允许自动读取；遇到登录或访问验证时，可切换到粘贴职位全文。</p>
             </div>
           ) : (
             <div className="mt-4">
