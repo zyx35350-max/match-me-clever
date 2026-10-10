@@ -125,10 +125,7 @@ function OnboardingPage() {
             <ArrowLeft className="size-3.5" />
             返回登录 / 注册
           </button>
-          <div className="text-right">
-            <div className="font-display text-sm font-bold tracking-[0.08em] text-ink/70">Solstice</div>
-            <div className="mt-0.5 text-[10px] font-semibold text-ink/35">建立你的求职画像</div>
-          </div>
+          <div className="solstice-wordmark solstice-wordmark--hero" aria-label="Solstice">Solstice<span className="solstice-wordmark__descriptor">FIND YOUR NEXT DIRECTION</span></div>
         </div>
 
         <div className="grid overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-[0_25px_90px_rgba(38,31,8,0.09)] lg:grid-cols-[0.74fr_1.26fr]">
