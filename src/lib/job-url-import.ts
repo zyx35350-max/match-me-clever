@@ -99,7 +99,7 @@ export async function fetchJobUrl(input: string): Promise<JobUrlFetchResult> {
   } catch (error) {
     throw new JobUrlImportError(
       error instanceof Error ? error.message : "请输入有效的岗位链接。",
-      input.trim() ? "invalid_url" : "invalid_url",
+      "invalid_url",
     );
   }
   const { url, platform } = normalized;
