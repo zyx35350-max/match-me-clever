@@ -54,7 +54,7 @@ export function MatchRow({ match }: { match: JobMatch }) {
           </span>
           {match.notRecommended ? (
             <span className="rounded-full bg-ochre/20 px-2 py-0.5 text-[11px] font-semibold text-ochre">
-              Not Recommended
+              暂不推荐
             </span>
           ) : null}
           {status ? (
@@ -100,7 +100,7 @@ export function MatchRow({ match }: { match: JobMatch }) {
           params={{ jobId: job.id }}
           className="rounded-lg bg-ink px-3 py-1.5 text-xs font-semibold text-cream transition-colors hover:bg-azure-deep"
         >
-          Details
+          查看详情
         </Link>
       </div>
     </div>
