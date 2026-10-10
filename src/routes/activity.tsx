@@ -7,44 +7,44 @@ import type { ApplicationStatus } from "@/lib/types";
 export const Route = createFileRoute("/activity")({
   head: () => ({
     meta: [
-      { title: "Activity Log — Solstice" },
+      { title: "求职记录 — Solstice" },
       {
         name: "description",
         content:
-          "Every application, status change, save and profile edit in one chronological log, with the current stage of each application.",
+          "按时间查看申请岗位、状态变化、收藏和职业资料修改记录，以及每个申请当前所处的阶段。",
       },
-      { property: "og:title", content: "Activity Log — Solstice" },
+      { property: "og:title", content: "求职记录 — Solstice" },
       {
         property: "og:description",
-        content: "A chronological log of applications, status changes, saves and profile edits.",
+        content: "按时间查看申请、状态变化、收藏和职业资料修改记录。",
       },
     ],
   }),
-  component: ActivityPage,
+  component: 求职记录Page,
 });
 
 const statuses: ApplicationStatus[] = ["applied", "in_review", "interview", "offer", "rejected"];
 
-function ActivityPage() {
+function 求职记录Page() {
   const { activity, applications, jobs, setStatus } = useWorkspace();
 
   return (
     <AppShell>
       <PageHeading
-        eyebrow="Activity"
-        title="Applications & log"
-        description="Move an application along as things happen — each change lands in the log below."
+        eyebrow="求职记录"
+        title="申请进度与动态"
+        description="随着求职进展更新申请状态，所有变化都会记录在下方。"
       />
 
       <div className="grid grid-cols-12 gap-6">
         <section className="col-span-12 lg:col-span-7">
           <div className="overflow-hidden rounded-2xl border border-ink/10 bg-card">
             <div className="grid grid-cols-[1fr_150px] gap-4 border-b border-ink/10 bg-sand/60 px-5 py-2.5 text-[10px] font-semibold tracking-[0.15em] text-ink/50 uppercase">
-              <span>Application</span>
-              <span>Stage</span>
+              <span>申请岗位</span>
+              <span>当前阶段</span>
             </div>
             {applications.length === 0 ? (
-              <p className="px-5 py-6 text-sm text-ink/60">No applications logged yet.</p>
+              <p className="px-5 py-6 text-sm text-ink/60">还没有求职申请记录。</p>
             ) : (
               applications.map((app) => {
                 const job = jobs.find((j) => j.id === app.jobId);
@@ -64,7 +64,7 @@ function ActivityPage() {
                       </Link>
                       <div className="text-xs text-ink/55">
                         {job.company} · applied{" "}
-                        {new Date(app.appliedAt).toLocaleDateString("en-GB", {
+                        {new Date(app.appliedAt).toLocaleDateString("zh-CN", {
                           day: "numeric",
                           month: "short",
                         })}
@@ -92,7 +92,7 @@ function ActivityPage() {
           <div className="relative overflow-hidden rounded-2xl bg-ink p-6 text-cream">
             <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-ochre/30" />
             <div className="mb-4 text-[11px] font-semibold tracking-[0.25em] text-cream/60 uppercase">
-              Full log
+              完整动态
             </div>
             <div className="relative space-y-4 pl-5">
               <div className="absolute top-1 bottom-1 left-1.5 w-px bg-cream/20" />
@@ -109,7 +109,7 @@ function ActivityPage() {
                   />
                   <div className="text-sm font-semibold">{entry.label}</div>
                   <div className="text-xs text-cream/50">
-                    {new Date(entry.at).toLocaleString("en-GB", {
+                    {new Date(entry.at).toLocaleString("zh-CN", {
                       day: "numeric",
                       month: "short",
                       hour: "2-digit",
