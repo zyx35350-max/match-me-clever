@@ -177,7 +177,7 @@ function MatchingPage() {
   return (
     <AppShell>
       <PageHeading
-        eyebrow="岗位匹配"
+        eyebrow="AI career matching"
         title="找到最值得关注的岗位"
         description={"根据当前匹配度和职业成长潜力排序。当前最适合的发展方向：" + (topDirection?.direction.name ?? "—") + "."}
       />
