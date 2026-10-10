@@ -32,7 +32,7 @@ function 已收藏Page() {
   return (
     <AppShell>
       <PageHeading
-        eyebrow="已收藏"
+        eyebrow="Saved"
         title={`已收藏 ${matches.length} 个岗位`}
         description="修改职业资料后，这里的岗位匹配结果会自动更新。"
       />
