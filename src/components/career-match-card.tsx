@@ -34,11 +34,11 @@ export function ExplanationBlock({ match }: { match: JobMatch }) {
         );
       })}
       <div>
-        <div className="text-[10px] font-semibold tracking-[0.14em] text-ink/45 uppercase">Career value</div>
+        <div className="text-[10px] font-semibold tracking-[0.14em] text-ink/45 uppercase">职业价值</div>
         <p className="mt-1 text-[13px] leading-relaxed text-ink/70">{e.careerValue}</p>
       </div>
       <div className="rounded-xl bg-sand p-3">
-        <div className="text-[10px] font-semibold tracking-[0.14em] text-ink/45 uppercase">AI recommendation</div>
+        <div className="text-[10px] font-semibold tracking-[0.14em] text-ink/45 uppercase">AI 建议</div>
         <p className="mt-1 text-[13px] font-semibold">{e.recommendation}</p>
         <p className="mt-1 text-[12px] text-ink/60">{e.tradeoff}</p>
       </div>
@@ -79,7 +79,7 @@ export function CareerMatchCard({ match, compact = false }: { match: JobMatch; c
                   −{n.penalty} {n.label}
                 </span>
               ))}
-              {match.negatives.length > 3 ? <span className="text-[10px] text-ink/35">+{match.negatives.length - 3} more</span> : null}
+              {match.negatives.length > 3 ? <span className="text-[10px] text-ink/35">另有 {match.negatives.length - 3} 项</span> : null}
             </div>
           ) : null}
         </div>
