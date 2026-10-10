@@ -12,6 +12,7 @@ export const Route = createFileRoute("/api/discover-liepin")({
             targetCount?: unknown;
             excludeExternalIds?: unknown;
             excludeSignatures?: unknown;
+            refreshJobs?: unknown;
           };
           const keywords = Array.isArray(body.keywords)
             ? body.keywords.filter((value): value is string => typeof value === "string" && value.trim())
@@ -28,6 +29,32 @@ export const Route = createFileRoute("/api/discover-liepin")({
           const searches = keywords.slice(0, 8).flatMap((keyword) =>
             (cities.length ? cities : [undefined]).map((city) => ({ keyword, city })),
           );
+          const refreshJobs = Array.isArray(body.refreshJobs)
+            ? body.refreshJobs.flatMap((value) => {
+                if (!value || typeof value !== "object") return [];
+                const item = value as Record<string, unknown>;
+                if (
+                  typeof item.externalId !== "string" ||
+                  typeof item.sourceUrl !== "string" ||
+                  typeof item.rawTitle !== "string" ||
+                  typeof item.rawDescription !== "string"
+                ) return [];
+                const metadata = item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata)
+                  ? Object.fromEntries(Object.entries(item.metadata as Record<string, unknown>)
+                      .filter(([, field]) => field === null || ["string", "number", "boolean"].includes(typeof field)))
+                    as Record<string, string | number | boolean | null>
+                  : undefined;
+                return [{
+                  externalId: item.externalId,
+                  sourceUrl: item.sourceUrl,
+                  rawTitle: item.rawTitle,
+                  rawDescription: item.rawDescription,
+                  ...(typeof item.companyName === "string" ? { companyName: item.companyName } : {}),
+                  ...(typeof item.locationText === "string" ? { locationText: item.locationText } : {}),
+                  ...(metadata ? { metadata } : {}),
+                }];
+              }).slice(0, 20)
+            : [];
           const excludeExternalIds = Array.isArray(body.excludeExternalIds)
             ? body.excludeExternalIds
                 .filter((value): value is string => typeof value === "string" && value.trim())
@@ -40,6 +67,7 @@ export const Route = createFileRoute("/api/discover-liepin")({
             : [];
           const result = await createLiepinJobSourceAdapter().discover({
             searches,
+            refreshJobs,
             targetCount,
             maxPagesPerSearch: 10,
             delayMs: 2000,
