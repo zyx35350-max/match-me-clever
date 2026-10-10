@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, BriefcaseBusiness, MapPin, ChevronDown } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
@@ -105,8 +105,13 @@ function OnboardingPage() {
     return <div className="grid min-h-screen place-items-center bg-white text-sm text-ink/50">正在准备你的职业工作台…</div>;
   }
 
+  useEffect(() => {
+    if (!loading && user && profileComplete) {
+      void navigate({ to: "/", replace: true });
+    }
+  }, [loading, user, profileComplete, navigate]);
+
   if (profileComplete) {
-    void navigate({ to: "/", replace: true });
     return null;
   }
 
