@@ -100,7 +100,7 @@ function Hidden职位sPage() {
   return (
     <AppShell>
       <PageHeading
-        eyebrow="已隐藏"
+        eyebrow="Hidden"
         title={hidden职位s.length + " 个已隐藏岗位"}
         description="你隐藏的岗位归档。可以搜索、查看或恢复，不会删除原始岗位。"
         action={
