@@ -49,7 +49,7 @@ function ImportJobPage() {
       setResult(payload);
       setAnalysisSource(payload.analysisSource ?? "deterministic");
       setAnalysisWarning(payload.analysisWarning ?? null);
-      setStatus(`${payload.platform?.name ? `已识别为${payload.platform.name}。` : "链接读取成功。"}岗位已进入 岗位匹配。`);
+      setStatus(`${payload.platform?.name ? `已识别为${payload.platform.name}。` : "链接读取成功。"}岗位已进入岗位匹配。`);
     } catch (error) {
       setAnalysisSource(null);
       setAnalysisWarning(null);
@@ -70,7 +70,7 @@ function ImportJobPage() {
       setResult(parsed);
       setStatus(
         stored.added
-          ? "导入成功。岗位已经进入 Matching，可以继续查看匹配结果。"
+          ? "导入成功。岗位已经进入岗位匹配，可以继续查看匹配结果。"
           : "这个岗位已经导入过了，本次没有重复添加。",
       );
       if (stored.added) setText("");
@@ -101,7 +101,7 @@ function ImportJobPage() {
               onClick={() => setInputMode("url")}
               className={`rounded-lg px-3 py-2 text-sm font-semibold ${inputMode === "url" ? "bg-azure text-cream" : "bg-cream text-ink/60"}`}
             >
-              Job URL
+              岗位链接
             </button>
             <button
               type="button"
