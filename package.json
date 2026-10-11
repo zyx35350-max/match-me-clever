@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "acceptance:51job:structure": "npx --yes tsx src/lib/51job-source-adapter.test.ts",
-    "acceptance:51job:live": "npx --yes tsx src/lib/51job-source-adapter.acceptance.ts"
+    "acceptance:51job:live": "npx --yes tsx src/lib/51job-source-adapter.acceptance.ts",
+    "acceptance:job-url:platform": "npx --yes tsx src/lib/job-platform.test.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"

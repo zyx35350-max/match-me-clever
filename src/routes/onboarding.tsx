@@ -206,16 +206,26 @@ function OnboardingPage() {
                 <input value={cities} onChange={(e) => setCities(e.target.value)} placeholder="例如：深圳、广州；也可填多个城市" className={fieldClass + " placeholder:font-normal placeholder:text-ink/30"} />
               </Field>
 
-              <div>
-                <div className="mb-2 text-xs font-bold text-ink/50">工作方式</div>
-                <div className="grid grid-cols-4 gap-2">
-                  {(Object.keys(modeLabels) as Array<WorkMode | "any">).map((mode) => (
-                    <button key={mode} type="button" onClick={() => setWorkMode(mode)} className={"rounded-xl border px-2 py-2.5 text-xs font-extrabold transition " + (workMode === mode ? "border-ink bg-ink text-cream" : "border-ink/10 bg-white text-ink/50 hover:border-ink/20/40 hover:bg-ink/8")}>
-                      {modeLabels[mode]}
-                    </button>
-                  ))}
+              <fieldset>
+                <legend className="mb-2 text-xs font-bold text-ink/50">工作方式</legend>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" aria-label="选择工作方式">
+                  {(Object.keys(modeLabels) as Array<WorkMode | "any">).map((mode) => {
+                    const selected = workMode === mode;
+                    return (
+                      <button
+                        key={mode}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        onClick={() => setWorkMode(mode)}
+                        className={"rounded-xl border px-2 py-2.5 text-xs font-bold transition " + (selected ? "border-ink bg-ink text-white" : "border-ink/10 bg-white text-ink/60 hover:border-ink/25")}
+                      >
+                        {modeLabels[mode]}
+                      </button>
+                    );
+                  })}
                 </div>
-              </div>
+              </fieldset>
 
               <div className="rounded-2xl border border-ink/10 p-4">
                 <div className="mb-3">

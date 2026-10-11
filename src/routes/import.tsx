@@ -5,12 +5,13 @@ import { AppShell, PageHeading } from "@/components/app-shell";
 import { parseUserJobText, type UserJobImportResult } from "@/lib/user-job-import";
 import { useWorkspace } from "@/lib/store";
 import { primaryCareerDirection } from "@/lib/job-role-direction-mapping";
+import { detectJobPlatform } from "@/lib/job-platform";
 
 export const Route = createFileRoute("/import")({
   head: () => ({
     meta: [
-      { title: "Import Job — Solstice" },
-      { name: "description", content: "Paste a real job listing and run it through the existing understanding and matching pipeline." },
+      { title: "导入岗位 — Solstice" },
+      { name: "description", content: "粘贴真实岗位信息，通过现有的岗位理解与匹配流程进行分析。" },
     ],
   }),
   component: ImportJobPage,
@@ -20,6 +21,7 @@ function ImportJobPage() {
   const { importRawJob } = useWorkspace();
   const [text, setText] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
+  const detectedPlatform = detectJobPlatform(sourceUrl);
   const [inputMode, setInputMode] = useState<"url" | "paste">("url");
   const [status, setStatus] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
@@ -27,10 +29,40 @@ function ImportJobPage() {
   const [analysisSource, setAnalysisSource] = useState<"gemini" | "deterministic" | null>(null);
   const [analysisWarning, setAnalysisWarning] = useState<string | null>(null);
 
+  async function importFromUrl(url: string) {
+    setStatus(null);
+    setWarnings([]);
+    setResult(null);
+    try {
+      const response = await fetch("/api/import-job-url", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        const platformName = payload.platform?.name ?? detectJobPlatform(url)?.name;
+        throw new Error(platformName ? `${platformName}链接已识别。 ${payload.error ?? "网页暂时无法读取。"}` : payload.error ?? "无法读取这个岗位链接。");
+      }
+      const stored = importRawJob(payload.raw);
+      setWarnings(stored.warnings);
+      setResult(payload);
+      setAnalysisSource(payload.analysisSource ?? "deterministic");
+      setAnalysisWarning(payload.analysisWarning ?? null);
+      setStatus(`${payload.platform?.name ? `已识别为${payload.platform.name}。` : "链接读取成功。"}岗位已进入岗位匹配。`);
+    } catch (error) {
+      setAnalysisSource(null);
+      setAnalysisWarning(null);
+      setStatus(error instanceof Error ? error.message : "无法读取这个岗位链接。");
+    }
+  }
+
   async function submit() {
     setStatus(null);
     setWarnings([]);
     setResult(null);
+    setAnalysisSource(null);
+    setAnalysisWarning(null);
     try {
       const parsed = parseUserJobText({ text, sourceUrl });
       const stored = importRawJob(parsed.raw);
@@ -38,12 +70,12 @@ function ImportJobPage() {
       setResult(parsed);
       setStatus(
         stored.added
-          ? "导入成功。岗位已经进入 Matching，可以继续查看匹配结果。"
+          ? "导入成功。岗位已经进入岗位匹配，可以继续查看匹配结果。"
           : "这个岗位已经导入过了，本次没有重复添加。",
       );
       if (stored.added) setText("");
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Could not import this job.");
+      setStatus(error instanceof Error ? error.message : "无法导入这个岗位。");
     }
   }
 
@@ -51,8 +83,8 @@ function ImportJobPage() {
     <AppShell>
       <PageHeading
         eyebrow="User import"
-        title="Import a real job"
-        description="Paste a job URL when possible. Solstice will try to read the page automatically; if the site blocks automated access, switch to paste mode."
+        title="导入真实岗位信息"
+        description="优先粘贴岗位链接，Solstice 会尝试读取页面；如果网站限制自动读取，请切换到粘贴文本。"
       />
       <div className="max-w-3xl space-y-5">
         {analysisSource ? (
@@ -69,7 +101,7 @@ function ImportJobPage() {
               onClick={() => setInputMode("url")}
               className={`rounded-lg px-3 py-2 text-sm font-semibold ${inputMode === "url" ? "bg-azure text-cream" : "bg-cream text-ink/60"}`}
             >
-              Job URL
+              岗位链接
             </button>
             <button
               type="button"
@@ -82,27 +114,28 @@ function ImportJobPage() {
 
           {inputMode === "url" ? (
             <div className="mt-4">
-              <label className="text-sm font-semibold">Job URL</label>
+              <label className="text-sm font-semibold">岗位链接</label>
               <input
                 value={sourceUrl}
                 onChange={(e) => setSourceUrl(e.target.value)}
                 placeholder="https://…"
                 className="mt-2 w-full rounded-xl border border-ink/15 bg-cream px-4 py-3 text-sm outline-none focus:border-azure"
               />
-              <p className="mt-2 text-xs text-ink/50">
-                Solstice reads the public page on the server and preserves the original source URL.
-              </p>
+              <div className="mt-2 text-xs text-ink/55" role="status" aria-live="polite">
+                {detectedPlatform ? `已识别岗位平台：${detectedPlatform.name}` : sourceUrl.trim() ? "暂未识别为支持的招聘平台；仍会尝试读取公开网页。" : "支持 BOSS直聘、前程无忧、智联招聘、猎聘和拉勾链接。"}
+              </div>
+              <p className="mt-1 text-xs text-ink/45">平台识别不代表平台允许自动读取；遇到登录或访问验证时，可切换到粘贴职位全文。</p>
             </div>
           ) : (
             <div className="mt-4">
-              <label className="text-sm font-semibold">Job listing</label>
+              <label className="text-sm font-semibold">岗位描述</label>
               <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder={"Paste the full job posting here…\n\nUse this fallback when a recruitment site blocks automatic reading."}
+                placeholder={"请粘贴完整的岗位信息…\n\n如果招聘网站限制自动读取，请在这里粘贴岗位全文。"}
                 className="mt-3 min-h-[360px] w-full rounded-xl border border-ink/15 bg-cream p-4 text-sm outline-none focus:border-azure"
               />
-              <label className="mt-4 block text-sm font-semibold">Job URL (optional)</label>
+              <label className="mt-4 block text-sm font-semibold">岗位链接（选填）</label>
               <input
                 value={sourceUrl}
                 onChange={(e) => setSourceUrl(e.target.value)}
@@ -113,39 +146,22 @@ function ImportJobPage() {
           )}
 
           <button
-            onClick={async () => {
+            onClick={() => {
               if (inputMode === "paste") {
                 submit();
                 return;
               }
-              setStatus(null);
-              setWarnings([]);
-              setResult(null);
-              try {
-                const response = await fetch("/api/import-job-url", {
-                  method: "POST",
-                  headers: { "content-type": "application/json" },
-                  body: JSON.stringify({ url: sourceUrl }),
-                });
-                const payload = await response.json();
-                if (!response.ok) throw new Error(payload.error ?? "无法读取这个岗位链接。");
-                const stored = importRawJob(payload.raw);
-                setWarnings(stored.warnings);
-                setResult(payload);
-                setStatus("链接读取成功，岗位已经进入 Matching。");
-              } catch (error) {
-                setStatus(error instanceof Error ? error.message : "无法读取这个岗位链接。");
-              }
+              void importFromUrl(sourceUrl);
             }}
             className="mt-4 rounded-xl bg-azure px-5 py-2.5 text-sm font-semibold text-cream hover:bg-azure-deep"
           >
-            {inputMode === "url" ? "Read URL & Analyze" : "Import & Analyze"}
+            {inputMode === "url" ? "读取链接并分析" : "导入并分析"}
           </button>
         </div>
         {status ? <div className="rounded-xl border border-ink/10 bg-card p-4 text-sm">{status}</div> : null}
         {result ? (
           <div className="rounded-2xl border border-ink/10 bg-card p-5">
-            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-ink/45">Parsed job</div>
+            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-ink/45">岗位识别结果</div>
             <h2 className="mt-2 text-xl font-semibold">{result.job.title}</h2>
             <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
               <div><span className="text-ink/45">公司：</span>{result.job.company}</div>
@@ -166,11 +182,11 @@ function ImportJobPage() {
 
         {warnings.length ? (
           <div className="rounded-xl border border-ochre/30 bg-ochre/10 p-4 text-sm">
-            <div className="font-semibold">Missing data detected</div>
+            <div className="font-semibold">以下岗位信息尚未识别</div>
             <ul className="mt-2 list-disc pl-5 text-ink/65">
               {warnings.map((warning) => <li key={warning}>{warning}</li>)}
             </ul>
-            <p className="mt-2 text-xs text-ink/50">These are warnings only. The system does not invent missing job facts.</p>
+            <p className="mt-2 text-xs text-ink/50">这些只是提醒，系统不会编造缺失的岗位信息。</p>
           </div>
         ) : null}
       </div>

@@ -22,6 +22,7 @@ import { Route as SavedRouteImport } from './routes/saved'
 import { Route as TodayRouteImport } from './routes/today'
 import { Route as ApiAnalyzeJobRouteImport } from './routes/api.analyze-job'
 import { Route as ApiDiscover51jobRouteImport } from './routes/api.discover-51job'
+import { Route as ApiDiscoverLiepinRouteImport } from './routes/api.discover-liepin'
 import { Route as ApiImportJobUrlRouteImport } from './routes/api.import-job-url'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
 
@@ -90,6 +91,11 @@ const ApiDiscover51jobRoute = ApiDiscover51jobRouteImport.update({
   path: '/api/discover-51job',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDiscoverLiepinRoute = ApiDiscoverLiepinRouteImport.update({
+  id: '/api/discover-liepin',
+  path: '/api/discover-liepin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiImportJobUrlRoute = ApiImportJobUrlRouteImport.update({
   id: '/api/import-job-url',
   path: '/api/import-job-url',
@@ -115,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/today': typeof TodayRoute
   '/api/analyze-job': typeof ApiAnalyzeJobRoute
   '/api/discover-51job': typeof ApiDiscover51jobRoute
+  '/api/discover-liepin': typeof ApiDiscoverLiepinRoute
   '/api/import-job-url': typeof ApiImportJobUrlRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
 }
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/today': typeof TodayRoute
   '/api/analyze-job': typeof ApiAnalyzeJobRoute
   '/api/discover-51job': typeof ApiDiscover51jobRoute
+  '/api/discover-liepin': typeof ApiDiscoverLiepinRoute
   '/api/import-job-url': typeof ApiImportJobUrlRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
 }
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/today': typeof TodayRoute
   '/api/analyze-job': typeof ApiAnalyzeJobRoute
   '/api/discover-51job': typeof ApiDiscover51jobRoute
+  '/api/discover-liepin': typeof ApiDiscoverLiepinRoute
   '/api/import-job-url': typeof ApiImportJobUrlRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
 }
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/today'
     | '/api/analyze-job'
     | '/api/discover-51job'
+    | '/api/discover-liepin'
     | '/api/import-job-url'
     | '/jobs/$jobId'
   fileRoutesByTo: FileRoutesByTo
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/today'
     | '/api/analyze-job'
     | '/api/discover-51job'
+    | '/api/discover-liepin'
     | '/api/import-job-url'
     | '/jobs/$jobId'
   id:
@@ -203,6 +214,7 @@ export interface FileRouteTypes {
     | '/today'
     | '/api/analyze-job'
     | '/api/discover-51job'
+    | '/api/discover-liepin'
     | '/api/import-job-url'
     | '/jobs/$jobId'
   fileRoutesById: FileRoutesById
@@ -221,6 +233,7 @@ export interface RootRouteChildren {
   TodayRoute: typeof TodayRoute
   ApiAnalyzeJobRoute: typeof ApiAnalyzeJobRoute
   ApiDiscover51jobRoute: typeof ApiDiscover51jobRoute
+  ApiDiscoverLiepinRoute: typeof ApiDiscoverLiepinRoute
   ApiImportJobUrlRoute: typeof ApiImportJobUrlRoute
   JobsJobIdRoute: typeof JobsJobIdRoute
 }
@@ -318,6 +331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDiscover51jobRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/discover-liepin': {
+      id: '/api/discover-liepin'
+      path: '/api/discover-liepin'
+      fullPath: '/api/discover-liepin'
+      preLoaderRoute: typeof ApiDiscoverLiepinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/import-job-url': {
       id: '/api/import-job-url'
       path: '/api/import-job-url'
@@ -349,6 +369,7 @@ const rootRouteChildren: RootRouteChildren = {
   TodayRoute: TodayRoute,
   ApiAnalyzeJobRoute: ApiAnalyzeJobRoute,
   ApiDiscover51jobRoute: ApiDiscover51jobRoute,
+  ApiDiscoverLiepinRoute: ApiDiscoverLiepinRoute,
   ApiImportJobUrlRoute: ApiImportJobUrlRoute,
   JobsJobIdRoute: JobsJobIdRoute,
 }
