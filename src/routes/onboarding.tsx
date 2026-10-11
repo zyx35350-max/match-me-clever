@@ -225,7 +225,6 @@ function OnboardingPage() {
                     );
                   })}
                 </div>
-                <p className="mt-2 text-[11px] leading-5 text-ink/40">“不限”表示远程、混合办公或现场办公都可以；选择后只保留一个偏好。</p>
               </fieldset>
 
               <div className="rounded-2xl border border-ink/10 p-4">
