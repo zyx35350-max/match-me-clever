@@ -218,7 +218,7 @@ function OnboardingPage() {
                         role="radio"
                         aria-checked={selected}
                         onClick={() => setWorkMode(mode)}
-                        className={"min-h-11 rounded-xl border px-3 py-3 text-xs font-extrabold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 " + (selected ? "border-black bg-black text-white" : "border-ink/10 bg-white text-ink/60 hover:border-ink/30 hover:bg-ink/5")}
+                        className={"rounded-xl border px-2 py-2.5 text-xs font-bold transition " + (selected ? "border-ink bg-ink text-white" : "border-ink/10 bg-white text-ink/60 hover:border-ink/25")}
                       >
                         {modeLabels[mode]}
                       </button>
