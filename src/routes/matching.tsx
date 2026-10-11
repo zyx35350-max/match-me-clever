@@ -61,7 +61,7 @@ function MatchingPage() {
   useEffect(() => setPage(1), [filter, track]);
 
   async function discover51Job() {
-    const 个关键词 = keywordInput.split(/[，,、\n]+/).map((keyword) => keyword.trim()).filter(Boolean).slice(0, 8);
+    const keywords = keywordInput.split(/[，,、\n]+/).map((keyword) => keyword.trim()).filter(Boolean).slice(0, 8);
     if (!keywords.length) return setDiscoveryMessage("请至少填写一个关键词。");
     if (!selectedCities.length) return setDiscoveryMessage("请至少选择一个城市。");
     const targetCount = Number.parseInt(targetCountInput, 10);
@@ -74,7 +74,7 @@ function MatchingPage() {
       const response = await fetch("/api/discover-51job", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ 个关键词, cities: searchCities.filter((city) => selectedCities.includes(city.id)).map(canonical51JobArea), targetCount }),
+        body: JSON.stringify({ keywords, cities: searchCities.filter((city) => selectedCities.includes(city.id)).map(canonical51JobArea), targetCount }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error ?? "51岗位搜索 failed.");
@@ -98,7 +98,7 @@ function MatchingPage() {
   }
 
   async function discoverLiepin() {
-    const 个关键词 = keywordInput.split(/[，,、\n]+/).map((keyword) => keyword.trim()).filter(Boolean).slice(0, 8);
+    const keywords = keywordInput.split(/[，,、\n]+/).map((keyword) => keyword.trim()).filter(Boolean).slice(0, 8);
     if (!keywords.length) return setLiepinDiscoveryMessage("请至少填写一个关键词。");
     if (!selectedCities.length) return setLiepinDiscoveryMessage("请至少选择一个城市。");
     const targetCount = Number.parseInt(targetCountInput, 10);
