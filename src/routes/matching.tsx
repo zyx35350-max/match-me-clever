@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
 import { AICareerProfileCard } from "@/components/ai-career-profile";
@@ -37,11 +37,42 @@ const filters = [
   { key: "flagged", label: "暂不推荐" },
 ] as const;
 
+type MatchingReturnState = {
+  track: EmploymentType;
+  filter: (typeof filters)[number]["key"];
+  page: number;
+  scrollY: number;
+};
+
+const MATCHING_RETURN_STATE_KEY = "solstice:matching-return-state";
+
+function consumeMatchingReturnState(): MatchingReturnState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(MATCHING_RETURN_STATE_KEY);
+    if (!raw) return null;
+    const value = JSON.parse(raw) as Partial<MatchingReturnState>;
+    const validTrack = value.track === "fulltime" || value.track === "parttime";
+    const validFilter = filters.some((item) => item.key === value.filter);
+    if (!validTrack || !validFilter || !Number.isInteger(value.page) || (value.page ?? 0) < 1) return null;
+    return {
+      track: value.track,
+      filter: value.filter as MatchingReturnState["filter"],
+      page: value.page!,
+      scrollY: typeof value.scrollY === "number" && Number.isFinite(value.scrollY) ? Math.max(0, value.scrollY) : 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function MatchingPage() {
-  const [track, setTrack] = useState<EmploymentType>("fulltime");
-  const [filter, setFilter] = useState<(typeof filters)[number]["key"]>("all");
+  const [returnState] = useState<MatchingReturnState | null>(() => consumeMatchingReturnState());
+  const [track, setTrack] = useState<EmploymentType>(() => returnState?.track ?? "fulltime");
+  const [filter, setFilter] = useState<(typeof filters)[number]["key"]>(() => returnState?.filter ?? "all");
   const [showProfile, setShowProfile] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(() => returnState?.page ?? 1);
+  const previousFilterTrack = useRef({ filter, track });
   const pageSize = 10;
   const { matches, aiProfile, refreshAiProfile, topDirection } = useCareer(track);
   const { suggestions, acceptSuggestion, dismissSuggestion, importDiscoveredJobs, discovery, searchCities, importedJobRecords } = useWorkspace();
@@ -58,7 +89,31 @@ function MatchingPage() {
     setSelectedCities((current) => current.filter((id) => availableIds.has(id)));
   }, [searchCities]);
 
-  useEffect(() => setPage(1), [filter, track]);
+  useEffect(() => {
+    if (previousFilterTrack.current.filter !== filter || previousFilterTrack.current.track !== track) {
+      setPage(1);
+    }
+    previousFilterTrack.current = { filter, track };
+  }, [filter, track]);
+
+  useEffect(() => {
+    if (!returnState || typeof window === "undefined") return;
+    const frame = window.requestAnimationFrame(() => window.scrollTo(0, returnState.scrollY));
+    window.sessionStorage.removeItem(MATCHING_RETURN_STATE_KEY);
+    return () => window.cancelAnimationFrame(frame);
+  }, [returnState]);
+
+  function saveReturnState() {
+    if (typeof window === "undefined") return;
+    try {
+      window.sessionStorage.setItem(
+        MATCHING_RETURN_STATE_KEY,
+        JSON.stringify({ track, filter, page: safePage, scrollY: window.scrollY } satisfies MatchingReturnState),
+      );
+    } catch {
+      // Returning to the list still works if session storage is unavailable.
+    }
+  }
 
   async function discover51Job() {
     const keywords = keywordInput.split(/[，,、\n]+/).map((keyword) => keyword.trim()).filter(Boolean).slice(0, 8);
@@ -259,7 +314,7 @@ function MatchingPage() {
       </div>
 
       <div className="space-y-2.5">
-        {pageMatches.map((match) => <CareerMatchCard key={match.job.id} match={match} compact />)}
+        {pageMatches.map((match) => <CareerMatchCard key={match.job.id} match={match} compact onOpenJob={saveReturnState} />)}
         {visible.length === 0 ? <p className="rounded-2xl border border-ink/10 bg-card p-6 text-sm text-ink/60">当前筛选条件下没有岗位。请调整筛选条件或职业资料。</p> : null}
       </div>
 

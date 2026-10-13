@@ -46,7 +46,7 @@ export function ExplanationBlock({ match }: { match: JobMatch }) {
   );
 }
 
-export function CareerMatchCard({ match, compact = false }: { match: JobMatch; compact?: boolean }) {
+export function CareerMatchCard({ match, compact = false, onOpenJob }: { match: JobMatch; compact?: boolean; onOpenJob?: () => void }) {
   const { job } = match;
   const { isSaved, toggleSaved, apply, recordFeedback, feedbackFor, statusFor, hideJob } = useWorkspace();
   const feedback = feedbackFor(job.id);
@@ -59,7 +59,7 @@ export function CareerMatchCard({ match, compact = false }: { match: JobMatch; c
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
-            <Link to="/jobs/$jobId" params={{ jobId: job.id }} className="truncate font-display text-sm font-bold hover:text-azure">
+            <Link to="/jobs/$jobId" params={{ jobId: job.id }} onClick={onOpenJob} className="truncate font-display text-sm font-bold hover:text-azure">
               {job.titleOriginal ?? job.title}
             </Link>
             {job.titleOriginal ? <span className="hidden text-[11px] text-ink/35 xl:inline">({job.title})</span> : null}
@@ -92,7 +92,7 @@ export function CareerMatchCard({ match, compact = false }: { match: JobMatch; c
             <DualScore label="成长" value={match.careerGrowthValue} tone="ochre" />
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
-            <Link to="/jobs/$jobId" params={{ jobId: job.id }} onClick={() => recordFeedback(job, "viewed")} className="rounded-lg bg-ink px-2.5 py-1.5 text-[11px] font-semibold text-cream hover:bg-azure-deep">查看</Link>
+            <Link to="/jobs/$jobId" params={{ jobId: job.id }} onClick={() => { onOpenJob?.(); recordFeedback(job, "viewed"); }} className="rounded-lg bg-ink px-2.5 py-1.5 text-[11px] font-semibold text-cream hover:bg-azure-deep">查看</Link>
             <button onClick={() => hideJob(job.id)} className="rounded-lg border border-ink/12 px-2.5 py-1.5 text-[11px] font-semibold text-ink/55 hover:bg-sand">隐藏</button>
             <button onClick={() => { toggleSaved(job); if (!isSaved(job.id)) recordFeedback(job, "saved"); }} className="rounded-lg border border-ink/12 px-2.5 py-1.5 text-[11px] font-semibold hover:bg-sand">
               {isSaved(job.id) ? "已收藏" : "收藏"}
