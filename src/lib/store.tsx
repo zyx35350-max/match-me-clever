@@ -4,7 +4,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -188,7 +187,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const [state, setState] = useState<Persisted>(initial);
   const [hydrated, setHydrated] = useState(false);
-  const realtimeClientRef = useRef<ReturnType<typeof getSupabaseClient>>(null);
 
   useEffect(() => {
     if (authLoading) return;
