@@ -17,25 +17,29 @@ AS $$
     '[]'::jsonb
   )
   FROM (
-    SELECT DISTINCT ON (item ->> p_key)
-      item,
-      source_priority,
-      ordinal
+    SELECT item, source_priority, ordinal
     FROM (
-      SELECT value AS item, 1 AS source_priority, ordinality AS ordinal
-      FROM jsonb_array_elements(
-        CASE WHEN jsonb_typeof(p_existing) = 'array' THEN p_existing ELSE '[]'::jsonb END
-      ) WITH ORDINALITY
-      UNION ALL
-      SELECT value AS item, 2 AS source_priority, ordinality AS ordinal
-      FROM jsonb_array_elements(
-        CASE WHEN jsonb_typeof(p_incoming) = 'array' THEN p_incoming ELSE '[]'::jsonb END
-      ) WITH ORDINALITY
-    ) AS all_items
-    WHERE NULLIF(item ->> p_key, '') IS NOT NULL
-    ORDER BY item ->> p_key, source_priority DESC, ordinal DESC
-  ) AS deduplicated
-  LIMIT p_limit;
+      SELECT DISTINCT ON (item ->> p_key)
+        item,
+        source_priority,
+        ordinal
+      FROM (
+        SELECT value AS item, 1 AS source_priority, ordinality AS ordinal
+        FROM jsonb_array_elements(
+          CASE WHEN jsonb_typeof(p_existing) = 'array' THEN p_existing ELSE '[]'::jsonb END
+        ) WITH ORDINALITY
+        UNION ALL
+        SELECT value AS item, 2 AS source_priority, ordinality AS ordinal
+        FROM jsonb_array_elements(
+          CASE WHEN jsonb_typeof(p_incoming) = 'array' THEN p_incoming ELSE '[]'::jsonb END
+        ) WITH ORDINALITY
+      ) AS all_items
+      WHERE NULLIF(item ->> p_key, '') IS NOT NULL
+      ORDER BY item ->> p_key, source_priority DESC, ordinal DESC
+    ) AS deduplicated
+    ORDER BY source_priority DESC, ordinal DESC
+    LIMIT p_limit
+  ) AS limited;
 $$;
 
 REVOKE ALL ON FUNCTION public.merge_workspace_array(jsonb, jsonb, text, integer) FROM PUBLIC, anon;
