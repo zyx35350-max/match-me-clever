@@ -51,7 +51,6 @@ function consumeMatchingReturnState(): MatchingReturnState | null {
   try {
     const raw = window.sessionStorage.getItem(MATCHING_RETURN_STATE_KEY);
     if (!raw) return null;
-    window.sessionStorage.removeItem(MATCHING_RETURN_STATE_KEY);
     const value = JSON.parse(raw) as Partial<MatchingReturnState>;
     const validTrack = value.track === "fulltime" || value.track === "parttime";
     const validFilter = filters.some((item) => item.key === value.filter);
@@ -73,7 +72,7 @@ function MatchingPage() {
   const [filter, setFilter] = useState<(typeof filters)[number]["key"]>(() => returnState?.filter ?? "all");
   const [showProfile, setShowProfile] = useState(false);
   const [page, setPage] = useState(() => returnState?.page ?? 1);
-  const initialFilterEffect = useRef(true);
+  const previousFilterTrack = useRef({ filter, track });
   const pageSize = 10;
   const { matches, aiProfile, refreshAiProfile, topDirection } = useCareer(track);
   const { suggestions, acceptSuggestion, dismissSuggestion, importDiscoveredJobs, discovery, searchCities, importedJobRecords } = useWorkspace();
@@ -91,16 +90,16 @@ function MatchingPage() {
   }, [searchCities]);
 
   useEffect(() => {
-    if (initialFilterEffect.current) {
-      initialFilterEffect.current = false;
-      return;
+    if (previousFilterTrack.current.filter !== filter || previousFilterTrack.current.track !== track) {
+      setPage(1);
     }
-    setPage(1);
+    previousFilterTrack.current = { filter, track };
   }, [filter, track]);
 
   useEffect(() => {
     if (!returnState || typeof window === "undefined") return;
     const frame = window.requestAnimationFrame(() => window.scrollTo(0, returnState.scrollY));
+    window.sessionStorage.removeItem(MATCHING_RETURN_STATE_KEY);
     return () => window.cancelAnimationFrame(frame);
   }, [returnState]);
 
