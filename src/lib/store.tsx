@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -149,10 +150,45 @@ function migrate(raw: string): Persisted {
   };
 }
 
+function mergeByKey<T>(local: T[], incoming: T[], key: (item: T) => string, limit: number) {
+  const merged = new Map<string, T>();
+  // Incoming cloud records take precedence, while retaining local-only records.
+  for (const item of [...incoming, ...local]) {
+    const id = key(item);
+    if (id && !merged.has(id)) merged.set(id, item);
+  }
+  return [...merged.values()].slice(0, limit);
+}
+
+function mergeSharedWorkspace(local: Persisted, remote: Partial<Persisted>): Persisted {
+  return {
+    ...local,
+    applications: mergeByKey(
+      local.applications ?? [],
+      remote.applications ?? [],
+      (item) => item.jobId,
+      Number.MAX_SAFE_INTEGER,
+    ),
+    activity: mergeByKey(
+      local.activity ?? [],
+      remote.activity ?? [],
+      (item) => item.id,
+      60,
+    ),
+    feedback: mergeByKey(
+      local.feedback ?? [],
+      remote.feedback ?? [],
+      (item) => item.id,
+      120,
+    ),
+  };
+}
+
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const [state, setState] = useState<Persisted>(initial);
   const [hydrated, setHydrated] = useState(false);
+  const realtimeClientRef = useRef<ReturnType<typeof getSupabaseClient>>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -239,6 +275,49 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!hydrated || authLoading || !user) return;
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+
+    const channel = supabase
+      .channel(`workspace-sync:${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "user_workspace_data",
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const row = payload.new as { workspace?: Partial<Persisted> } | undefined;
+          if (!row?.workspace) return;
+          setState((current) => {
+            const merged = mergeSharedWorkspace(current, row.workspace ?? {});
+            return JSON.stringify({
+              applications: current.applications,
+              activity: current.activity,
+              feedback: current.feedback,
+            }) === JSON.stringify({
+              applications: merged.applications,
+              activity: merged.activity,
+              feedback: merged.feedback,
+            }) ? current : merged;
+          });
+        },
+      )
+      .subscribe((status) => {
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          console.error("Workspace realtime subscription status:", status);
+        }
+      });
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [hydrated, authLoading, user?.id]);
+
+  useEffect(() => {
+    if (!hydrated || authLoading || !user) return;
     const serialized = JSON.stringify(state);
     const accountKey = `${KEY}:user:${user.id}`;
     window.localStorage.setItem(accountKey, serialized);
@@ -246,11 +325,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     const timer = window.setTimeout(async () => {
       const supabase = getSupabaseClient();
       if (!supabase) return;
-      const { error } = await supabase.from("user_workspace_data").upsert({
-        user_id: user.id,
-        workspace: state,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "user_id" });
+      const { error } = await supabase.rpc("sync_user_workspace_data", {
+        p_workspace: state,
+      });
       if (error) console.error("Failed to sync workspace to cloud:", error);
     }, 700);
     return () => window.clearTimeout(timer);
