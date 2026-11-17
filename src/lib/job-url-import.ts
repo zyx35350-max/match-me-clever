@@ -53,13 +53,15 @@ function htmlToText(html: string) {
 }
 
 function extractJobPostingJsonLd(html: string) {
-  const matches = [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+  const matches = [
+    ...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi),
+  ];
   const chunks: string[] = [];
 
   for (const match of matches) {
     try {
       const parsed = JSON.parse(match[1]!.trim());
-      const candidates = Array.isArray(parsed) ? parsed : parsed["@graph"] ?? [parsed];
+      const candidates = Array.isArray(parsed) ? parsed : (parsed["@graph"] ?? [parsed]);
       for (const item of candidates) {
         const types = Array.isArray(item?.["@type"]) ? item["@type"] : [item?.["@type"]];
         if (!types.includes("JobPosting")) continue;
@@ -98,8 +100,13 @@ function extractLiepinMetadata(html: string) {
   const metadata = new Map<string, string>();
   for (const match of html.matchAll(/<meta\b([^>]*)>/gi)) {
     const attributes = readHtmlAttributes(match[1] ?? "");
-    const key = (attributes.property ?? attributes.name ?? attributes.itemprop ?? "").toLowerCase();
-    const content = attributes.content?.trim();
+    const key = (
+      attributes["property"] ??
+      attributes["name"] ??
+      attributes["itemprop"] ??
+      ""
+    ).toLowerCase();
+    const content = attributes["content"]?.trim();
     if (key && content && !metadata.has(key)) metadata.set(key, content);
   }
 
@@ -114,7 +121,8 @@ function extractLiepinMetadata(html: string) {
 function extractLiepinJobContent(html: string) {
   const metadata = extractLiepinMetadata(html);
   const sections: string[] = [];
-  const sectionPattern = /<(?:div|section|article)[^>]*(?:class|id)\s*=\s*["'][^"']*(?:job[-_ ]?(?:detail|description|content|duty|requirement)|职位(?:描述|详情|要求)|岗位职责)[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|section|article)>/gi;
+  const sectionPattern =
+    /<(?:div|section|article)[^>]*(?:class|id)\s*=\s*["'][^"']*(?:job[-_ ]?(?:detail|description|content|duty|requirement)|职位(?:描述|详情|要求)|岗位职责)[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|section|article)>/gi;
   for (const match of html.matchAll(sectionPattern)) {
     const text = htmlToText(match[1] ?? "");
     if (text.length >= 40) sections.push(text);
@@ -129,7 +137,7 @@ function extractLiepinJobContent(html: string) {
   };
   for (const match of html.matchAll(/<(h1|div|span|strong|p)\b([^>]*)>([\s\S]*?)<\/\1>/gi)) {
     const attributes = readHtmlAttributes(match[2] ?? "");
-    const className = attributes.class ?? "";
+    const className = attributes["class"] ?? "";
     const value = htmlToText(match[3] ?? "").trim();
     if (!value || value.length > 180) continue;
     for (const key of Object.keys(classPatterns) as Array<keyof typeof classPatterns>) {
@@ -139,12 +147,22 @@ function extractLiepinJobContent(html: string) {
 
   const title = [metadata.title, fields.title]
     .map((candidate) => candidate?.trim())
-    .find((candidate) => candidate && !/^(校园|校园招聘|职位|职位详情|招聘信息|猎聘)$/i.test(candidate));
-  const company = /^(?:\d+[.、]|.*(?:负责|办理|岗位职责|职位描述))/.test(fields.company) ? "" : fields.company;
+    .find(
+      (candidate) => candidate && !/^(校园|校园招聘|职位|职位详情|招聘信息|猎聘)$/i.test(candidate),
+    );
+  const company = /^(?:\d+[.、]|.*(?:负责|办理|岗位职责|职位描述))/.test(fields.company)
+    ? ""
+    : fields.company;
   const visibleFacts = htmlToText(html)
     .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((line) => line.length < 80 && /(?:\d+(?:\.\d+)?\s*(?:千|k|万)\s*(?:-|–|—|~|～|至)\s*\d+(?:\.\d+)?\s*(?:千|k|万)|经验不限|无需经验|\d+(?:\.\d+)?年(?:及以上|以上)?(?:经验)?)/i.test(line));
+    .filter(
+      (line) =>
+        line.length < 80 &&
+        /(?:\d+(?:\.\d+)?\s*(?:千|k|万)\s*(?:-|–|—|~|～|至)\s*\d+(?:\.\d+)?\s*(?:千|k|万)|经验不限|无需经验|\d+(?:\.\d+)?年(?:及以上|以上)?(?:经验)?)/i.test(
+          line,
+        ),
+    );
   const description = [metadata.description, ...sections]
     .filter((value): value is string => Boolean(value && value.length >= 40))
     .sort((left, right) => right.length - left.length)[0];
@@ -181,7 +199,11 @@ export async function fetchJobUrl(input: string): Promise<JobUrlFetchResult> {
   }
   const { url, platform } = normalized;
   if (!["http:", "https:"].includes(url.protocol)) {
-    throw new JobUrlImportError("只支持 http:// 或 https:// 岗位链接。", "unsupported_protocol", platform);
+    throw new JobUrlImportError(
+      "只支持 http:// 或 https:// 岗位链接。",
+      "unsupported_protocol",
+      platform,
+    );
   }
 
   const controller = new AbortController();
@@ -197,21 +219,40 @@ export async function fetchJobUrl(input: string): Promise<JobUrlFetchResult> {
     });
 
     if (response.status === 401 || response.status === 403) {
-      throw new JobUrlImportError("平台要求登录或拒绝了自动读取。请在平台正常查看职位后粘贴职位全文导入。", "blocked", platform, 403);
+      throw new JobUrlImportError(
+        "平台要求登录或拒绝了自动读取。请在平台正常查看职位后粘贴职位全文导入。",
+        "blocked",
+        platform,
+        403,
+      );
     }
     if (response.status === 404 || response.status === 410) {
       throw new JobUrlImportError("职位链接不存在或已经失效。", "not_found", platform, 404);
     }
     if (response.status === 429) {
-      throw new JobUrlImportError("平台暂时限制了访问，请稍后再试或直接粘贴职位全文。", "rate_limited", platform, 429);
+      throw new JobUrlImportError(
+        "平台暂时限制了访问，请稍后再试或直接粘贴职位全文。",
+        "rate_limited",
+        platform,
+        429,
+      );
     }
     if (!response.ok) {
-      throw new JobUrlImportError(`职位页面暂时无法读取（HTTP ${response.status}）。`, "failed", platform, 502);
+      throw new JobUrlImportError(
+        `职位页面暂时无法读取（HTTP ${response.status}）。`,
+        "failed",
+        platform,
+        502,
+      );
     }
 
     const contentType = response.headers.get("content-type") ?? "";
     if (!contentType.includes("text/html") && !contentType.includes("application/xhtml+xml")) {
-      throw new JobUrlImportError("链接可访问，但返回内容不是可读取的网页。", "unreadable_page", platform);
+      throw new JobUrlImportError(
+        "链接可访问，但返回内容不是可读取的网页。",
+        "unreadable_page",
+        platform,
+      );
     }
 
     const html = await response.text();
@@ -222,10 +263,16 @@ export async function fetchJobUrl(input: string): Promise<JobUrlFetchResult> {
     const structured = extractJobPostingJsonLd(html);
     const visible = htmlToText(html);
     const challengePage =
-      /(?:captcha|access verification|security verification|verify you are human|登录后查看|请先登录|扫码登录|安全验证|访问验证|人机验证|滑块验证)/i.test(visible) &&
-      !structured;
+      /(?:captcha|access verification|security verification|verify you are human|登录后查看|请先登录|扫码登录|安全验证|访问验证|人机验证|滑块验证)/i.test(
+        visible,
+      ) && !structured;
     if (challengePage) {
-      throw new JobUrlImportError("平台返回了登录或访问验证页面，链接已识别但职位内容不可读取。请粘贴职位全文导入。", "blocked", platform, 403);
+      throw new JobUrlImportError(
+        "平台返回了登录或访问验证页面，链接已识别但职位内容不可读取。请粘贴职位全文导入。",
+        "blocked",
+        platform,
+        403,
+      );
     }
 
     const liepin = platform?.id === "liepin" ? extractLiepinJobContent(html) : null;
@@ -241,16 +288,30 @@ export async function fetchJobUrl(input: string): Promise<JobUrlFetchResult> {
       .join("\n\n")
       .trim();
     if (text.length < 80) {
-      throw new JobUrlImportError("链接已识别，但页面没有提取到足够的职位内容。页面可能需要登录、动态加载或阻止自动读取；请粘贴职位全文导入。", "no_job_content", platform);
+      throw new JobUrlImportError(
+        "链接已识别，但页面没有提取到足够的职位内容。页面可能需要登录、动态加载或阻止自动读取；请粘贴职位全文导入。",
+        "no_job_content",
+        platform,
+      );
     }
 
     return { text: text.slice(0, 120_000), sourceUrl: url.toString(), platform };
   } catch (error) {
     if (error instanceof JobUrlImportError) throw error;
     if (error instanceof Error && error.name === "AbortError") {
-      throw new JobUrlImportError("读取职位链接超时，请稍后重试或直接粘贴职位全文。", "timeout", platform, 504);
+      throw new JobUrlImportError(
+        "读取职位链接超时，请稍后重试或直接粘贴职位全文。",
+        "timeout",
+        platform,
+        504,
+      );
     }
-    throw new JobUrlImportError("链接已识别，但网页读取失败。请稍后重试或直接粘贴职位全文。", "failed", platform, 502);
+    throw new JobUrlImportError(
+      "链接已识别，但网页读取失败。请稍后重试或直接粘贴职位全文。",
+      "failed",
+      platform,
+      502,
+    );
   } finally {
     clearTimeout(timeout);
   }

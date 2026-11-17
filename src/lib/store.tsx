@@ -68,7 +68,6 @@ export interface DiscoverySyncState {
 
 const seedActivity: ActivityEntry[] = [];
 
-
 const initial: Persisted = {
   identity: defaultIdentity,
   career: defaultCareerProfile,
@@ -107,7 +106,10 @@ interface Store extends Persisted {
   setStatus: (job: Job, status: ApplicationStatus) => void;
   statusFor: (jobId: string) => ApplicationStatus | undefined;
   importRawJob: (raw: RawJob) => { added: boolean; warnings: string[] };
-  importDiscoveredJobs: (rawJobs: RawJob[], sourceName?: string) => {
+  importDiscoveredJobs: (
+    rawJobs: RawJob[],
+    sourceName?: string,
+  ) => {
     fetched: number;
     added: number;
     updated: number;
@@ -117,7 +119,11 @@ interface Store extends Persisted {
   removeSearchCity: (id: string) => void;
   updateSearchCity: (city: JobSearchCity) => void;
   replaceSearchCities: (cities: JobSearchCity[]) => void;
-  hydrateFromCloud: (input: { identity: ProfileIdentity; career: CareerProfile; searchCities: JobSearchCity[] }) => void;
+  hydrateFromCloud: (input: {
+    identity: ProfileIdentity;
+    career: CareerProfile;
+    searchCities: JobSearchCity[];
+  }) => void;
   hideJob: (jobId: string) => void;
   unhideJob: (jobId: string) => void;
   isJobHidden: (jobId: string) => boolean;
@@ -168,18 +174,8 @@ function mergeSharedWorkspace(local: Persisted, remote: Partial<Persisted>): Per
       (item) => item.jobId,
       Number.MAX_SAFE_INTEGER,
     ),
-    activity: mergeByKey(
-      local.activity ?? [],
-      remote.activity ?? [],
-      (item) => item.id,
-      60,
-    ),
-    feedback: mergeByKey(
-      local.feedback ?? [],
-      remote.feedback ?? [],
-      (item) => item.id,
-      120,
-    ),
+    activity: mergeByKey(local.activity ?? [], remote.activity ?? [], (item) => item.id, 60),
+    feedback: mergeByKey(local.feedback ?? [], remote.feedback ?? [], (item) => item.id, 120),
   };
 }
 
@@ -239,7 +235,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
               },
               career: (cloudProfile.career_profile as CareerProfile) ?? defaultCareerProfile,
               searchCities: Array.isArray(cloudProfile.search_cities)
-                ? cloudProfile.search_cities as JobSearchCity[]
+                ? (cloudProfile.search_cities as JobSearchCity[])
                 : DEFAULT_SEARCH_CITIES,
             });
             setHydrated(true);
@@ -268,7 +264,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     };
 
     void loadWorkspace();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [user?.id, authLoading]);
 
   useEffect(() => {
@@ -295,11 +293,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
               applications: current.applications,
               activity: current.activity,
               feedback: current.feedback,
-            }) === JSON.stringify({
-              applications: merged.applications,
-              activity: merged.activity,
-              feedback: merged.feedback,
-            }) ? current : merged;
+            }) ===
+              JSON.stringify({
+                applications: merged.applications,
+                activity: merged.activity,
+                feedback: merged.feedback,
+              })
+              ? current
+              : merged;
           });
         },
       )
@@ -344,9 +345,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const importRawJob = useCallback(
     (raw: RawJob) => {
       const existing = state.importedJobRecords.find((record) => record.raw.id === raw.id);
-      const recordsWithoutCurrent = state.importedJobRecords.filter((record) => record.raw.id !== raw.id);
+      const recordsWithoutCurrent = state.importedJobRecords.filter(
+        (record) => record.raw.id !== raw.id,
+      );
       const result = ingestAndAdaptJobs({ records: recordsWithoutCurrent }, [raw]);
-      if (!result.records.length) return { added: false, warnings: ["The imported job could not be normalized."] };
+      if (!result.records.length)
+        return { added: false, warnings: ["The imported job could not be normalized."] };
       const latest = result.records.at(-1);
       if (!latest) return { added: false, warnings: ["The imported job could not be normalized."] };
       const normalized = normalizeJobConcepts(latest.job);
@@ -428,7 +432,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             jobId: latest?.job.id ?? "",
             jobTitle: latest?.job.title ?? "",
             company: latest?.job.company ?? sourceName,
-            kind: "status",
+            kind: "status" as const,
             label: "同步 " + rawJobs.length + " 个" + sourceName + "岗位 — 新增 " + added + " 个",
             at: fetchedAt,
           },
@@ -482,8 +486,21 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const hydrateFromCloud = useCallback(
-    ({ identity, career, searchCities }: { identity: ProfileIdentity; career: CareerProfile; searchCities: JobSearchCity[] }) => {
-      setState((prev) => ({ ...prev, identity, career, searchCities: searchCities.length ? searchCities : prev.searchCities }));
+    ({
+      identity,
+      career,
+      searchCities,
+    }: {
+      identity: ProfileIdentity;
+      career: CareerProfile;
+      searchCities: JobSearchCity[];
+    }) => {
+      setState((prev) => ({
+        ...prev,
+        identity,
+        career,
+        searchCities: searchCities.length ? searchCities : prev.searchCities,
+      }));
     },
     [],
   );
@@ -678,7 +695,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, dismissedSuggestions: [...prev.dismissedSuggestions, id] }));
   }, []);
 
-  const importedJobs = useMemo(() => state.importedJobRecords.map((record) => normalizeJobConcepts(adaptStoredRecord(record))), [state.importedJobRecords]);
+  const importedJobs = useMemo(
+    () => state.importedJobRecords.map((record) => normalizeJobConcepts(adaptStoredRecord(record))),
+    [state.importedJobRecords],
+  );
   const jobs = useMemo(() => [...allJobs, ...importedJobs], [importedJobs]);
 
   const suggestions = useMemo(
@@ -769,6 +789,7 @@ export function statusLabel(status: ApplicationStatus) {
     offer: "Offer",
     rejected: "已结束",
   }[status];
-}function adaptStoredRecord(record: JobRecord): Job {
+}
+function adaptStoredRecord(record: JobRecord): Job {
   return adaptRawJobToJob(record.raw).job;
 }

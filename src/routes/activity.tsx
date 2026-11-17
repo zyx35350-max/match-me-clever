@@ -20,12 +20,12 @@ export const Route = createFileRoute("/activity")({
       },
     ],
   }),
-  component: 求职记录Page,
+  component: ActivityPage,
 });
 
 const statuses: ApplicationStatus[] = ["applied", "in_review", "interview", "offer", "rejected"];
 
-function 求职记录Page() {
+function ActivityPage() {
   const { activity, applications, jobs, setStatus } = useWorkspace();
 
   return (
