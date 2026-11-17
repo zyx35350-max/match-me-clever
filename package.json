@@ -8,7 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
-    "lint": "eslint .",
+    "lint": "eslint . --ignore-pattern .vercel/**",
     "format": "prettier --write .",
     "acceptance:51job:structure": "npx --yes tsx src/lib/51job-source-adapter.test.ts",
     "acceptance:51job:live": "npx --yes tsx src/lib/51job-source-adapter.acceptance.ts",
