@@ -270,6 +270,8 @@ function testEvidenceSignals() {
       title: "外贸业务销售",
       summary:
         "负责开发海外客户、市场分析、Google/Facebook/LinkedIn/Instagram客户开发、询盘订单和售后。",
+      skills: [],
+      responsibilities: [],
     }),
   );
   const signals = extractJobEvidenceSignals(
@@ -277,6 +279,8 @@ function testEvidenceSignals() {
       title: "外贸业务销售",
       summary:
         "负责开发海外客户、市场分析、Google/Facebook/LinkedIn/Instagram客户开发、询盘订单和售后。",
+      skills: [],
+      responsibilities: [],
     }),
     sales.semantic.jobRole,
     sales.semantic.internationalSignals,
@@ -295,10 +299,7 @@ function testJobRoleDirectionMapping() {
     }),
   );
   assert.equal(sales.semantic.jobRole, "international-sales");
-  assert.equal(
-    sales.semantic.careerDirections.includes("ai-operations"),
-    true,
-  );
+  assert.equal(sales.semantic.careerDirections.includes("ai-operations"), true);
 
   assert.equal(primaryCareerDirection(sales.semantic.jobRole, sales.semantic), "explore");
 

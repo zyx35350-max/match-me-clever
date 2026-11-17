@@ -36,6 +36,7 @@ function ProfilePage() {
     addSearchCity,
     removeSearchCity,
     updateSearchCity,
+    updateProfile,
     hydrated,
   } = useWorkspace();
   const { directions } = useCareer();
@@ -52,11 +53,16 @@ function ProfilePage() {
   const topDirections = directions.slice(0, 3);
   const salaryPreference = career.basics.salaryPreference;
   const salaryDisplay =
-    salaryPreference === "unlimited" ? "暂不限定" :
-    salaryPreference === "negotiable" ? "可协商" :
-    career.basics.salaryMinMonthly != null && career.basics.salaryMaxMonthly != null
-      ? "¥" + career.basics.salaryMinMonthly.toLocaleString("zh-CN") + "–" + career.basics.salaryMaxMonthly.toLocaleString("zh-CN")
-      : "¥" + (Math.round(draft.minSalary / 1200) * 100).toLocaleString("zh-CN");
+    salaryPreference === "unlimited"
+      ? "暂不限定"
+      : salaryPreference === "negotiable"
+        ? "可协商"
+        : career.basics.salaryMinMonthly != null && career.basics.salaryMaxMonthly != null
+          ? "¥" +
+            career.basics.salaryMinMonthly.toLocaleString("zh-CN") +
+            "–" +
+            career.basics.salaryMaxMonthly.toLocaleString("zh-CN")
+          : "¥" + (Math.round(draft.minSalary / 1200) * 100).toLocaleString("zh-CN");
   const [savingBasic, setSavingBasic] = useState(false);
   const [savedBasicAt, setSavedBasicAt] = useState<string | null>(null);
 
@@ -70,7 +76,10 @@ function ProfilePage() {
       onboardingComplete: true,
     });
     setSavingBasic(false);
-    if (!result.error) setSavedBasicAt(new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }));
+    if (!result.error)
+      setSavedBasicAt(
+        new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
+      );
   };
 
   return (
@@ -97,15 +106,35 @@ function ProfilePage() {
                   </span>
                 </div>
                 <p className="mt-1 text-sm font-semibold text-ink/65">{draft.headline}</p>
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/55">{draft.summary}</p>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/55">
+                  {draft.summary}
+                </p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-2">
               <Signal label="核心技能" value={String(profile.skills.length)} note="进入匹配" />
-              <Signal label="探索方向" value={String(profile.targetTitles.length)} note="保持开放" />
-              <Signal label="期望月薪" value={salaryDisplay} note={salaryPreference === "unlimited" ? "不设薪资门槛" : salaryPreference === "negotiable" ? "可进一步沟通" : "税前 / 元每月"} />
-              <Signal label="工作方式" value={modeLabel[draft.workModePreference]} note="当前偏好" />
+              <Signal
+                label="探索方向"
+                value={String(profile.targetTitles.length)}
+                note="保持开放"
+              />
+              <Signal
+                label="期望月薪"
+                value={salaryDisplay}
+                note={
+                  salaryPreference === "unlimited"
+                    ? "不设薪资门槛"
+                    : salaryPreference === "negotiable"
+                      ? "可进一步沟通"
+                      : "税前 / 元每月"
+                }
+              />
+              <Signal
+                label="工作方式"
+                value={modeLabel[draft.workModePreference]}
+                note="当前偏好"
+              />
             </div>
           </div>
 
@@ -114,7 +143,10 @@ function ProfilePage() {
               当前方向
             </span>
             {topDirections.map((item) => (
-              <span key={item.direction.id} className="inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-white/85 px-3 py-1.5 text-xs font-bold">
+              <span
+                key={item.direction.id}
+                className="inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-white/85 px-3 py-1.5 text-xs font-bold"
+              >
                 <span className="text-ochre">✦</span>
                 {item.direction.name}
                 <span className="text-ink/35">{item.score}</span>
@@ -123,7 +155,12 @@ function ProfilePage() {
             <span className="ml-1 text-[11px] text-ink/40">
               AI 方向判断会随着你的资料变化自动更新。
             </span>
-            <button type="button" onClick={saveBasic} disabled={savingBasic} className="ml-auto rounded-xl bg-ink px-3 py-2 text-[11px] font-extrabold text-cream disabled:opacity-50">
+            <button
+              type="button"
+              onClick={saveBasic}
+              disabled={savingBasic}
+              className="ml-auto rounded-xl bg-ink px-3 py-2 text-[11px] font-extrabold text-cream disabled:opacity-50"
+            >
               {savingBasic ? "保存中…" : savedBasicAt ? "已保存" : "保存基础资料"}
             </button>
           </div>
@@ -134,7 +171,10 @@ function ProfilePage() {
             <SectionHeader title="核心能力" en="CORE SKILLS" />
             <div className="grid gap-2 sm:grid-cols-2">
               {profile.skills.map((skill) => (
-                <div key={skill.name} className="rounded-xl border border-ink/7 bg-white/80 px-3 py-2.5">
+                <div
+                  key={skill.name}
+                  className="rounded-xl border border-ink/7 bg-white/80 px-3 py-2.5"
+                >
                   <div className="flex items-center justify-between gap-2">
                     <span className="truncate text-sm font-bold">{skill.name}</span>
                     <span className="shrink-0 rounded-full bg-ochre/20 px-2 py-0.5 text-[10px] font-extrabold">
@@ -153,79 +193,98 @@ function ProfilePage() {
           </section>
 
           <div className="space-y-4">
-          <section className="relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm ">
-            <div className="absolute -right-8 -top-8 size-24 rounded-full bg-ochre/18 blur-2xl" />
-            <SectionHeader title="求职偏好" en="JOB PREFERENCES" />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <div className="mb-2 text-[10px] font-bold tracking-widest text-ink/40 uppercase">工作方式</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {modes.map((mode) => (
-                    <button
-                      key={mode}
-                      onClick={() => set("workModePreference", mode)}
-                      className={`rounded-lg px-2.5 py-1.5 text-xs font-bold transition ${
-                        draft.workModePreference === mode
-                          ? "bg-ink text-cream"
-                          : "bg-ochre/10 text-ink/55 hover:bg-ochre/20"
-                      }`}
-                    >
-                      {modeLabel[mode]}
-                    </button>
-                  ))}
+            <section className="relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm ">
+              <div className="absolute -right-8 -top-8 size-24 rounded-full bg-ochre/18 blur-2xl" />
+              <SectionHeader title="求职偏好" en="JOB PREFERENCES" />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <div className="mb-2 text-[10px] font-bold tracking-widest text-ink/40 uppercase">
+                    工作方式
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {modes.map((mode) => (
+                      <button
+                        key={mode}
+                        onClick={() => set("workModePreference", mode)}
+                        className={`rounded-lg px-2.5 py-1.5 text-xs font-bold transition ${
+                          draft.workModePreference === mode
+                            ? "bg-ink text-cream"
+                            : "bg-ochre/10 text-ink/55 hover:bg-ochre/20"
+                        }`}
+                      >
+                        {modeLabel[mode]}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <div>
-                <div className="mb-2 flex items-center justify-between text-[10px] font-bold tracking-widest text-ink/40 uppercase">
-                  <span>最低期望月薪（税前）</span>
-                  <span className="text-ink">¥{(Math.round(draft.minSalary / 1200) * 100).toLocaleString("zh-CN")}/月</span>
-                </div>
-                <input
-                  type="range"
-                  min={48000}
-                  max={216000}
-                  step={6000}
-                  value={Math.max(48000, Math.min(216000, draft.minSalary))}
-                  onChange={(e) => set("minSalary", Number(e.target.value))}
-                  className="profile-range"
-                  style={{ "--range-progress": `${((Math.max(48000, Math.min(216000, draft.minSalary)) - 48000) / 168000) * 100}%` } as CSSProperties}
-                />
-              </div>
-            </div>
-          </section>
-          <section className="relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm">
-            <SectionHeader title="求职城市" en="SEARCH LOCATIONS" action={<span className="text-[10px] font-semibold text-ink/35">{searchCities.length} 个城市</span>} />
-            <div className="flex flex-wrap gap-2">
-              {searchCities.map((city) => (
-                <div key={city.id} className="group flex items-center gap-1.5 rounded-xl border border-ink/8 bg-ochre/8 px-2 py-1.5">
-                  <MapPin className="size-3.5 text-ink/35" />
+                <div>
+                  <div className="mb-2 flex items-center justify-between text-[10px] font-bold tracking-widest text-ink/40 uppercase">
+                    <span>最低期望月薪（税前）</span>
+                    <span className="text-ink">
+                      ¥{(Math.round(draft.minSalary / 1200) * 100).toLocaleString("zh-CN")}/月
+                    </span>
+                  </div>
                   <input
-                    value={city.name}
-                    onChange={(e) => updateSearchCity({ ...city, name: e.target.value })}
-                    className={inputClass}
+                    type="range"
+                    min={48000}
+                    max={216000}
+                    step={6000}
+                    value={Math.max(48000, Math.min(216000, draft.minSalary))}
+                    onChange={(e) => set("minSalary", Number(e.target.value))}
+                    className="profile-range"
+                    style={
+                      {
+                        "--range-progress": `${((Math.max(48000, Math.min(216000, draft.minSalary)) - 48000) / 168000) * 100}%`,
+                      } as CSSProperties
+                    }
                   />
-                  <button
-                    type="button"
-                    onClick={() => removeSearchCity(city.id)}
-                    disabled={searchCities.length <= 1}
-                    className="rounded-md px-1.5 py-1 text-xs font-bold text-ink/30 hover:bg-white hover:text-destructive disabled:opacity-20"
-                  >
-                    ×
-                  </button>
                 </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => {
-                  const id = `custom-${Date.now()}`;
-                  addSearchCity(createSearchCity("新城市", "", id));
-                }}
-                className="rounded-xl border border-dashed border-ochre/35 bg-ochre/8 px-3 py-2 text-xs font-bold text-ink/50 transition hover:bg-ochre/15"
-              >
-                + 添加城市
-              </button>
-            </div>
-          </section>
+              </div>
+            </section>
+            <section className="relative overflow-hidden rounded-2xl border border-ink/8 bg-white p-4 shadow-sm">
+              <SectionHeader
+                title="求职城市"
+                en="SEARCH LOCATIONS"
+                action={
+                  <span className="text-[10px] font-semibold text-ink/35">
+                    {searchCities.length} 个城市
+                  </span>
+                }
+              />
+              <div className="flex flex-wrap gap-2">
+                {searchCities.map((city) => (
+                  <div
+                    key={city.id}
+                    className="group flex items-center gap-1.5 rounded-xl border border-ink/8 bg-ochre/8 px-2 py-1.5"
+                  >
+                    <MapPin className="size-3.5 text-ink/35" />
+                    <input
+                      value={city.name}
+                      onChange={(e) => updateSearchCity({ ...city, name: e.target.value })}
+                      className={inputClass}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeSearchCity(city.id)}
+                      disabled={searchCities.length <= 1}
+                      className="rounded-md px-1.5 py-1 text-xs font-bold text-ink/30 hover:bg-white hover:text-destructive disabled:opacity-20"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const id = `custom-${Date.now()}`;
+                    addSearchCity(createSearchCity("新城市", "", id));
+                  }}
+                  className="rounded-xl border border-dashed border-ochre/35 bg-ochre/8 px-3 py-2 text-xs font-bold text-ink/50 transition hover:bg-ochre/15"
+                >
+                  + 添加城市
+                </button>
+              </div>
+            </section>
           </div>
         </div>
 
@@ -274,9 +333,13 @@ function profileToCareer(profile: Profile, career: ReturnType<typeof useWorkspac
     basics: {
       ...career.basics,
       workMode: profile.workModePreference,
-      preferredLocations: [profile.location, ...career.basics.preferredLocations.filter((city) => city !== profile.location)],
+      preferredLocations: [
+        profile.location,
+        ...career.basics.preferredLocations.filter((city) => city !== profile.location),
+      ],
     },
   };
 }
 
-const inputClass = "min-w-0 rounded-lg border border-ink/8 bg-white px-2.5 py-1.5 text-xs font-semibold text-ink outline-none focus:border-ochre focus:ring-2 focus:ring-ochre/15";
+const inputClass =
+  "min-w-0 rounded-lg border border-ink/8 bg-white px-2.5 py-1.5 text-xs font-semibold text-ink outline-none focus:border-ochre focus:ring-2 focus:ring-ochre/15";

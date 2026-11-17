@@ -20,10 +20,10 @@ export const Route = createFileRoute("/saved")({
       },
     ],
   }),
-  component: 已收藏Page,
+  component: SavedPage,
 });
 
-function 已收藏Page() {
+function SavedPage() {
   const { saved } = useWorkspace();
   // Same authoritative matches as every other page, filtered to the shortlist.
   const { matches: all } = useCareer();

@@ -10,8 +10,7 @@ export const Route = createFileRoute("/today")({
       { title: "今日推荐 — Solstice" },
       {
         name: "description",
-        content:
-          "查看近期发布且与你的职业资料匹配度较高的岗位，并了解匹配原因和需要考虑的差距。",
+        content: "查看近期发布且与你的职业资料匹配度较高的岗位，并了解匹配原因和需要考虑的差距。",
       },
       { property: "og:title", content: "今日推荐 — Solstice" },
       {
@@ -20,10 +19,10 @@ export const Route = createFileRoute("/today")({
       },
     ],
   }),
-  component: 今日推荐Page,
+  component: TodayPage,
 });
 
-function 今日推荐Page() {
+function TodayPage() {
   const { matches } = useCareer();
   const shortlist = matches
     .filter((m) => m.job.postedDaysAgo <= 3 && !m.notRecommended)
@@ -58,17 +57,13 @@ function 今日推荐Page() {
                 <div className="font-display text-3xl font-extrabold text-azure">
                   {lead.immediateFit}
                 </div>
-                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">
-                  当前匹配度
-                </div>
+                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">当前匹配度</div>
               </div>
               <div>
                 <div className="font-display text-3xl font-extrabold text-ochre">
                   {lead.careerGrowthValue}
                 </div>
-                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">
-                  成长潜力
-                </div>
+                <div className="text-[10px] tracking-[0.2em] text-ink/50 uppercase">成长潜力</div>
               </div>
             </div>
           </div>

@@ -162,7 +162,6 @@ export function clean51JobSearchText(value: string | null | undefined) {
   return dedupedLines.join("\n");
 }
 
-
 export function clean51JobDetailText(value: string | null | undefined) {
   const lines = (value ?? "")
     .replace(/\r/g, "")
@@ -222,8 +221,7 @@ export async function extract51JobDetail(page: Page): Promise<FiftyOneJobDetailR
     const title = text(".cn h1") || text(".tHeader h1") || text("h1");
     const company = text(".cn .cname a") || text(".cn .cname") || text(".com_name");
     const salary = text(".cn strong") || text(".cn .lname");
-    const locationSource =
-      text(".cn p.msg.ltype") || text(".cn .msg") || text(".tHeader .msg");
+    const locationSource = text(".cn p.msg.ltype") || text(".cn .msg") || text(".tHeader .msg");
 
     const detailSelectors = [
       ".bmsg.job_msg.inbox",
@@ -275,9 +273,7 @@ export async function extract51JobDetail(page: Page): Promise<FiftyOneJobDetailR
     // element that contains JD section headings instead of relying on one CSS
     // class forever.
     if (!description) {
-      const elements = Array.from(
-        document.querySelectorAll("main, article, section, div, ul"),
-      );
+      const elements = Array.from(document.querySelectorAll("main, article, section, div, ul"));
 
       const candidates = elements
         .map((element) => normalize((element as HTMLElement).innerText ?? ""))
@@ -344,8 +340,8 @@ export async function extract51JobDetail(page: Page): Promise<FiftyOneJobDetailR
   ) {
     return {
       status: "not_found",
-      title: snapshot.title || undefined,
-      company: snapshot.company || undefined,
+      ...(snapshot.title ? { title: snapshot.title } : {}),
+      ...(snapshot.company ? { company: snapshot.company } : {}),
       message: "51Job detail page reports that the listing is no longer available.",
     };
   }
@@ -354,9 +350,9 @@ export async function extract51JobDetail(page: Page): Promise<FiftyOneJobDetailR
   if (description.length < 80) {
     return {
       status: "summary_only",
-      title: snapshot.title || undefined,
-      company: snapshot.company || undefined,
-      salary: snapshot.salary || undefined,
+      ...(snapshot.title ? { title: snapshot.title } : {}),
+      ...(snapshot.company ? { company: snapshot.company } : {}),
+      ...(snapshot.salary ? { salary: snapshot.salary } : {}),
       message:
         "Detail page loaded, but no reliable full JD section was found. Search-page summary was retained.",
     };
@@ -369,11 +365,11 @@ export async function extract51JobDetail(page: Page): Promise<FiftyOneJobDetailR
 
   return {
     status: "full",
-    title: snapshot.title || undefined,
-    company: snapshot.company || undefined,
-    salary: snapshot.salary || undefined,
-    location: parts[0] || undefined,
-    postedAt: parts.at(-1) || undefined,
+    ...(snapshot.title ? { title: snapshot.title } : {}),
+    ...(snapshot.company ? { company: snapshot.company } : {}),
+    ...(snapshot.salary ? { salary: snapshot.salary } : {}),
+    ...(parts[0] ? { location: parts[0] } : {}),
+    ...(parts.at(-1) ? { postedAt: parts.at(-1)! } : {}),
     description,
     message: "Full JD extracted via " + snapshot.strategy + ".",
   };
@@ -468,11 +464,9 @@ function searchCardToRawJob(
   fetchedAt: string,
   apiDescriptionByJobId?: Map<string, string>,
 ): RawJob | null {
-  const jobId =
-    card.jobId && /^\d+$/.test(String(card.jobId)) ? String(card.jobId) : null;
-  const href = jobId ? hrefByJobId.get(jobId) ?? null : null;
-  const url =
-    href && looksLikeJobUrl(href) && extractJobId(href) === jobId ? href : null;
+  const jobId = card.jobId && /^\d+$/.test(String(card.jobId)) ? String(card.jobId) : null;
+  const href = jobId ? (hrefByJobId.get(jobId) ?? null) : null;
+  const url = href && looksLikeJobUrl(href) && extractJobId(href) === jobId ? href : null;
 
   // A source adapter should not create identity-ambiguous records.
   if (!jobId || !url || !card.title) return null;
@@ -579,7 +573,9 @@ function discoverPageParam(apiUrl: string | undefined) {
         return { key, initialValue: Number(value) };
       }
     }
-  } catch {}
+  } catch {
+    // A malformed search URL simply means pagination cannot be inferred.
+  }
   return null;
 }
 
@@ -607,7 +603,8 @@ async function fetchSearchApiPage(page: Page, firstApiUrl: string, pageNumber: n
     });
     return { status: response.status, url: response.url, text: await response.text() };
   }, target.toString());
-  if (result.status >= 400) throw new Error("51Job search API page " + pageNumber + " returned HTTP " + result.status);
+  if (result.status >= 400)
+    throw new Error("51Job search API page " + pageNumber + " returned HTTP " + result.status);
   return { requestUrl: result.url, payload: parseSearchApiPayload(result.text) };
 }
 
@@ -619,7 +616,9 @@ function searchApiItemToCard(item: Record<string, unknown>): SearchCard | null {
     : item["companyName"]
       ? cleanText(String(item["companyName"]))
       : null;
-  const salary = item["provideSalaryString"] ? cleanText(String(item["provideSalaryString"])) : null;
+  const salary = item["provideSalaryString"]
+    ? cleanText(String(item["provideSalaryString"]))
+    : null;
   const location = item["jobAreaString"] ? cleanText(String(item["jobAreaString"])) : null;
   if (!jobId || !title) return null;
   const description = item["jobDescribe"]
@@ -644,7 +643,9 @@ async function extractMainSearchCards(page: Page): Promise<SearchCard[]> {
         let meta: Record<string, unknown> = {};
         try {
           meta = JSON.parse(job?.getAttribute("sensorsdata") ?? "{}");
-        } catch {}
+        } catch {
+          // Some cards omit analytics metadata; the DOM fallback remains usable.
+        }
 
         const titleEl = item.querySelector(".jname");
         const companyEl = item.querySelector(".cname");
@@ -653,8 +654,8 @@ async function extractMainSearchCards(page: Page): Promise<SearchCard[]> {
         const areaEl = item.querySelector(".area");
 
         return {
-          pageCode: typeof meta.pageCode === "string" ? meta.pageCode : null,
-          jobId: meta.jobId ? String(meta.jobId) : null,
+          pageCode: typeof meta["pageCode"] === "string" ? meta["pageCode"] : null,
+          jobId: meta["jobId"] ? String(meta["jobId"]) : null,
           title:
             titleEl?.getAttribute("title")?.trim() ||
             (titleEl?.textContent ?? "").replace(/\s+/g, " ").trim() ||
@@ -663,8 +664,7 @@ async function extractMainSearchCards(page: Page): Promise<SearchCard[]> {
             companyEl?.getAttribute("title")?.trim() ||
             (companyEl?.textContent ?? "").replace(/\s+/g, " ").trim() ||
             null,
-          salary:
-            (salaryEl?.textContent ?? "").replace(/\s+/g, " ").trim() || null,
+          salary: (salaryEl?.textContent ?? "").replace(/\s+/g, " ").trim() || null,
           location:
             (areaShrinkEl?.textContent ?? "").replace(/\s+/g, " ").trim() ||
             (areaEl?.textContent ?? "").replace(/\s+/g, " ").trim() ||
@@ -679,19 +679,21 @@ async function extractMainSearchCards(page: Page): Promise<SearchCard[]> {
 async function isUsablePaginationControl(locator: import("playwright").Locator) {
   if ((await locator.count()) === 0) return false;
 
-  return locator.evaluate((el) => {
-    const style = window.getComputedStyle(el);
-    const rect = el.getBoundingClientRect();
-    return (
-      style.display !== "none" &&
-      style.visibility !== "hidden" &&
-      rect.width > 0 &&
-      rect.height > 0 &&
-      (el as HTMLButtonElement).disabled !== true &&
-      el.getAttribute("aria-disabled") !== "true" &&
-      !el.classList.contains("disabled")
-    );
-  }).catch(() => false);
+  return locator
+    .evaluate((el) => {
+      const style = window.getComputedStyle(el);
+      const rect = el.getBoundingClientRect();
+      return (
+        style.display !== "none" &&
+        style.visibility !== "hidden" &&
+        rect.width > 0 &&
+        rect.height > 0 &&
+        (el as HTMLButtonElement).disabled !== true &&
+        el.getAttribute("aria-disabled") !== "true" &&
+        !el.classList.contains("disabled")
+      );
+    })
+    .catch(() => false);
 }
 
 async function findNextPageControl(page: Page, nextPageNumber: number) {
@@ -740,13 +742,16 @@ async function findNextPageControl(page: Page, nextPageNumber: number) {
   // Strategy 4: inspect visible pagination-ish elements and match either an
   // explicit page number or a next-page label. This is intentionally based on
   // the live DOM rather than a single brittle CSS class.
-  const candidate = page.locator(
-    'a[class*="page"],button[class*="page"],[role="button"][class*="page"],' +
-      'a[class*="pagination"],button[class*="pagination"],[role="button"][class*="pagination"],' +
-      'a[class*="pager"],button[class*="pager"],[role="button"][class*="pager"]',
-  ).filter({ hasText: new RegExp(
-    "^(?:" + String(nextPageNumber) + "|下一页|下页|Next|next|>|»|›)$",
-  ) }).last();
+  const candidate = page
+    .locator(
+      'a[class*="page"],button[class*="page"],[role="button"][class*="page"],' +
+        'a[class*="pagination"],button[class*="pagination"],[role="button"][class*="pagination"],' +
+        'a[class*="pager"],button[class*="pager"],[role="button"][class*="pager"]',
+    )
+    .filter({
+      hasText: new RegExp("^(?:" + String(nextPageNumber) + "|下一页|下页|Next|next|>|»|›)$"),
+    })
+    .last();
 
   if (await isUsablePaginationControl(candidate)) return candidate;
 
@@ -757,9 +762,10 @@ async function hasVerification(page: Page) {
   const text = await page.evaluate(() => document.body?.innerText ?? "");
   const haystack = `${await page.title()}\n${text.slice(0, 10000)}\n${page.url()}`;
 
-  return VERIFY_PATTERNS.some((pattern) => pattern.test(haystack)) ||
-    (LOGIN_PATTERNS.some((pattern) => pattern.test(haystack)) &&
-      !/职位|招聘|薪资|公司/.test(text));
+  return (
+    VERIFY_PATTERNS.some((pattern) => pattern.test(haystack)) ||
+    (LOGIN_PATTERNS.some((pattern) => pattern.test(haystack)) && !/职位|招聘|薪资|公司/.test(text))
+  );
 }
 
 export class FiftyOneJobSourceAdapter {
@@ -821,11 +827,11 @@ export class FiftyOneJobSourceAdapter {
 
         let enriched = job;
         const searchApiHasFullDescription =
-          (job.metadata?.["detailStatus"] === "full") ||
-          job.rawDescription.length >= 80 &&
-          /(岗位职责|职位描述|工作内容|工作职责|岗位要求|任职要求|任职资格|职位要求|任职条件)/.test(
-            job.rawDescription,
-          );
+          job.metadata?.["detailStatus"] === "full" ||
+          (job.rawDescription.length >= 80 &&
+            /(岗位职责|职位描述|工作内容|工作职责|岗位要求|任职要求|任职资格|职位要求|任职条件)/.test(
+              job.rawDescription,
+            ));
 
         if (detailPage && job.sourceUrl && !searchApiHasFullDescription) {
           const detail = await fetch51JobDetail(detailPage, job.sourceUrl);
@@ -918,12 +924,17 @@ export class FiftyOneJobSourceAdapter {
           let currentPageSignature = "";
           if (await hasVerification(page)) {
             searchReports.push(
-              keyword + "/" + (task.jobArea ?? "all") +
+              keyword +
+                "/" +
+                (task.jobArea ?? "all") +
                 " page 1: verification detected; stopped without bypassing",
             );
           } else {
             const cards = await extractMainSearchCards(page);
-            currentPageSignature = cards.map((card: SearchCard) => card.jobId).filter(Boolean).join(",");
+            currentPageSignature = cards
+              .map((card: SearchCard) => card.jobId)
+              .filter(Boolean)
+              .join(",");
 
             const pageFetchedAt = new Date().toISOString();
             const pageJobs = cards
@@ -940,22 +951,36 @@ export class FiftyOneJobSourceAdapter {
               .filter((job: RawJob | null): job is RawJob => Boolean(job));
 
             searchReports.push(
-              keyword + "/" + (task.jobArea ?? "all") +
-                " page 1: " + pageJobs.length + "/" + cards.length + " cards discovered",
+              keyword +
+                "/" +
+                (task.jobArea ?? "all") +
+                " page 1: " +
+                pageJobs.length +
+                "/" +
+                cards.length +
+                " cards discovered",
             );
             await enrichPageJobs(pageJobs, keyword + "/" + (task.jobArea ?? "all") + " page 1");
 
             if (!stopAll && !taskQuotaReached && maxPages > 1 && firstApiUrl) {
               let previousSignature = currentPageSignature;
 
-              for (let nextPageNumber = 2; nextPageNumber <= maxPages && !taskQuotaReached; nextPageNumber += 1) {
+              for (
+                let nextPageNumber = 2;
+                nextPageNumber <= maxPages && !taskQuotaReached;
+                nextPageNumber += 1
+              ) {
                 await new Promise((resolve) => setTimeout(resolve, delayMs));
 
                 const apiPage = await fetchSearchApiPage(page, firstApiUrl, nextPageNumber);
                 if (!apiPage?.payload?.items?.length) {
                   searchReports.push(
-                    keyword + "/" + (task.jobArea ?? "all") +
-                      " page " + nextPageNumber + ": API returned no items; stopped",
+                    keyword +
+                      "/" +
+                      (task.jobArea ?? "all") +
+                      " page " +
+                      nextPageNumber +
+                      ": API returned no items; stopped",
                   );
                   break;
                 }
@@ -963,12 +988,19 @@ export class FiftyOneJobSourceAdapter {
                 const apiCards = apiPage.payload.items
                   .map((item: Record<string, unknown>) => searchApiItemToCard(item))
                   .filter((card: SearchCard | null): card is SearchCard => Boolean(card));
-                const apiSignature = apiCards.map((card: SearchCard) => card.jobId).filter(Boolean).join(",");
+                const apiSignature = apiCards
+                  .map((card: SearchCard) => card.jobId)
+                  .filter(Boolean)
+                  .join(",");
 
                 if (!apiSignature || apiSignature === previousSignature) {
                   searchReports.push(
-                    keyword + "/" + (task.jobArea ?? "all") +
-                      " page " + nextPageNumber + ": repeated/empty result set; stopped",
+                    keyword +
+                      "/" +
+                      (task.jobArea ?? "all") +
+                      " page " +
+                      nextPageNumber +
+                      ": repeated/empty result set; stopped",
                   );
                   break;
                 }
@@ -1001,9 +1033,16 @@ export class FiftyOneJobSourceAdapter {
                   .filter((job: RawJob | null): job is RawJob => Boolean(job));
 
                 searchReports.push(
-                  keyword + "/" + (task.jobArea ?? "all") +
-                    " page " + nextPageNumber + ": " +
-                    apiJobs.length + "/" + apiCards.length + " cards discovered via search API",
+                  keyword +
+                    "/" +
+                    (task.jobArea ?? "all") +
+                    " page " +
+                    nextPageNumber +
+                    ": " +
+                    apiJobs.length +
+                    "/" +
+                    apiCards.length +
+                    " cards discovered via search API",
                 );
                 await enrichPageJobs(
                   apiJobs,
@@ -1020,18 +1059,20 @@ export class FiftyOneJobSourceAdapter {
                 const next = await findNextPageControl(page, nextPageNumber);
                 if (!next) {
                   searchReports.push(
-                    keyword + "/" + (task.jobArea ?? "all") +
-                      " page " + pageNumber +
+                    keyword +
+                      "/" +
+                      (task.jobArea ?? "all") +
+                      " page " +
+                      pageNumber +
                       ": no usable API page parameter or enabled next-page control; stopped",
                   );
                   break;
                 }
 
                 const responsePromise = page
-                  .waitForResponse(
-                    (response) => isSearchApiResponse(response.url()),
-                    { timeout: 10000 },
-                  )
+                  .waitForResponse((response) => isSearchApiResponse(response.url()), {
+                    timeout: 10000,
+                  })
                   .catch(() => null);
                 await next.click({ timeout: 10000 }).catch(() => null);
                 await responsePromise;
@@ -1039,19 +1080,28 @@ export class FiftyOneJobSourceAdapter {
 
                 if (await hasVerification(page)) {
                   searchReports.push(
-                    keyword + "/" + (task.jobArea ?? "all") +
-                      " page " + nextPageNumber +
+                    keyword +
+                      "/" +
+                      (task.jobArea ?? "all") +
+                      " page " +
+                      nextPageNumber +
                       ": verification detected; stopped without bypassing",
                   );
                   break;
                 }
 
                 const nextCards = await extractMainSearchCards(page);
-                const nextSignature = nextCards.map((card: SearchCard) => card.jobId).filter(Boolean).join(",");
+                const nextSignature = nextCards
+                  .map((card: SearchCard) => card.jobId)
+                  .filter(Boolean)
+                  .join(",");
                 if (!nextSignature || nextSignature === previousSignature) {
                   searchReports.push(
-                    keyword + "/" + (task.jobArea ?? "all") +
-                      " page " + nextPageNumber +
+                    keyword +
+                      "/" +
+                      (task.jobArea ?? "all") +
+                      " page " +
+                      nextPageNumber +
                       ": next-page click did not produce a new result set; stopped",
                   );
                   break;
@@ -1073,9 +1123,16 @@ export class FiftyOneJobSourceAdapter {
                   .filter((job: RawJob | null): job is RawJob => Boolean(job));
 
                 searchReports.push(
-                  keyword + "/" + (task.jobArea ?? "all") +
-                    " page " + nextPageNumber + ": " +
-                    nextJobs.length + "/" + nextCards.length + " cards discovered",
+                  keyword +
+                    "/" +
+                    (task.jobArea ?? "all") +
+                    " page " +
+                    nextPageNumber +
+                    ": " +
+                    nextJobs.length +
+                    "/" +
+                    nextCards.length +
+                    " cards discovered",
                 );
                 await enrichPageJobs(
                   nextJobs,
@@ -1097,8 +1154,11 @@ export class FiftyOneJobSourceAdapter {
       const targetMessage =
         deduped.uniqueJobs.length >= targetCount
           ? "target " + targetCount + " reached"
-          : "target " + targetCount +
-            " not reached; source returned " + deduped.uniqueJobs.length + " unique job(s)";
+          : "target " +
+            targetCount +
+            " not reached; source returned " +
+            deduped.uniqueJobs.length +
+            " unique job(s)";
 
       return {
         status: deduped.uniqueJobs.length ? "success" : "partial",
@@ -1106,9 +1166,13 @@ export class FiftyOneJobSourceAdapter {
         sourceId: this.source.id,
         jobs: deduped.uniqueJobs,
         message: [
-          "51Job discovery: " + deduped.uniqueJobs.length +
-            " unique RawJob(s), " + deduped.duplicates.length +
-            " duplicate(s) removed; " + targetMessage + ".",
+          "51Job discovery: " +
+            deduped.uniqueJobs.length +
+            " unique RawJob(s), " +
+            deduped.duplicates.length +
+            " duplicate(s) removed; " +
+            targetMessage +
+            ".",
           ...searchReports,
           ...detailReports,
         ].join("\n"),
@@ -1123,7 +1187,9 @@ export class FiftyOneJobSourceAdapter {
         message:
           error instanceof Error
             ? "51Job adapter failed after " +
-              deduped.uniqueJobs.length + " unique job(s): " + error.message
+              deduped.uniqueJobs.length +
+              " unique job(s): " +
+              error.message
             : "51Job adapter failed.",
       };
     } finally {
