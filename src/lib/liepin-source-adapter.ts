@@ -6,7 +6,8 @@
  * reuse cookies, solve challenges, or retry through access controls. Any
  * Liepin failure is returned as a Liepin-only FetchResult.
  */
-import { chromium, type Browser, type Page } from "playwright";
+import type { Browser, Page } from "playwright";
+import { launchServerBrowser } from "@/lib/server-browser";
 import { createRawJob } from "./job-source";
 import { deduplicateJobs } from "./job-dedup";
 import type { FetchResult, JobSource, RawJob } from "./job-source-types";
@@ -522,7 +523,7 @@ export class LiepinJobSourceAdapter {
     let stopOnRestriction = false;
 
     try {
-      browser = await chromium.launch({ headless: options.headless ?? false });
+      browser = await launchServerBrowser({ headless: options.headless ?? false });
       const cityCount = new Set(searches.map((search) => search.city).filter(Boolean)).size || 1;
       const perCityTarget = Math.max(1, Math.ceil(targetCount / cityCount));
       const collectedByCity = new Map<string, number>();
