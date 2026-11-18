@@ -18,7 +18,8 @@
  * - No direct browser use from client UI.
  */
 
-import { chromium, type Browser, type Page } from "playwright";
+import type { Browser, Page } from "playwright";
+import { launchServerBrowser } from "@/lib/server-browser";
 import { createRawJob } from "./job-source";
 import { deduplicateJobs } from "./job-dedup";
 import type { FetchResult, JobSource, RawJob } from "./job-source-types";
@@ -885,7 +886,7 @@ export class FiftyOneJobSourceAdapter {
     };
 
     try {
-      browser = await chromium.launch({ headless: options.headless ?? true });
+      browser = await launchServerBrowser({ headless: options.headless ?? true });
       detailPage = await browser.newPage({
         locale: "zh-CN",
         viewport: { width: 1440, height: 1000 },

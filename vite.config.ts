@@ -13,7 +13,7 @@ export default defineConfig({
   // path, so relying on the default server bundle trace can omit the package.
   nitro: {
     preset: "vercel",
-    traceDeps: ["playwright", "playwright-core"],
+    traceDeps: ["playwright", "playwright-core", "@sparticuz/chromium"],
   } as { preset: string; traceDeps: string[] },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
@@ -21,11 +21,11 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    // Playwright is a dev-only tool and cannot be bundled for the edge runtime.
-    ssr: { external: ["playwright", "playwright-core", "chromium-bidi"] },
+    // Keep browser automation packages external to the Node server runtime.
+    ssr: { external: ["playwright", "playwright-core", "chromium-bidi", "@sparticuz/chromium"] },
     build: {
       rolldownOptions: {
-        external: [/^playwright(-core)?(\/.*)?$/, /^chromium-bidi(\/.*)?$/],
+        external: [/^playwright(-core)?(\/.*)?$/, /^chromium-bidi(\/.*)?$/, /^@sparticuz\/chromium(\/.*)?$/],
       },
     },
   },
