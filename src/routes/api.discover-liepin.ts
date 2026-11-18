@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createLiepinJobSourceAdapter } from "@/lib/liepin-source-adapter";
 
 export const Route = createFileRoute("/api/discover-liepin")({
   server: {
@@ -100,6 +99,7 @@ export const Route = createFileRoute("/api/discover-liepin")({
                 )
                 .slice(0, 10_000)
             : [];
+          const { createLiepinJobSourceAdapter } = await import("@/lib/liepin-source-adapter");
           const result = await createLiepinJobSourceAdapter().discover({
             searches,
             refreshJobs,
