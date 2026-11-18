@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createFiftyOneJobSourceAdapter } from "@/lib/51job-source-adapter";
 
 export const Route = createFileRoute("/api/discover-51job")({
   server: {
@@ -13,11 +12,15 @@ export const Route = createFileRoute("/api/discover-51job")({
           };
 
           const keywords = Array.isArray(body.keywords)
-            ? body.keywords.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+            ? body.keywords.filter(
+                (value): value is string => typeof value === "string" && value.trim().length > 0,
+              )
             : ["AI产品助理", "AI产品运营"];
 
           const cities = Array.isArray(body.cities)
-            ? body.cities.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+            ? body.cities.filter(
+                (value): value is string => typeof value === "string" && value.trim().length > 0,
+              )
             : ["040000", "020000"];
 
           const targetCount =
@@ -32,6 +35,7 @@ export const Route = createFileRoute("/api/discover-51job")({
             })),
           );
 
+          const { createFiftyOneJobSourceAdapter } = await import("@/lib/51job-source-adapter");
           const adapter = createFiftyOneJobSourceAdapter();
           const result = await adapter.discover({
             searches,
