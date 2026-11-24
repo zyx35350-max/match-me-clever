@@ -7,7 +7,7 @@
  * Liepin failure is returned as a Liepin-only FetchResult.
  */
 import type { Browser, Page } from "playwright";
-import { launchServerBrowser } from "@/lib/server-browser";
+import { createServerBrowserPage, launchServerBrowser } from "@/lib/server-browser";
 import { createRawJob } from "./job-source";
 import { deduplicateJobs } from "./job-dedup";
 import type { FetchResult, JobSource, RawJob } from "./job-source-types";
@@ -520,6 +520,8 @@ export class LiepinJobSourceAdapter {
     let previouslySavedSkipped = 0;
     let detailIncomplete = false;
     let browser: Browser | undefined;
+    let page: Page | undefined;
+    let detailsOnCurrentPage = 0;
     let stopOnRestriction = false;
 
     try {
@@ -528,7 +530,7 @@ export class LiepinJobSourceAdapter {
       const perCityTarget = Math.max(1, Math.ceil(targetCount / cityCount));
       const collectedByCity = new Map<string, number>();
       const exhaustedSearchKeys = new Set<string>();
-      const page = await browser.newPage({
+      page = await createServerBrowserPage(browser, {
         locale: "zh-CN",
         viewport: { width: 1440, height: 1000 },
       });
@@ -723,6 +725,11 @@ export class LiepinJobSourceAdapter {
             );
           } finally {
             page.off("response", onResponse);
+            await page.close().catch(() => {});
+            page = await createServerBrowserPage(browser, {
+              locale: "zh-CN",
+              viewport: { width: 1440, height: 1000 },
+            });
           }
           if (stopOnRestriction) break;
           await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -760,6 +767,7 @@ export class LiepinJobSourceAdapter {
           detailIncomplete = true;
           continue;
         }
+        if (!page) throw new Error("Liepin detail page is unavailable.");
         const detail = await fetchLiepinDetail(page, raw.sourceUrl);
         reports.push(`${raw.rawTitle}: ${detail.message}`);
         if (detail.status !== "full") detailIncomplete = true;
@@ -783,6 +791,15 @@ export class LiepinJobSourceAdapter {
         }
         if (detailTargets.indexOf(target) < detailTargets.length - 1)
           await page.waitForTimeout(delayMs);
+        detailsOnCurrentPage += 1;
+        if (detailsOnCurrentPage >= 5 && browser) {
+          await page.close().catch(() => {});
+          page = await createServerBrowserPage(browser, {
+            locale: "zh-CN",
+            viewport: { width: 1440, height: 1000 },
+          });
+          detailsOnCurrentPage = 0;
+        }
       }
       if (detailBlocked)
         reports.push(
@@ -817,6 +834,7 @@ export class LiepinJobSourceAdapter {
         message: `Liepin adapter failed after ${unique.length} job(s): ${error instanceof Error ? error.message : "unknown error"}`,
       };
     } finally {
+      await page?.close().catch(() => {});
       await browser?.close().catch(() => {});
     }
   }

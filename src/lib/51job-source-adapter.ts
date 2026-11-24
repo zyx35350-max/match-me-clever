@@ -19,7 +19,7 @@
  */
 
 import type { Browser, Page } from "playwright";
-import { launchServerBrowser } from "@/lib/server-browser";
+import { createServerBrowserPage, launchServerBrowser } from "@/lib/server-browser";
 import { createRawJob } from "./job-source";
 import { deduplicateJobs } from "./job-dedup";
 import type { FetchResult, JobSource, RawJob } from "./job-source-types";
@@ -802,6 +802,7 @@ export class FiftyOneJobSourceAdapter {
     const knownUrls = new Set<string>();
     let browser: Browser | undefined;
     let detailPage: Page | undefined;
+    let detailsOnCurrentPage = 0;
     let stopAll = false;
 
     const uniqueCount = () => deduplicateJobs([], rawJobs).uniqueJobs.length;
@@ -868,7 +869,16 @@ export class FiftyOneJobSourceAdapter {
           }
 
           if (detailPage) {
+            detailsOnCurrentPage += 1;
             await new Promise((resolve) => setTimeout(resolve, detailDelayMs));
+            if (detailsOnCurrentPage >= 5 && browser) {
+              await detailPage.close().catch(() => {});
+              detailPage = await createServerBrowserPage(browser, {
+                locale: "zh-CN",
+                viewport: { width: 1440, height: 1000 },
+              });
+              detailsOnCurrentPage = 0;
+            }
           }
         }
 
@@ -887,7 +897,7 @@ export class FiftyOneJobSourceAdapter {
 
     try {
       browser = await launchServerBrowser({ headless: options.headless ?? true });
-      detailPage = await browser.newPage({
+      detailPage = await createServerBrowserPage(browser, {
         locale: "zh-CN",
         viewport: { width: 1440, height: 1000 },
       });
@@ -905,7 +915,7 @@ export class FiftyOneJobSourceAdapter {
           Math.min(maxPagesPerSearch, task.maxPages ?? maxPagesPerSearch),
         );
 
-        const page = await browser.newPage({
+        const page = await createServerBrowserPage(browser, {
           locale: "zh-CN",
           viewport: { width: 1440, height: 1000 },
         });
@@ -1143,9 +1153,17 @@ export class FiftyOneJobSourceAdapter {
               }
             }
           }
+        } catch (error) {
+          searchReports.push(
+            keyword +
+              "/" +
+              (task.jobArea ?? "all") +
+              ": search navigation failed; continuing with the next search: " +
+              (error instanceof Error ? error.message : "request failed"),
+          );
         } finally {
           capturedApi.stop();
-          await page.close();
+          await page.close().catch(() => {});
         }
 
         await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -1162,7 +1180,7 @@ export class FiftyOneJobSourceAdapter {
             " unique job(s)";
 
       return {
-        status: deduped.uniqueJobs.length ? "success" : "partial",
+        status: deduped.uniqueJobs.length ? "success" : "failed",
         fetchedAt,
         sourceId: this.source.id,
         jobs: deduped.uniqueJobs,
