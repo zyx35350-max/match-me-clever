@@ -36,17 +36,20 @@ export const Route = createFileRoute("/api/discover-51job")({
           );
 
           const { createFiftyOneJobSourceAdapter } = await import("@/lib/51job-source-adapter");
+          const { runSerializedScrape } = await import("@/lib/server-scrape-lock");
           const adapter = createFiftyOneJobSourceAdapter();
-          const result = await adapter.discover({
-            searches,
-            // Respect the count requested in the UI. Do not silently multiply
-            // the user's target; report any shortfall after city filtering.
-            targetCount,
-            maxPagesPerSearch: 50,
-            delayMs: 1500,
-            detailDelayMs: 1500,
-            headless: true,
-          });
+          const result = await runSerializedScrape(() =>
+            adapter.discover({
+              searches,
+              // Respect the count requested in the UI. Do not silently multiply
+              // the user's target; report any shortfall after city filtering.
+              targetCount,
+              maxPagesPerSearch: 50,
+              delayMs: 1500,
+              detailDelayMs: 1500,
+              headless: true,
+            }),
+          );
 
           return Response.json({
             status: result.status,

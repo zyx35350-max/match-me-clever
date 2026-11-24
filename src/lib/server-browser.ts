@@ -28,3 +28,29 @@ export async function createServerBrowserPage(
   });
   return page;
 }
+
+/** Retry one failed page creation with a fresh Chromium process on Vercel. */
+export async function createServerBrowserPageWithRecovery(
+  browser: Browser | undefined,
+  launchOptions: LaunchOptions,
+  replaceBrowser: (browser: Browser) => void,
+  pageOptions: Parameters<Browser["newPage"]>[0] = {},
+): Promise<Page> {
+  try {
+    if (!browser) throw new Error("Chromium browser is unavailable.");
+    return await createServerBrowserPage(browser, pageOptions);
+  } catch (error) {
+    if (process.env["VERCEL"] !== "1") throw error;
+
+    await browser?.close().catch(() => {});
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const replacement = await launchServerBrowser(launchOptions);
+    replaceBrowser(replacement);
+    try {
+      return await createServerBrowserPage(replacement, pageOptions);
+    } catch (retryError) {
+      await replacement.close().catch(() => {});
+      throw retryError;
+    }
+  }
+}
