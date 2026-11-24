@@ -8,25 +8,16 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   // Pin production builds to Vercel's Nitro output instead of the Cloudflare default.
-  // Explicitly trace Playwright into the Vercel function output. These source
-  // adapters use dynamic loading and Playwright itself loads runtime files by
-  // path, so relying on the default server bundle trace can omit the package.
+  // Explicitly copy browser automation packages into the Vercel function output.
+  // Playwright resolves its driver files dynamically, so a file-only trace can
+  // omit the package even though its entry point is referenced by the bundle.
   nitro: {
     preset: "vercel",
-    traceDeps: ["playwright", "playwright-core", "@sparticuz/chromium"],
+    traceDeps: ["playwright*", "@sparticuz/chromium*"],
   } as { preset: string; traceDeps: string[] },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
-  },
-  vite: {
-    // Keep browser automation packages external to the Node server runtime.
-    ssr: { external: ["playwright", "playwright-core", "chromium-bidi", "@sparticuz/chromium"] },
-    build: {
-      rolldownOptions: {
-        external: [/^playwright(-core)?(\/.*)?$/, /^chromium-bidi(\/.*)?$/, /^@sparticuz\/chromium(\/.*)?$/],
-      },
-    },
   },
 });
