@@ -908,7 +908,7 @@ export class FiftyOneJobSourceAdapter {
 
     try {
       browser = await launchServerBrowser(browserOptions);
-      detailPage = await createServerBrowserPage(browser, {
+      detailPage = await newPage({
         locale: "zh-CN",
         viewport: { width: 1440, height: 1000 },
       });
@@ -926,7 +926,7 @@ export class FiftyOneJobSourceAdapter {
           Math.min(maxPagesPerSearch, task.maxPages ?? maxPagesPerSearch),
         );
 
-        const page = await createServerBrowserPage(browser, {
+        const page = await newPage({
           locale: "zh-CN",
           viewport: { width: 1440, height: 1000 },
         });
