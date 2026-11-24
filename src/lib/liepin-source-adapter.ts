@@ -736,7 +736,7 @@ export class LiepinJobSourceAdapter {
           } finally {
             page.off("response", onResponse);
             await page.close().catch(() => {});
-            page = await createServerBrowserPage(browser, {
+            page = await newPage({
               locale: "zh-CN",
               viewport: { width: 1440, height: 1000 },
             });
@@ -804,7 +804,7 @@ export class LiepinJobSourceAdapter {
         detailsOnCurrentPage += 1;
         if (detailsOnCurrentPage >= 5 && browser) {
           await page.close().catch(() => {});
-          page = await createServerBrowserPage(browser, {
+          page = await newPage({
             locale: "zh-CN",
             viewport: { width: 1440, height: 1000 },
           });
