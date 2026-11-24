@@ -19,7 +19,7 @@
  */
 
 import type { Browser, Page } from "playwright";
-import { createServerBrowserPage, launchServerBrowser } from "@/lib/server-browser";
+import { createServerBrowserPageWithRecovery, launchServerBrowser } from "@/lib/server-browser";
 import { createRawJob } from "./job-source";
 import { deduplicateJobs } from "./job-dedup";
 import type { FetchResult, JobSource, RawJob } from "./job-source-types";
@@ -802,6 +802,17 @@ export class FiftyOneJobSourceAdapter {
     const knownUrls = new Set<string>();
     let browser: Browser | undefined;
     let detailPage: Page | undefined;
+    const browserOptions = { headless: options.headless ?? true };
+    const newPage = (pageOptions: Parameters<Browser["newPage"]>[0] = {}) =>
+      createServerBrowserPageWithRecovery(
+        browser,
+        browserOptions,
+        (replacement) => {
+          browser = replacement;
+          detailPage = undefined;
+        },
+        pageOptions,
+      );
     let detailsOnCurrentPage = 0;
     let stopAll = false;
 
@@ -873,7 +884,7 @@ export class FiftyOneJobSourceAdapter {
             await new Promise((resolve) => setTimeout(resolve, detailDelayMs));
             if (detailsOnCurrentPage >= 5 && browser) {
               await detailPage.close().catch(() => {});
-              detailPage = await createServerBrowserPage(browser, {
+              detailPage = await newPage({
                 locale: "zh-CN",
                 viewport: { width: 1440, height: 1000 },
               });
@@ -896,7 +907,7 @@ export class FiftyOneJobSourceAdapter {
     };
 
     try {
-      browser = await launchServerBrowser({ headless: options.headless ?? true });
+      browser = await launchServerBrowser(browserOptions);
       detailPage = await createServerBrowserPage(browser, {
         locale: "zh-CN",
         viewport: { width: 1440, height: 1000 },
