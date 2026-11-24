@@ -7,7 +7,7 @@
  * Liepin failure is returned as a Liepin-only FetchResult.
  */
 import type { Browser, Page } from "playwright";
-import { createServerBrowserPage, launchServerBrowser } from "@/lib/server-browser";
+import { createServerBrowserPageWithRecovery, launchServerBrowser } from "@/lib/server-browser";
 import { createRawJob } from "./job-source";
 import { deduplicateJobs } from "./job-dedup";
 import type { FetchResult, JobSource, RawJob } from "./job-source-types";
@@ -521,16 +521,26 @@ export class LiepinJobSourceAdapter {
     let detailIncomplete = false;
     let browser: Browser | undefined;
     let page: Page | undefined;
+    const browserOptions = { headless: options.headless ?? false };
+    const newPage = (pageOptions: Parameters<Browser["newPage"]>[0] = {}) =>
+      createServerBrowserPageWithRecovery(
+        browser,
+        browserOptions,
+        (replacement) => {
+          browser = replacement;
+        },
+        pageOptions,
+      );
     let detailsOnCurrentPage = 0;
     let stopOnRestriction = false;
 
     try {
-      browser = await launchServerBrowser({ headless: options.headless ?? false });
+      browser = await launchServerBrowser(browserOptions);
       const cityCount = new Set(searches.map((search) => search.city).filter(Boolean)).size || 1;
       const perCityTarget = Math.max(1, Math.ceil(targetCount / cityCount));
       const collectedByCity = new Map<string, number>();
       const exhaustedSearchKeys = new Set<string>();
-      page = await createServerBrowserPage(browser, {
+      page = await newPage({
         locale: "zh-CN",
         viewport: { width: 1440, height: 1000 },
       });
