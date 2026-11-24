@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { AppShell, PageHeading } from "@/components/app-shell";
 import { AICareerProfileCard } from "@/components/ai-career-profile";
@@ -55,6 +55,7 @@ function MatchingPage() {
   } = useWorkspace();
   const [discovering, setDiscovering] = useState(false);
   const [discoveringLiepin, setDiscoveringLiepin] = useState(false);
+  const scrapeBusyRef = useRef(false);
   const [discoveryMessage, setDiscoveryMessage] = useState<string | null>(null);
   const [liepinDiscoveryMessage, setLiepinDiscoveryMessage] = useState<string | null>(null);
   const [keywordInput, setKeywordInput] = useState("AI产品经理, AI产品助理");
@@ -71,6 +72,7 @@ function MatchingPage() {
   useEffect(() => setPage(1), [filter, track]);
 
   async function discover51Job() {
+    if (scrapeBusyRef.current) return;
     const keywords = keywordInput
       .split(/[，,、\n]+/)
       .map((keyword) => keyword.trim())
@@ -82,6 +84,7 @@ function MatchingPage() {
     if (!Number.isInteger(targetCount) || targetCount < 1 || targetCount > 500) {
       return setDiscoveryMessage("抓取数量必须是 1 到 500 之间的整数。");
     }
+    scrapeBusyRef.current = true;
     setDiscovering(true);
     setDiscoveryMessage(null);
     try {
@@ -128,10 +131,12 @@ function MatchingPage() {
       setDiscoveryMessage(error instanceof Error ? error.message : "51岗位搜索 failed.");
     } finally {
       setDiscovering(false);
+      scrapeBusyRef.current = false;
     }
   }
 
   async function discoverLiepin() {
+    if (scrapeBusyRef.current) return;
     const keywords = keywordInput
       .split(/[，,、\n]+/)
       .map((keyword) => keyword.trim())
@@ -143,6 +148,7 @@ function MatchingPage() {
     if (!Number.isInteger(targetCount) || targetCount < 1 || targetCount > 100) {
       return setLiepinDiscoveryMessage("猎聘每次最多抓取 100 个岗位。");
     }
+    scrapeBusyRef.current = true;
     setDiscoveringLiepin(true);
     setLiepinDiscoveryMessage(null);
     try {
@@ -229,6 +235,7 @@ function MatchingPage() {
       setLiepinDiscoveryMessage(error instanceof Error ? error.message : "猎聘岗位搜索失败。");
     } finally {
       setDiscoveringLiepin(false);
+      scrapeBusyRef.current = false;
     }
   }
 
@@ -299,7 +306,7 @@ function MatchingPage() {
             <button
               type="button"
               onClick={discover51Job}
-              disabled={discovering}
+              disabled={discovering || discoveringLiepin}
               className="rounded-lg bg-azure px-3 py-1.5 text-xs font-semibold text-cream hover:bg-azure-deep disabled:opacity-50"
             >
               {discovering ? "搜索中…" : "搜索前程无忧"}
@@ -307,7 +314,7 @@ function MatchingPage() {
             <button
               type="button"
               onClick={discoverLiepin}
-              disabled={discoveringLiepin}
+              disabled={discovering || discoveringLiepin}
               className="rounded-lg bg-azure px-3 py-1.5 text-xs font-semibold text-cream hover:bg-azure-deep disabled:opacity-50"
             >
               {discoveringLiepin ? "搜索中…请查看浏览器" : "搜索猎聘"}
