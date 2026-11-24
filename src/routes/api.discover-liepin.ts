@@ -101,16 +101,18 @@ export const Route = createFileRoute("/api/discover-liepin")({
             : [];
           const { createLiepinJobSourceAdapter } = await import("@/lib/liepin-source-adapter");
           const { runSerializedScrape } = await import("@/lib/server-scrape-lock");
-          const result = await runSerializedScrape(() => createLiepinJobSourceAdapter().discover({
-            searches,
-            refreshJobs,
-            targetCount,
-            maxPagesPerSearch: 10,
-            delayMs: 2000,
-            headless: false,
-            excludeExternalIds,
-            excludeSignatures,
-          }));
+          const result = await runSerializedScrape(() =>
+            createLiepinJobSourceAdapter().discover({
+              searches,
+              refreshJobs,
+              targetCount,
+              maxPagesPerSearch: 10,
+              delayMs: 2000,
+              headless: false,
+              excludeExternalIds,
+              excludeSignatures,
+            }),
+          );
           return Response.json({ ...result, requestedTargetCount: targetCount });
         } catch (error) {
           return Response.json(
